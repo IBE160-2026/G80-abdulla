@@ -1,0 +1,33 @@
+---
+topic: LocalFix PRD
+updated: 2026-10-11T22:43
+---
+
+- (decision by user) Stakes: skoleprosjekt (IBE160, 15 studiepoeng) men bruker onsker A-karakter og mulig videre bruk/utvikling etter kurset - kalibrerer PRD mot internt-verktoy-niva rigor (5-8 sider), ikke minimalt hobby-niva
+- (note) Ingen andre kilder enn den ferdige product brief'en (brief.md + addendum.md)
+- (decision by user) Bruker byttet fra coaching-spor til hurtigspor (antagelse-modus) midt i Discovery etter gjentatte 'hva anbefaler du'-signaler
+- (decision) Entry point: Journey-ledet, bekreftet av bruker etter anbefaling
+- (assumption) UJ-1 (Kari registrerer rapport) foreslatt av assistenten og akseptert av bruker uten endringer
+- (assumption) Ingen eksplisitt auth i brief - antar enkel brukerkonto (Supabase Auth) kreves for a registrere/bekrefte/endre status, for a hindre duplikate bekreftelser fra samme person
+- (assumption) Statusoppdatering (Under behandling/Lost) antas gjort av rapportoren selv i v1 - ingen moderator-rolle definert i brief
+- (assumption) KI-aksept-mal satt til >70% uten endring - ingen tall gitt i brief
+- (assumption) Supabase free tier antas tilstrekkelig for prosjektperioden (kostnadsantagelse for soloprosjekt)
+- (assumption) Lokasjon/personvern og spam-moderasjon-mekanisme ikke spesifisert i brief - flagget som apne sporsmal fremfor a antas
+- (event) Full PRD-draft skrevet (0-12 seksjoner) fra brief.md + assumption-mode; 12 punkter i Antagelsesindeks og 6 Apne sporsmal klare for brukergjennomgang
+- (decision by user) Bruker ba om a holde alt enkelt - forkastet forslagene om utvidet statusrettighet (B), adressegeneralisering og rapporter-knapp; beholder de opprinnelige enkleste antagelsene
+- (decision) Sporsmal 1,2,3,5,6 avgjort med enkleste alternativ: kun rapportor endrer status, adresse vises som skrevet, innlogging kreves, kun manuell bekreftelse (ingen duplikat-deteksjon), ingen aktiv moderasjon utover rate-limiting. Sporsmal 4 (KI-tjenestevalg) forblir apent, utsatt til arkitektur-fasen
+- (event) PRD oppdatert med forenklede avgjorelser; Apne sporsmal redusert fra 6 til 1 (KI-tjenestevalg, utsatt til arkitektur-fasen)
+- (event) Update startet: endringssignal er oppdatert brief (2026-10-11) etter faglærers tilbakemelding
+- (override) Status endres nå kun av moderator, ikke rapportør; reverserer tidligere beslutning fordi faglærer ba om avklarte roller og bruker valgte moderatorrolle i briefen
+- (override) Moderator kan skjule upassende rapporter; reverserer 'ingen aktiv moderasjon' (personvern for bilder/adresser)
+- (override) Filtrering (kategori, status) og sortering (bekreftelser, dato) inn i v1; var ute av omfang, faglærer foreslo utvidelse
+- (override) KI-mål endret fra >70% aksept til testsett 20 beskrivelser med fasit, minst 16 riktige (testbart)
+- (override) Persona Kari/boligområde byttet til Ida/campus Molde; Supabase gratisnivå byttet til lokal Supabase + KI-mock for kjøring uten nøkler
+- (decision) (by user) Moderator flytter status ett steg av gangen, både fram og tilbake; ingen hopp
+- (decision) (by user) Skjulte rapporter er kun synlige for moderator, som kan vise dem igjen
+- (decision) (by user) Beskrivelse og lokasjon obligatorisk, bilde valgfritt
+- (decision) (by user) PRD, brief og addendum legges i docs/-mappe i repoet G80-abdulla
+- (decision) Teknisk-hvordan (lokal Supabase, mock-modus, .env.example) flyttet til PRD-addendum.md
+- (event) PRD finalized (oppdatert etter ny brief); reviewer-pass og bmad-review-polish ikke kjørt, tilbudt bruker
+- (decision) (by user) Språkmodell: alternativ A - leverandør med gratisnivå som faglærer ba om; valg av konkret leverandør utsatt til arkitektur, bak grensesnitt med mock
+- (decision) (by user) Moderator: rollekolonne med standard bruker, ferdig moderatorkonto i seed-data, opprykk via SQL dokumentert i README; ingen admin-side i v1
