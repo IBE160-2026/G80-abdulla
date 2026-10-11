@@ -20,6 +20,18 @@ Teknisk bakgrunn og retning til arkitekturfasen. PRD-en beskriver *hva* som skal
 - Supabase Row Level Security, eller tilsvarende kontroll på serveren, håndhever moderatorhandlinger og regelen om én bekreftelse per bruker.
 - En unik databasebegrensning på (rapport, bruker) i bekreftelsestabellen gjør regelen om én bekreftelse robust, også når to forespørsler kommer samtidig.
 
+## Moderatorrolle
+
+- Profiltabellen har en rollekolonne (`bruker` | `moderator`) med `bruker` som standard. Row Level Security hindrer brukere i å endre sin egen rolle.
+- Seed-dataene oppretter en moderatorkonto, for eksempel `moderator@localfix.test`, og innloggingen står i README.
+- En ekte bruker gjøres til moderator med én SQL-setning i Supabase Studio. README dokumenterer setningen.
+
+## Valg av språkmodell
+
+- Faglæreren krever en løsning med gratisnivå (alternativ A, valgt 2026-10-11). Vi sammenligner leverandører med gratisnivå i arkitekturfasen og sjekker gjeldende vilkår, fordi de endrer seg ofte.
+- Kandidatene vurderes på om de har et stabilt gratisnivå, om de kan gi strukturert eller JSON-svar slik at kategorien alltid er en av de fem, på resultatet mot KI-testsettet og på SDK-støtte i TypeScript.
+- Integrasjonen legges bak et lite grensesnitt med en mock-implementasjon, så leverandøren kan byttes uten at resten av appen må endres.
+
 ## KI-testsett (SM-5)
 
 - 20 beskrivelser, 4 per kategori, lagret som en datafil med fasit

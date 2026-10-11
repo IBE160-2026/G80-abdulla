@@ -237,8 +237,10 @@ Det er ingen egen profilside eller administrasjonsside i v1. Moderatoren gjør a
 
 ## 11. Åpne spørsmål
 
-1. **Hvilken språkmodell og hvilken leverandør?** Den må ha et gratisnivå (NFR-7). Spørsmålet avgjøres i arkitekturfasen (`bmad-architecture`).
-2. **Hvordan blir noen moderator i praksis?** Én moderatorkonto i testdataene er nok for v1. Om moderatorer skal kunne utnevne andre, vurderes bare hvis det blir tid.
+1. **Hvilken språkmodell og hvilken leverandør?** Leverandøren må ha et gratisnivå (NFR-7), slik faglæreren ba om. Gjeldende gratisvilkår sjekkes, og leverandøren velges i arkitekturfasen (`bmad-architecture`). KI-testsettet (SM-5) brukes til å bekrefte at valget når minst 16 av 20.
+
+**Avgjort 2026-10-11:**
+- **Hvordan blir noen moderator?** Hver bruker har en rolle, og «bruker» er standard. Testdataene oppretter én ferdig moderatorkonto, som README oppgir innloggingen til, så sensor kan teste moderatorflyten med én gang. En ekte bruker gjøres til moderator direkte i databasen, og README beskriver hvordan. Det er ingen side for å administrere moderatorer i v1, og en bruker kan aldri endre sin egen rolle.
 
 ## 12. Antagelsesindeks
 
