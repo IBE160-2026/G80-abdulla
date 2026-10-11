@@ -19,7 +19,7 @@ Logg over hvordan KI (Claude Code med BMAD-skills) er brukt i prosjektet. Hver �
 - Hurtigsporet i PRD-en, med antagelser jeg gikk gjennom etterpå.
 - Hold v1 enkel: KI-en foreslo utvidet statusrett, generalisering av adresser og en «rapporter»-knapp. Jeg avviste alle tre (se `prd-beslutningslogg.md`).
 
-**Commits:** `08676b0`, `f38a9fa`
+**Commits:** `08676b0`, `f38a9fa` (lastet opp 2026-09-21)
 
 ---
 
@@ -36,7 +36,7 @@ Logg over hvordan KI (Claude Code med BMAD-skills) er brukt i prosjektet. Hver �
 - filtrering og sortering som utvidelse, ikke duplikatsjekk (den er parkert)
 - lokal Supabase og KI-mock
 
-**Rettet underveis:** KI-en hadde skrevet at bilde var obligatorisk. Jeg gjorde det valgfritt i PRD-arbeidet, og briefen ble rettet etterpå.
+**Rettet underveis:** Briefen sa «registrere en rapport med bilde», og den første PRD-en antok at bilde var obligatorisk. I PRD-arbeidet bestemte jeg at bilde skal være valgfritt, og briefen ble rettet slik at de to dokumentene sier det samme.
 
 **Commit:** `23431d8`
 
