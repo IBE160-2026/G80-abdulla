@@ -53,7 +53,7 @@ Det kreves innlogging for å registrere og bekrefte. Det hindrer at én person b
 
 **I omfang (v1 / MVP):**
 - Innlogging med to roller: bruker og moderator
-- Registrere en rapport med bilde, kategori, kort beskrivelse og lokasjon som tekst eller adresse
+- Registrere en rapport med kort beskrivelse, lokasjon som tekst eller adresse, kategori og valgfritt bilde
 - Se liste over alle rapporter og en detaljside per rapport
 - Markere «jeg har også sett dette» (én bekreftelse per bruker)
 - Statusflyt Ny → Under behandling → Løst, som bare moderator kan endre
@@ -76,7 +76,7 @@ Bilder kan vise personer eller bilskilt, og adresser kan være personopplysninge
 
 ## Suksesskriterier
 
-- En innlogget bruker kan registrere en rapport med bilde og se den i lista.
+- En innlogget bruker kan registrere en rapport, med eller uten bilde, og se den i lista.
 - En annen bruker kan bekrefte rapporten. Telleren øker med én, og samme bruker kan ikke bekrefte to ganger.
 - Bare moderator kan endre status, og endringen vises for alle brukere.
 - Filtrering og sortering gir riktig resultat på et kjent testdatasett.
