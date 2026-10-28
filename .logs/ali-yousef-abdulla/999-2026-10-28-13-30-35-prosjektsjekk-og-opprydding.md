@@ -35,3 +35,22 @@ Brukeren ba om en ny helhetssjekk av lokal arbeidskopi, prosjektmappe og GitHub,
 
 ### Åpne punkter
 - Ingen.
+
+## 2026-10-28 kl. 14:15 — Ali Yousef Abdulla
+
+### Oppgave
+Brukeren la merke til at repoet har mange flere filer enn faglærerens, og ville ha BMAD-dokumentene synlig i `docs/planning-artifacts/` som tidligere, ikke i den skjulte `.docs/`.
+
+### Plan
+- Telle filer per mappe for å forklare forskjellen (243 av 303 sporede filer ligger i `.claude/`, hovedsakelig 40 skills).
+- Flytte `.docs/planning-artifacts/` til `docs/planning-artifacts/`, peke BMAD-konfigurasjonen dit og rette referansene i README.
+
+### Resultat
+- `git mv .docs/planning-artifacts docs/planning-artifacts`; `.docs/` er borte.
+- `output_folder` i `_bmad/config.toml`, `_bmad/bmm/config.yaml`, `_bmad/cis/config.yaml` og `_bmad/core/config.yaml` er endret fra `{project-root}/.docs` til `{project-root}/docs`.
+- README og `docs/beslutninger/README.md` er oppdatert (avsnittet fra forrige økt om hovedkopi er skrevet om, siden `docs/` nå også er BMAD-ens mappe).
+- Committet på `docs/hovedkopi-planleggingsdokumenter`, ikke pushet.
+
+### Åpne punkter
+- Brukeren avgjør om `.claude/skills` og `_bmad` skal bli i repoet (se forklaring) eller gitignores.
+- `docs/` har nå dobbelt innhold: de flate kopiene (`docs/prd.md` osv.) og originalene i `docs/planning-artifacts/`. Avgjøre om kopiene skal bli.
