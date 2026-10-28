@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="no">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LocalFix fargetemaer</title>
+<style>
+/* Felles: systemfont, lys modus, rolig og saklig */
+* { box-sizing: border-box; }
+body { margin: 0; padding: 24px 16px; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background: #ECECEC; color: #1A1A1A; }
+h1 { font-size: 22px; margin: 0 0 4px; }
+.intro { margin: 0 0 24px; color: #555; max-width: 70ch; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
+.theme { background: var(--bg); border-radius: 12px; padding: 20px; border: 1px solid var(--border); }
+.theme h2 { margin: 0; font-size: 18px; color: var(--fg); }
+.theme .reg { margin: 2px 0 14px; font-size: 14px; color: var(--muted); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+.chip { font-size: 11px; padding: 4px 8px; border-radius: 6px; border: 1px solid rgba(0,0,0,.08); }
+/* Mobil-snippet */
+.phone { background: var(--bg); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; max-width: 360px; }
+.bar { background: var(--primary); color: var(--primary-fg); padding: 12px 14px; font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
+.bar small { font-weight: 400; opacity: .85; }
+.filters { display: flex; gap: 6px; padding: 10px 12px; border-bottom: 1px solid var(--border); background: var(--surface); }
+.f { font-size: 12px; padding: 5px 10px; border-radius: 999px; border: 1px solid var(--border); color: var(--fg); background: var(--bg); }
+.f.on { background: var(--primary); color: var(--primary-fg); border-color: var(--primary); }
+.card { padding: 12px 14px; border-bottom: 1px solid var(--border); background: var(--surface); }
+.row { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.cat { font-size: 12px; color: var(--muted); }
+.title { margin: 4px 0; font-size: 15px; color: var(--fg); font-weight: 600; }
+.meta { font-size: 12px; color: var(--muted); }
+.badge { font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 999px; white-space: nowrap; }
+.b-new { background: var(--new-bg); color: var(--new-fg); }
+.b-prog { background: var(--prog-bg); color: var(--prog-fg); }
+.b-done { background: var(--done-bg); color: var(--done-fg); }
+.actions { padding: 12px 14px; display: flex; gap: 8px; background: var(--surface); }
+.btn { flex: 1; text-align: center; padding: 10px; border-radius: 8px; font-size: 14px; font-weight: 600; }
+.btn-p { background: var(--primary); color: var(--primary-fg); }
+.btn-s { background: var(--bg); color: var(--primary); border: 1px solid var(--primary); }
+
+/* 1 Fjordblå
+   primary #1F4E79  primary-fg #FFFFFF  bg #F5F7FA  surface #FFFFFF  fg #17212B  muted #5B6773  border #DCE2E8
+   new #E3EEF9/#1F4E79  prog #FFF1D6/#7A4B00  done #E2F3E6/#1E6B34 */
+.t1 { --primary:#1F4E79; --primary-fg:#FFFFFF; --bg:#F5F7FA; --surface:#FFFFFF; --fg:#17212B; --muted:#5B6773; --border:#DCE2E8;
+      --new-bg:#E3EEF9; --new-fg:#1F4E79; --prog-bg:#FFF1D6; --prog-fg:#7A4B00; --done-bg:#E2F3E6; --done-fg:#1E6B34; }
+
+/* 2 Skifer og havgrønn
+   primary #0F766E  primary-fg #FFFFFF  bg #F4F5F6  surface #FFFFFF  fg #1E2326  muted #5F676D  border #DDE1E4
+   new #E6F0EF/#0F5F59  prog #FDF0DC/#7C4A03  done #E7F2E3/#2F6B22 */
+.t2 { --primary:#0F766E; --primary-fg:#FFFFFF; --bg:#F4F5F6; --surface:#FFFFFF; --fg:#1E2326; --muted:#5F676D; --border:#DDE1E4;
+      --new-bg:#E6F0EF; --new-fg:#0F5F59; --prog-bg:#FDF0DC; --prog-fg:#7C4A03; --done-bg:#E7F2E3; --done-fg:#2F6B22; }
+
+/* 3 Mose
+   primary #3F6B4E  primary-fg #FFFFFF  bg #F6F6F2  surface #FFFFFF  fg #1F241F  muted #5E665E  border #DFE2DA
+   new #E4ECF5/#2D4F73  prog #F8EDD8/#73500F  done #E3EEE5/#2F5A3B */
+.t3 { --primary:#3F6B4E; --primary-fg:#FFFFFF; --bg:#F6F6F2; --surface:#FFFFFF; --fg:#1F241F; --muted:#5E665E; --border:#DFE2DA;
+      --new-bg:#E4ECF5; --new-fg:#2D4F73; --prog-bg:#F8EDD8; --prog-fg:#73500F; --done-bg:#E3EEE5; --done-fg:#2F5A3B; }
+
+/* 4 Blekk og signal
+   primary #1C1C1E  primary-fg #FFFFFF  accent/signal #C2410C  bg #F7F7F5  surface #FFFFFF  fg #1C1C1E  muted #5C5C60  border #E2E2DE
+   new #FDE8DD/#9A3412  prog #EDEDF0/#3A3A40  done #E3F1E6/#256B36 */
+.t4 { --primary:#1C1C1E; --primary-fg:#FFFFFF; --bg:#F7F7F5; --surface:#FFFFFF; --fg:#1C1C1E; --muted:#5C5C60; --border:#E2E2DE;
+      --new-bg:#FDE8DD; --new-fg:#9A3412; --prog-bg:#EDEDF0; --prog-fg:#3A3A40; --done-bg:#E3F1E6; --done-fg:#256B36; }
+.t4 .bar { border-bottom: 3px solid #C2410C; }
+.t4 .btn-p { background:#C2410C; }
+</style>
+</head>
+<body>
+<h1>LocalFix: fire fargetemaer</h1>
+<p class="intro">Alle fire er rolige og saklige, i lys modus. Skjermen er en mobilvisning (360 px) av rapportlista. Statusfargene (Ny, Under behandling, Løst) er tilpasset hvert tema. Velg ett tema, eller si hva du vil blande.</p>
+
+<div class="grid">
+
+<section class="theme t1">
+  <h2>1 · Fjordblå</h2>
+  <p class="reg">Pålitelig og offentlig. Dyp blå med nøytrale gråtoner, inspirert av fjorden i Molde.</p>
+  <div class="chips">
+    <span class="chip" style="background:#1F4E79;color:#fff">primary #1F4E79</span>
+    <span class="chip" style="background:#F5F7FA">bg #F5F7FA</span>
+    <span class="chip" style="background:#5B6773;color:#fff">muted #5B6773</span>
+    <span class="chip" style="background:#E3EEF9;color:#1F4E79">Ny</span>
+    <span class="chip" style="background:#FFF1D6;color:#7A4B00">Under behandling</span>
+    <span class="chip" style="background:#E2F3E6;color:#1E6B34">Løst</span>
+  </div>
+  <div class="phone">
+    <div class="bar">LocalFix <small>Campus Molde</small></div>
+    <div class="filters"><span class="f on">Alle</span><span class="f">Belysning</span><span class="f">Ny</span><span class="f">Flest bekreftelser</span></div>
+    <div class="card"><div class="row"><span class="cat">Belysning</span><span class="badge b-new">Ny</span></div>
+      <p class="title">Gatelys mørkt ved gangveien mot campus</p><div class="meta">5 har sett dette · 2 dager siden</div></div>
+    <div class="card"><div class="row"><span class="cat">Vei og fortau</span><span class="badge b-prog">Under behandling</span></div>
+      <p class="title">Hull i fortauet utenfor bygg A</p><div class="meta">3 har sett dette · 1 uke siden</div></div>
+    <div class="card"><div class="row"><span class="cat">Søppel</span><span class="badge b-done">Løst</span></div>
+      <p class="title">Full søppelkasse ved busstoppet</p><div class="meta">8 har sett dette · 2 uker siden</div></div>
+    <div class="actions"><span class="btn btn-s">Jeg har også sett dette</span><span class="btn btn-p">+ Registrer</span></div>
+  </div>
+</section>
+
+<section class="theme t2">
+  <h2>2 · Skifer og havgrønn</h2>
+  <p class="reg">Moderne og nøktern. Kjølig grå flate med havgrønn som handlingsfarge.</p>
+  <div class="chips">
+    <span class="chip" style="background:#0F766E;color:#fff">primary #0F766E</span>
+    <span class="chip" style="background:#F4F5F6">bg #F4F5F6</span>
+    <span class="chip" style="background:#5F676D;color:#fff">muted #5F676D</span>
+    <span class="chip" style="background:#E6F0EF;color:#0F5F59">Ny</span>
+    <span class="chip" style="background:#FDF0DC;color:#7C4A03">Under behandling</span>
+    <span class="chip" style="background:#E7F2E3;color:#2F6B22">Løst</span>
+  </div>
+  <div class="phone">
+    <div class="bar">LocalFix <small>Campus Molde</small></div>
+    <div class="filters"><span class="f on">Alle</span><span class="f">Belysning</span><span class="f">Ny</span><span class="f">Flest bekreftelser</span></div>
+    <div class="card"><div class="row"><span class="cat">Belysning</span><span class="badge b-new">Ny</span></div>
+      <p class="title">Gatelys mørkt ved gangveien mot campus</p><div class="meta">5 har sett dette · 2 dager siden</div></div>
+    <div class="card"><div class="row"><span class="cat">Vei og fortau</span><span class="badge b-prog">Under behandling</span></div>
+      <p class="title">Hull i fortauet utenfor bygg A</p><div class="meta">3 har sett dette · 1 uke siden</div></div>
+    <div class="card"><div class="row"><span class="cat">Søppel</span><span class="badge b-done">Løst</span></div>
+      <p class="title">Full søppelkasse ved busstoppet</p><div class="meta">8 har sett dette · 2 uker siden</div></div>
+    <div class="actions"><span class="btn btn-s">Jeg har også sett dette</span><span class="btn btn-p">+ Registrer</span></div>
+  </div>
+</section>
+
+<section class="theme t3">
+  <h2>3 · Mose</h2>
+  <p class="reg">Jordnær og lokal. Dempet grønn og varm, off-white bakgrunn.</p>
+  <div class="chips">
+    <span class="chip" style="background:#3F6B4E;color:#fff">primary #3F6B4E</span>
+    <span class="chip" style="background:#F6F6F2">bg #F6F6F2</span>
+    <span class="chip" style="background:#5E665E;color:#fff">muted #5E665E</span>
+    <span class="chip" style="background:#E4ECF5;color:#2D4F73">Ny</span>
+    <span class="chip" style="background:#F8EDD8;color:#73500F">Under behandling</span>
+    <span class="chip" style="background:#E3EEE5;color:#2F5A3B">Løst</span>
+  </div>
+  <div class="phone">
+    <div class="bar">LocalFix <small>Campus Molde</small></div>
+    <div class="filters"><span class="f on">Alle</span><span class="f">Belysning</span><span class="f">Ny</span><span class="f">Flest bekreftelser</span></div>
+    <div class="card"><div class="row"><span class="cat">Belysning</span><span class="badge b-new">Ny</span></div>
+      <p class="title">Gatelys mørkt ved gangveien mot campus</p><div class="meta">5 har sett dette · 2 dager siden</div></div>
+    <div class="card"><div class="row"><span class="cat">Vei og fortau</span><span class="badge b-prog">Under behandling</span></div>
+      <p class="title">Hull i fortauet utenfor bygg A</p><div class="meta">3 har sett dette · 1 uke siden</div></div>
+    <div class="card"><div class="row"><span class="cat">Søppel</span><span class="badge b-done">Løst</span></div>
+      <p class="title">Full søppelkasse ved busstoppet</p><div class="meta">8 har sett dette · 2 uker siden</div></div>
+    <div class="actions"><span class="btn btn-s">Jeg har også sett dette</span><span class="btn btn-p">+ Registrer</span></div>
+  </div>
+</section>
+
+<section class="theme t4">
+  <h2>4 · Blekk og signal</h2>
+  <p class="reg">Stram og redaksjonell. Nesten svart, med signaloransje bare på handlinger og nye saker.</p>
+  <div class="chips">
+    <span class="chip" style="background:#1C1C1E;color:#fff">primary #1C1C1E</span>
+    <span class="chip" style="background:#C2410C;color:#fff">signal #C2410C</span>
+    <span class="chip" style="background:#F7F7F5">bg #F7F7F5</span>
+    <span class="chip" style="background:#FDE8DD;color:#9A3412">Ny</span>
+    <span class="chip" style="background:#EDEDF0;color:#3A3A40">Under behandling</span>
+    <span class="chip" style="background:#E3F1E6;color:#256B36">Løst</span>
+  </div>
+  <div class="phone">
+    <div class="bar">LocalFix <small>Campus Molde</small></div>
+    <div class="filters"><span class="f on">Alle</span><span class="f">Belysning</span><span class="f">Ny</span><span class="f">Flest bekreftelser</span></div>
+    <div class="card"><div class="row"><span class="cat">Belysning</span><span class="badge b-new">Ny</span></div>
+      <p class="title">Gatelys mørkt ved gangveien mot campus</p><div class="meta">5 har sett dette · 2 dager siden</div></div>
+    <div class="card"><div class="row"><span class="cat">Vei og fortau</span><span class="badge b-prog">Under behandling</span></div>
+      <p class="title">Hull i fortauet utenfor bygg A</p><div class="meta">3 har sett dette · 1 uke siden</div></div>
+    <div class="card"><div class="row"><span class="cat">Søppel</span><span class="badge b-done">Løst</span></div>
+      <p class="title">Full søppelkasse ved busstoppet</p><div class="meta">8 har sett dette · 2 uker siden</div></div>
+    <div class="actions"><span class="btn btn-s">Jeg har også sett dette</span><span class="btn btn-p">+ Registrer</span></div>
+  </div>
+</section>
+
+</div>
+</body>
+</html>
