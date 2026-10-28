@@ -17,3 +17,21 @@ Brukeren ba om en sjekk av at alt stemmer med prosjektet (LocalFix, G80), og ba 
 
 ### Åpne punkter
 - Avgjøre hvilken kopi som er hovedkopi av planleggingsdokumentene (`docs/` eller `.docs/planning-artifacts/`) og skrive det i README, så kopiene ikke kommer ut av synk.
+
+## 2026-10-28 kl. 14:04 — Ali Yousef Abdulla
+
+### Oppgave
+Brukeren ba om en ny helhetssjekk av lokal arbeidskopi, prosjektmappe og GitHub, og ba deretter om at det åpne punktet fra forrige økt ble løst: skrive i README hvilken kopi som er hovedkopi av planleggingsdokumentene.
+
+### Plan
+- Sjekke git-status, remote, branches og historikk, README-lenker, synk mellom `docs/` og `.docs/planning-artifacts/`, og hemmeligheter i sporede filer.
+- Skrive en setning i README om hovedkopi, på en egen branch, og lukke punktet i `issues.md`.
+
+### Resultat
+- Sjekken: `main` lik `origin/main`, ren arbeidskopi, PR #1–#3 flettet, alle README-lenker gyldige, `docs/prd.md` og `docs/product-brief.md` lik kopiene i `.docs/` (bortsett fra linjeskift), ingen hemmeligheter funnet. `origin/docs/rett-ki-logg-og-loggtyper` er borte fra GitHub. `gh` er ikke innlogget, så PR-er og issues ble ikke lest via GitHub.
+- La til et avsnitt under dokumentasjonstabellen i `README.md`: `docs/` er hovedkopi, `.docs/planning-artifacts/` er BMAD-ens arbeidskopi, og rettelser gjøres i `docs/` og kopieres til `.docs/` ved behov. Committet som `a1f1e4b` på den nye branchen `docs/hovedkopi-planleggingsdokumenter`.
+- Lukket det åpne punktet fra forrige økt i `issues.md`.
+- Branchen er ikke pushet.
+
+### Åpne punkter
+- Ingen.
