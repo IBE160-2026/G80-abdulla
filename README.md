@@ -29,6 +29,8 @@ Det finnes ingen kode ennå. Når det gjør det, får denne README-en en fullste
 | [docs/beslutninger/](docs/beslutninger/) | Fortløpende beslutningslogger fra hver planleggingsfase |
 | [docs/tilbakemeldinger/](docs/tilbakemeldinger/) | Tilbakemeldinger fra faglærer |
 
+`docs/planning-artifacts/` er BMAD-ens arbeidsmappe for brief, PRD, UX og research. Dokumentene i oversikten over er kopier derfra, og kopiene oppdateres når en fase oppdateres.
+
 ## Arbeidsflyt
 
 Planleggingen følger BMAD: product brief → PRD → UX → arkitektur → epics og stories. Implementeringen gjøres med Claude Code. Hver story utvikles i en egen branch og flettes inn via en pull request.

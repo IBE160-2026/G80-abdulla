@@ -16,4 +16,4 @@ Typene i loggene:
 - `event`: en hendelse i prosessen.
 - `note`: en merknad, for eksempel om hvilke kilder en fase bygde på.
 
-Originalene ligger i BMAD-mappen `.docs/planning-artifacts/`, som også ligger i repoet. Kopiene her oppdateres når en fase oppdateres.
+Originalene ligger i BMAD-mappen `docs/planning-artifacts/`. Kopiene her oppdateres når en fase oppdateres.
