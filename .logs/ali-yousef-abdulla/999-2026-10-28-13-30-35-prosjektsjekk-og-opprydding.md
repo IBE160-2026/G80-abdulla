@@ -54,3 +54,22 @@ Brukeren la merke til at repoet har mange flere filer enn faglærerens, og ville
 ### Åpne punkter
 - Brukeren avgjør om `.claude/skills` og `_bmad` skal bli i repoet (se forklaring) eller gitignores.
 - `docs/` har nå dobbelt innhold: de flate kopiene (`docs/prd.md` osv.) og originalene i `docs/planning-artifacts/`. Avgjøre om kopiene skal bli.
+
+## 2026-10-28 kl. 14:19 — Ali Yousef Abdulla
+
+### Oppgave
+Brukeren ba om en ny sjekk av GitHub og prosjektmappen, så om at loggfila ble rettet, at PR-en ble laget og til slutt at PR-en ble flettet.
+
+### Plan
+- Sjekke git-status, remote, branches, BMAD-config, README-lenker, at de flate kopiene i `docs/` er like originalene i `docs/planning-artifacts/`, og hemmeligheter i sporede filer.
+- Rette utdaterte punkter i denne loggfila, pushe, logge inn `gh` og lage og flette PR.
+
+### Resultat
+- Sjekken: arbeidskopien var ren og lik `origin`, BMAD-config pekte overalt på `docs/`, alle README-lenker var gyldige, de ti flate kopiene i `docs/` var byte-for-byte like originalene, ingen hemmeligheter funnet. `.claude/skills` og `_bmad` utgjør rundt 300 av 303 sporede filer.
+- Rettet tre utdaterte linjer i denne fila (om at README-rettelsen ikke var committet, og at branchen ikke var pushet). Committet som `07ffa14` og pushet.
+- `gh` ble logget inn via `gh auth login --web` (konto `alabd0943`, HTTPS).
+- PR #4 «Flytt BMAD-arbeidsmappen til docs/planning-artifacts og angi hovedkopi» opprettet og flettet med flettecommit (`b51605d`). Lokal `main` er oppdatert til `b51605d`.
+- Denne loggen er committet på den nye lokale branchen `logg/prosjektsjekk-pr4`, avgrenet fra `main`, og er ikke pushet.
+
+### Åpne punkter
+- De to eksisterende punktene i `issues.md` gjelder fortsatt (skills og `_bmad` i repoet, og dobbelt innhold i `docs/`).
