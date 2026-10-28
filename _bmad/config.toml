@@ -13,11 +13,11 @@
 [core]
 project_name = "LocalFix"
 document_output_language = "English"
-output_folder = "{project-root}/.docs"
+output_folder = "{project-root}/docs"
 
 [modules.bmm]
-planning_artifacts = "{project-root}/.docs/planning-artifacts"
-implementation_artifacts = "{project-root}/.docs/implementation-artifacts"
+planning_artifacts = "{project-root}/docs/planning-artifacts"
+implementation_artifacts = "{project-root}/docs/implementation-artifacts"
 project_knowledge = "{project-root}/docs"
 
 [modules.cis]

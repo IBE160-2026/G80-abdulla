@@ -29,7 +29,7 @@ Det finnes ingen kode ennå. Når det gjør det, får denne README-en en fullste
 | [docs/beslutninger/](docs/beslutninger/) | Fortløpende beslutningslogger fra hver planleggingsfase |
 | [docs/tilbakemeldinger/](docs/tilbakemeldinger/) | Tilbakemeldinger fra faglærer |
 
-`docs/` er hovedkopien av planleggingsdokumentene. `.docs/planning-artifacts/` er BMAD-ens arbeidskopi av brief, PRD, UX og research. Rett alltid i `docs/`, og kopier endringer til `.docs/` ved behov, så de to ikke kommer ut av synk.
+`docs/planning-artifacts/` er BMAD-ens arbeidsmappe for brief, PRD, UX og research. Dokumentene i oversikten over er kopier derfra, og kopiene oppdateres når en fase oppdateres.
 
 ## Arbeidsflyt
 

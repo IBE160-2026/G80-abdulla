@@ -10,4 +10,4 @@ user_name: Ali Yousef Abdulla
 project_name: LocalFix
 communication_language: English
 document_output_language: English
-output_folder: "{project-root}/.docs"
+output_folder: "{project-root}/docs"
