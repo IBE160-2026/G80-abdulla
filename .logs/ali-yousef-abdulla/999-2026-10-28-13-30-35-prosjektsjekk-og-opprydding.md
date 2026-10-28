@@ -73,3 +73,22 @@ Brukeren ba om en ny sjekk av GitHub og prosjektmappen, så om at loggfila ble r
 
 ### Åpne punkter
 - De to eksisterende punktene i `issues.md` gjelder fortsatt (skills og `_bmad` i repoet, og dobbelt innhold i `docs/`).
+
+## 2026-10-28 kl. 14:33 — Ali Yousef Abdulla
+
+### Oppgave
+Brukeren ba om en sjekk av at alt stemmer på GitHub og PC-en, så om å gå over til `main` og slette den flettede branchen, og til slutt om å ta de to åpne punktene i `issues.md`.
+
+### Plan
+- Sjekke lokal og ekstern git-status, PR-er og issues, og sammenligne de flate kopiene i `docs/` med `docs/planning-artifacts/`.
+- Bytte til `main`, hente `origin/main` og slette `logg/prosjektsjekk-pr4` lokalt og på GitHub.
+- Forklare de to punktene, la brukeren avgjøre, og lukke dem i `issues.md`.
+
+### Resultat
+- Sjekken: PR #1–#5 flettet, ingen åpne PR-er eller issues, alle seks sammenlignede flate kopier i `docs/` byte-identiske med originalene i `docs/planning-artifacts/`.
+- `main` fast-forwardet til `1d21bfa` (flettecommit for PR #5). `logg/prosjektsjekk-pr4` slettet lokalt og på GitHub; nå finnes bare `main` begge steder.
+- Brukeren avgjorde å beholde alt: `.claude/skills` og `_bmad` blir i repoet, og de flate kopiene i `docs/` blir stående ved siden av `docs/planning-artifacts/`. Ingen filer er endret. Begge punktene er avkrysset i `issues.md`.
+- Loggen er committet på den nye lokale branchen `logg/behold-skills-og-docs`, avgrenet fra `main`, og er ikke pushet.
+
+### Åpne punkter
+- Ingen.
