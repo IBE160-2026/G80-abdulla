@@ -19,7 +19,7 @@ Logg over hvordan KI (Claude Code med BMAD-skills) er brukt i prosjektet. Hver �
 - Hurtigsporet i PRD-en, med antagelser jeg gikk gjennom etterpå.
 - Hold v1 enkel: KI-en foreslo utvidet statusrett, generalisering av adresser og en «rapporter»-knapp. Jeg avviste alle tre (se `prd-beslutningslogg.md`).
 
-**Commits:** `08676b0`, `f38a9fa` (lastet opp 2026-09-21)
+**Commits:** `08676b0`, `f38a9fa` (lastet opp 2026-09-21). Disse inneholder bare product briefen. Den første PRD-en ble liggende i BMAD-mappen utenfor repoet og kom inn i repoet først i `ceeedc3` 2026-10-11, da i oppdatert versjon.
 
 ---
 

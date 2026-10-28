@@ -1,0 +1,1 @@
+What competition existes ?
