@@ -2,7 +2,7 @@
 title: LocalFix PRD
 status: final
 created: 2026-09-18
-updated: 2026-10-11
+updated: 2026-10-28
 ---
 
 # PRD: LocalFix
@@ -12,6 +12,8 @@ updated: 2026-10-11
 Dette dokumentet er skrevet for prosjektdeltakeren selv, som er PM, designer og utvikler i én person, og for sensor i IBE160 Programmering med KI. Det bygger på product brief (`product-brief.md`, oppdatert 2026-10-11 etter faglærers tilbakemelding) og gjentar ikke research og resonnement derfra. Konkurrentresearch står i brief-addendumet.
 
 Funksjonene er gruppert, med globalt nummererte funksjonelle krav (FR-N) under hver gruppe. Brukerreiser heter UJ-N og suksessmetrikker SM-N. Tekniske valg, altså *hvordan* noe bygges, står i `prd-addendum.md`, ikke her. Gjenværende antagelser er samlet i §12.
+
+**Endringer 2026-10-28:** Det åpne spørsmålet om KI-leverandør (§11) har fått et foreløpig valg og klare vilkår for å lukkes, basert på ny research. §8 sier nå uttrykkelig at rapportteksten sendes til en ekstern KI-tjeneste. Ingen krav er endret.
 
 **Endringer 2026-10-11:** Moderatorrolle styrer status og kan skjule rapporter. Filtrering og sortering er med i v1. KI-målet er gjort testbart med et testsett. Persona og lokalmiljø er konkretisert til campus Molde. Det er lagt til krav om at sensor kan kjøre appen lokalt uten gruppens nøkler.
 
@@ -208,6 +210,8 @@ Moderator kan skjule en rapport, for eksempel fordi den viser personer eller bil
 - Bilder kan vise personer eller bilskilt. Derfor får brukeren en påminnelse før opplasting (FR-3), og moderator kan skjule rapporter (FR-9).
 - Adressen vises slik brukeren skrev den. Brukeren skal skrive et sted, for eksempel «gangveien ved bygg A», ikke en privatadresse [ANTAGELSE: veiledningstekst i skjemaet].
 - Innlogging og én bekreftelse per bruker begrenser spam og oppblåste tellere.
+- **Rapportteksten sendes til en ekstern KI-tjeneste.** Når KI-forslaget (FR-4) bruker en ekte språkmodell, forlater beskrivelsen brukeren skriver, maskinen og sendes til leverandøren av modellen for å få kategori og oppsummering. Derfor gjelder påminnelsen om å unngå personopplysninger også i beskrivelsesfeltet, ikke bare for bilder og adresser. I mock-modus sendes ingenting ut.
+- **Gemini på gratisnivå brukes ikke med ekte brukerdata.** Googles vilkår krever betalt nivå når tjenesten gjøres tilgjengelig for brukere i EØS, og de sier at gratisinnhold brukes til produktforbedring og kan leses av menneskelige vurderere (se researchen i §11).
 
 ## 9. Overflater
 
@@ -237,7 +241,13 @@ Det er ingen egen profilside eller administrasjonsside i v1. Moderatoren gjør a
 
 ## 11. Åpne spørsmål
 
-1. **Hvilken språkmodell og hvilken leverandør?** Leverandøren må ha et gratisnivå (NFR-7), slik faglæreren ba om. Gjeldende gratisvilkår sjekkes, og leverandøren velges i arkitekturfasen (`bmad-architecture`). KI-testsettet (SM-5) brukes til å bekrefte at valget når minst 16 av 20.
+1. **Hvilken språkmodell og hvilken leverandør?** Leverandøren må ha et gratisnivå (NFR-7), slik faglæreren ba om. **Ikke lukket.**
+   - **Foreløpig valg:** Cloudflare Workers AI med Gemma 4 26B A4B. **Nest beste:** Groq med gpt-oss-120b.
+   - **Grunnlag:** Researchen `docs/planning-artifacts/research/technical-ki-leverandor-gratisniva-norsk-klassifis-2026-10-28/research.md` (2026-10-28). Den fant ingen klar vinner og ingen uavhengig måling av norsk kvalitet for noen kandidat, så valget er en kvalifisert favoritt og ikke en avgjørelse.
+   - **Lukkes når** SM-5-testsettet er kjørt mot Cloudflare, Groq og Mistral, bare med testdata, og vinneren treffer minst 16 av 20, gir gyldig JSON hver gang, svarer på under 5 sekunder (FR-4) og ikke viser dansk eller nynorsk i sammendragene ved en språk-ID-sjekk.
+   - **Avklares før valget:** om Cloudflare krever betalingskort for gratisnivået, hvor Cloudflare kjører inferensen, og hva gratisgrensene hos Groq og Mistral faktisk er i konsollen.
+   - **Utelatt:** Gemini på gratisnivå brukes ikke med ekte brukerdata (se §8).
+   - Leverandøren velges endelig i arkitekturfasen (`bmad-architecture`), bak grensesnittet med mock-modus. Researchen må oppdateres etter 2027-01-28.
 
 **Avgjort 2026-10-11:**
 - **Hvordan blir noen moderator?** Hver bruker har en rolle, og «bruker» er standard. Testdataene oppretter én ferdig moderatorkonto, som README oppgir innloggingen til, så sensor kan teste moderatorflyten med én gang. En ekte bruker gjøres til moderator direkte i databasen, og README beskriver hvordan. Det er ingen side for å administrere moderatorer i v1, og en bruker kan aldri endre sin egen rolle.
