@@ -14,5 +14,6 @@ Typene i loggene:
 - `override`: en tidligere beslutning som ble endret.
 - `change`: en endring i et dokument.
 - `event`: en hendelse i prosessen.
+- `note`: en merknad, for eksempel om hvilke kilder en fase bygde på.
 
 Originalene ligger i BMAD-mappen utenfor repoet (`.docs/planning-artifacts/`). Kopiene her oppdateres når en fase oppdateres.
