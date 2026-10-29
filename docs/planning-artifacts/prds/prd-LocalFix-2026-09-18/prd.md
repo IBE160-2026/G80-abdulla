@@ -2,16 +2,18 @@
 title: LocalFix PRD
 status: final
 created: 2026-09-18
-updated: 2026-10-28
+updated: 2026-10-29
 ---
 
 # PRD: LocalFix
 
 ## 0. Dokumentets formål
 
-Dette dokumentet er skrevet for prosjektdeltakeren selv, som er PM, designer og utvikler i én person, og for sensor i IBE160 Programmering med KI. Det bygger på product brief (`product-brief.md`, oppdatert 2026-10-11 etter faglærers tilbakemelding) og gjentar ikke research og resonnement derfra. Konkurrentresearch står i brief-addendumet.
+Dette dokumentet er skrevet for prosjektdeltakeren selv, som er PM, designer og utvikler i én person, og for sensor i IBE160 Programmering med KI. Det bygger på product brief (`product-brief.md`, oppdatert 2026-10-29) og gjentar ikke research og resonnement derfra. Konkurrentresearch står i brief-addendumet, og research på brukerstemmer og konkurrenter står i `docs/planning-artifacts/research/user-voice-brukerstemmer-og-konkurrenter-for-lokal-2026-10-29/research.md`. Den siste har svakt grunnlag (ingen verifiserte påstander, nesten ingen norske brukerstemmer), så funnene brukes som hypoteser.
 
 Funksjonene er gruppert, med globalt nummererte funksjonelle krav (FR-N) under hver gruppe. Brukerreiser heter UJ-N og suksessmetrikker SM-N. Tekniske valg, altså *hvordan* noe bygges, står i `prd-addendum.md`, ikke her. Gjenværende antagelser er samlet i §12.
+
+**Endringer 2026-10-29:** Visjonen skiller LocalFix tydeligere fra FiksGataMi, som også har kommentar og «bekreft» (§1). Detaljsiden skal vise når statusen sist ble endret (FR-8). Hvem moderator er i praksis, og hva som skjer med en sak moderator ikke kan fikse, er ført som åpent spørsmål (§11). Ingen andre krav er endret.
 
 **Endringer 2026-10-28:** Det åpne spørsmålet om KI-leverandør (§11) har fått et foreløpig valg og klare vilkår for å lukkes, basert på ny research. §8 sier nå uttrykkelig at rapportteksten sendes til en ekstern KI-tjeneste. Ingen krav er endret.
 
@@ -21,9 +23,9 @@ Funksjonene er gruppert, med globalt nummererte funksjonelle krav (FR-N) under h
 
 LocalFix er en responsiv nettapplikasjon (PWA) der folk i et lokalmiljø har ett felles, synlig sted for å rapportere og følge opp problemer de ser rundt seg, som søppel, ødelagte gatelys, hull i veien og farlige fortau. Rapportene samles på ett sted, så alle kan se dem, bekrefte hverandres observasjoner og følge statusen til problemet er løst. Da blir ikke informasjonen sittende hos hver enkelt.
 
-Første versjon er rettet mot campus ved Høgskolen i Molde. Sammenlignbare løsninger (FixMyStreet, SeeClickFix, FiksGataMi og kommunale «Meld feil»-portaler) går fra borger til kommune. LocalFix går fra nabo til nabo og har ingen kommuneintegrasjon i v1.
+Første versjon er rettet mot campus ved Høgskolen i Molde. Sammenlignbare løsninger (FixMyStreet, SeeClickFix, FiksGataMi og kommunale «Meld feil»-portaler) går fra borger til kommune. LocalFix går fra nabo til nabo og har ingen kommuneintegrasjon i v1. FiksGataMi lar også innloggede brukere kommentere og bekrefte at de har sett problemet, som fritekst (funnet på én side, ikke prøvd i praksis). Forskjellen i LocalFix er en én-trykks bekreftelse som teller og sorterer lista, i en lokal og moderert flyt.
 
-Over tid kan løsningen tas i bruk i andre lokalmiljøer, som boligområder og borettslag, og eventuelt få valgfri videresending av saker til kommunen.
+Appen er ikke teknisk låst til campus. Over tid kan løsningen tas i bruk i andre lokalmiljøer, som boligområder og borettslag, og eventuelt få valgfri videresending av saker til kommunen.
 
 ## 2. Målgruppe
 
@@ -162,6 +164,7 @@ Moderator kan flytte status ett steg om gangen, fram eller tilbake: Ny ↔ Under
 **Konsekvenser (testbare):**
 - Hopp direkte fra Ny til Løst, eller fra Løst til Ny, blir avvist.
 - Andre brukere ser den nye statusen neste gang de laster siden. Sanntid er ikke et krav.
+- Tidspunktet for siste statusendring lagres, og detaljsiden viser det som «sist oppdatert». En rapport som aldri har fått ny status, viser tidspunktet den ble registrert.
 - Alle andre enn moderator blir avvist (se FR-2).
 
 #### FR-9: Skjule og vise rapport
@@ -248,6 +251,11 @@ Det er ingen egen profilside eller administrasjonsside i v1. Moderatoren gjør a
    - **Avklares før valget:** om Cloudflare krever betalingskort for gratisnivået, hvor Cloudflare kjører inferensen, og hva gratisgrensene hos Groq og Mistral faktisk er i konsollen.
    - **Utelatt:** Gemini på gratisnivå brukes ikke med ekte brukerdata (se §8).
    - Leverandøren velges endelig i arkitekturfasen (`bmad-architecture`), bak grensesnittet med mock-modus. Researchen må oppdateres etter 2027-01-28.
+
+2. **Hvem er moderator i praksis, og hva skjer med en sak moderator ikke kan fikse?** **Ikke lukket.**
+   - **Grunnlag:** Researchen (2026-10-29) fant ingen kanal ved HiM for hverdagsfeil utendørs, og eierskapet til belysning, gangveier og fortau rundt campus (kommune, fylke, HiM eller Statsbygg) er ikke funnet. Moderator kan oppdatere status, men trolig ikke selv utbedre. Uten en som kan handle, kan **Løst** bli en påstand uten dekning (SM-C2).
+   - **Lukkes når** moderatoren er navngitt (for eksempel studentorganisasjonen, HiM drift eller Statsbygg), og det er avklart hvor en sak sendes videre. Om dette trenger en egen funksjon, for eksempel et felt som viser hvem saken er sendt til, avgjøres etterpå. Det er ikke et krav i v1.
+   - **Avklares med:** HiM, Statsbygg eller kommunen.
 
 **Avgjort 2026-10-11:**
 - **Hvordan blir noen moderator?** Hver bruker har en rolle, og «bruker» er standard. Testdataene oppretter én ferdig moderatorkonto, som README oppgir innloggingen til, så sensor kan teste moderatorflyten med én gang. En ekte bruker gjøres til moderator direkte i databasen, og README beskriver hvordan. Det er ingen side for å administrere moderatorer i v1, og en bruker kan aldri endre sin egen rolle.
