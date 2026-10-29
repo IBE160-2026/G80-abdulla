@@ -17,8 +17,9 @@ Endret `docs/product-brief.md` og synkroniserte `docs/planning-artifacts/briefs/
 - **Fallgruvesetningen:** attribuert til tidligere research (`addendum.md`). Ny research støtter bare «manglende tilbakemelding» og fant ingen data på duplikater og spam.
 - **Moderator:** nytt «Åpent punkt»-avsnitt om at moderatorens identitet og eierskapet til belysning og stier rundt campus er uavklart.
 - **Campus først, ambisjon utover:** Sammendrag sier «ikke teknisk låst til campus og kan tas i bruk andre steder senere», og Visjon sier det samme. «Flere lokalmiljø med egen liste og egen moderator (v1 gjelder campus Molde)» er ført under Ikke i omfang.
+- **PRD (`docs/prd.md`, synkronisert til `docs/planning-artifacts/prds/prd-LocalFix-2026-09-18/prd.md`, ukommittert):** `updated` 2026-10-29 og ny «Endringer 2026-10-29». §0 henviser til briefen og researchen (med forbehold om svakt grunnlag). §1 har differensieringen mot FiksGataMi og setningen «ikke teknisk låst til campus». FR-8 har fått et testbart krav om at tidspunkt for siste statusendring lagres og vises som «sist oppdatert». §11 har nytt åpent spørsmål 2 om hvem moderator er og hva som skjer med en sak moderator ikke kan fikse. Ingen andre krav er endret.
 - **Personvern:** la til at beskrivelsesteksten sendes til ekstern KI-leverandør, at Gemini gratisnivå ikke brukes med ekte data, og at mock-modus ikke sender noe ut (henviser til PRD §8).
 
 ### Åpne punkter
-- PRD er ikke oppdatert med researchen (differensiering i §1, moderatorrolle, «sist oppdatert» på detaljsiden). PRD §1 kan få samme setning som briefens Visjon om at appen ikke er teknisk låst til campus. Arkitekturen er ikke sjekket mot endringene.
+- Arkitekturen og UX mangler «sist oppdatert» fra FR-8: en kolonne for tidspunkt for statusendring (satt av Postgres-funksjonen for statusendring, AD-1) og visning på detaljsiden i `docs/ux/EXPERIENCE.md`. Søk fant ingen slik kolonne i dag.
 - Briefen har fortsatt tre avvik mot PRD som ikke ble tatt: statusflyten kan gå ett steg tilbake (FR-8), rapportøren kan ikke bekrefte egen rapport (FR-7), og KI-leverandør er ikke nevnt i «Teknisk retning».
