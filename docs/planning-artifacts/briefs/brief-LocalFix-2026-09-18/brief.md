@@ -2,14 +2,14 @@
 title: LocalFix Product Brief
 status: final
 created: 2026-09-18
-updated: 2026-10-11
+updated: 2026-10-29
 ---
 
 # Product Brief: LocalFix
 
 ## Sammendrag
 
-LocalFix er en nettbasert løsning der folk i et lokalmiljø kan registrere og dele problemer de ser rundt seg, som søppel, ødelagte gatelys, hull i veien eller farlige fortau. Andre brukere kan se rapportene, bekrefte at de har sett det samme problemet og følge statusen fram til det er løst. Første versjon er rettet mot campus ved Høgskolen i Molde.
+LocalFix er en nettbasert løsning der folk i et lokalmiljø kan registrere og dele problemer de ser rundt seg, som søppel, ødelagte gatelys, hull i veien eller farlige fortau. Andre brukere kan se rapportene, bekrefte at de har sett det samme problemet og følge statusen fram til det er løst. Første versjon er rettet mot campus ved Høgskolen i Molde. Appen er ikke teknisk låst til campus og kan tas i bruk andre steder senere.
 
 LocalFix gir nærmiljøet et felles, synlig sted for denne typen rapportering, uten å være avhengig av at kommunen er involvert.
 
@@ -27,7 +27,9 @@ LocalFix gir brukerne én delt kjerneopplevelse: registrere et problem, se hva a
 
 Sammenlignbare løsninger som FixMyStreet, SeeClickFix, FiksGataMi og kommunale «Meld feil»-portaler er bygget for kommunikasjon fra borger til kommune (se `addendum.md`). LocalFix retter seg i stedet mot kommunikasjon mellom naboer, og har ingen kommuneintegrasjon i v1. Verdien ligger i at folk ser og bekrefter hverandres observasjoner, ikke i en saksbehandlingskø hos en offentlig etat.
 
-Research på disse løsningene viser tre kjente fallgruver: rapporter der statusen aldri oppdateres, duplikater og spam, og brukere som opplever å «rope i tomrommet». LocalFix møter dette med en eksplisitt statusflyt styrt av en moderator, én bekreftelse per innlogget bruker og sortering etter antall bekreftelser.
+Nabobekreftelse er likevel ikke et tomt felt. FiksGataMi lar innloggede brukere kommentere og «bekrefte at de har sett problemet», som fritekst (funnet på én side, ikke prøvd i praksis). Forskjellen i LocalFix er en enkel én-trykks «jeg har også sett dette» som teller og sorterer lista, i en lokal og moderert flyt.
+
+Tidligere research på disse løsningene (`addendum.md`) peker på tre kjente fallgruver: rapporter der statusen aldri oppdateres, duplikater og spam, og brukere som opplever å «rope i tomrommet». LocalFix møter dette med en eksplisitt statusflyt styrt av en moderator, én bekreftelse per innlogget bruker og sortering etter antall bekreftelser. Ny research på brukerstemmer (`docs/planning-artifacts/research/user-voice-brukerstemmer-og-konkurrenter-for-lokal-2026-10-29/research.md`) støtter bare den første fallgruven, manglende tilbakemelding, og bygger i hovedsak på utenlandske kilder. Den fant ingen data på duplikater og spam, og nesten ingen norske brukerstemmer.
 
 ## Hvem dette er for
 
@@ -36,6 +38,8 @@ Research på disse løsningene viser tre kjente fallgruver: rapporter der status
 **Typisk bruker:** Ida, andreårsstudent, går til campus hver dag med telefonen i hånda. Hun ser et ødelagt gatelys og vil på under ett minutt finne ut om det allerede er meldt. Hvis det er meldt, trykker hun «jeg har også sett dette». Hvis ikke, tar hun et bilde og registrerer det.
 
 **Moderator:** en utpekt person, for eksempel fra studentorganisasjonen eller driftsavdelingen, som følger opp rapportene og oppdaterer status.
+
+**Åpent punkt:** Hvem moderator er, og hva som skjer med en sak moderator ikke kan fikse selv, er ikke avklart. Research fant ingen kanal ved Høgskolen i Molde for hverdagsfeil utendørs, og eierskapet til belysning, gangveier og fortau rundt campus (kommune, fylke, HiM eller Statsbygg) er ikke funnet. Uten en som kan handle, kan «Løst» bli en påstand uten dekning. Dette må avklares med HiM, Statsbygg eller kommunen før moderatorrollen låses.
 
 Løsningen retter seg ikke mot kommunen i denne versjonen.
 
@@ -68,11 +72,14 @@ Det kreves innlogging for å registrere og bekrefte. Det hindrer at én person b
 - Avansert kartvisning (enkel liste er nok)
 - Chat eller meldinger mellom brukere
 - Native mobil- og desktop-apper (kun responsiv webapp/PWA)
+- Flere lokalmiljø med egen liste og egen moderator (v1 gjelder campus Molde)
 - Automatisk duplikatsjekk (parkert, se `addendum.md`)
 
 ## Personvern
 
 Bilder kan vise personer eller bilskilt, og adresser kan være personopplysninger. Brukeren får beskjed om å unngå ansikter og bilskilt ved opplasting, og moderator kan skjule rapporter som bryter med dette. Bildestørrelsen er begrenset ved opplasting. [ASSUMPTION]
+
+Når KI-forslaget bruker en ekte språkmodell, sendes beskrivelsen brukeren skriver til leverandøren av modellen. Påminnelsen om å unngå personopplysninger gjelder derfor også beskrivelsesfeltet. Gratisnivået hos Gemini brukes ikke med ekte brukerdata, fordi Googles vilkår krever betalt nivå for brukere i EØS. I mock-modus sendes ingenting ut. Se PRD §8.
 
 ## Suksesskriterier
 
@@ -95,4 +102,4 @@ Prosjektet er realistisk å bygge alene med KI-assistert utvikling i løpet av e
 
 ## Visjon
 
-Hvis LocalFix fungerer på campus, kan løsningen tas i bruk i andre lokalmiljøer, som boligområder og borettslag, og senere tilby valgfri videresending av saker til kommunen.
+Appen er ikke teknisk låst til campus. Hvis LocalFix fungerer på campus, kan løsningen tas i bruk i andre lokalmiljøer, som boligområder og borettslag, med egen liste og moderator per miljø, og senere tilby valgfri videresending av saker til kommunen.
