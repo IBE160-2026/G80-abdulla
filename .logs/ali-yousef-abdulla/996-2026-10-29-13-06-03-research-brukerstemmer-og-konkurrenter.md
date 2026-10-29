@@ -16,7 +16,8 @@ Mer research på LocalFix før PRD-en oppdateres: brukerstemmer og konkurrenter,
 - Kildestatus: 0 verifisert, 9 uverifisert, 3 omstridte, 1 overstyrt. Grunnlaget er tynt: nesten ingen norske brukerstemmer, mye søkesammendrag.
 - Hovedfunn: «tilbakekoblingshullet» er den klagen som går igjen (utenlandske kilder, ett norsk eksempel fra Bergen 2026); Fiks Gata har kommentar/«bekreft» for innloggede (single-source), så skillet mot konkurrentene i briefen bør presiseres; HiM har ingen funnet kanal for hverdagsfeil utendørs, og eier av belysning og stier rundt campus er ikke funnet.
 - Semantisk kildesjekk fant 16 avvik. Alle er rettet i `research.md` (feil henvisninger fjernet, tillit nedgradert, kilde [30] lagt til). `recon_kit.py citations` er ok etter rettelsene.
-- Ikke gjort: `bmad-review` (structure, prose) på rapporten, som konfigurasjonen ber om. `competition.md` er ikke oppdatert og PRD/brief er ikke endret.
+- `bmad-review` (structure, prose) er kjørt på rapporten etter at loggen først ble skrevet. Forslagene er presentert, men ikke brukt. Under gjennomgangen ble en feil rettet: rapporten hevdet at briefen sier at ingen andre lar naboer bekrefte, men briefen sier bare at konkurrentene er bygget for borger til kommune. Sammendrag og anbefaling 2 er omformulert.
+- Ikke gjort: `competition.md` er ikke oppdatert og PRD/brief er ikke endret.
 
 ### Åpne punkter
 - Sjekke manuelt i nettleser: `fiksgatami.no/content/steps` og en faktisk sak (virker «bekreft», hvem setter status), om Fiks Gata er aktiv (kartet viste 0 saker, «nedlagt 2024» er omstridt), og om det ligger et skjema bak Molde kommunes «Meld ifra».
