@@ -13,7 +13,7 @@ Dette dokumentet er skrevet for prosjektdeltakeren selv, som er PM, designer og 
 
 Funksjonene er gruppert, med globalt nummererte funksjonelle krav (FR-N) under hver gruppe. Brukerreiser heter UJ-N og suksessmetrikker SM-N. Tekniske valg, altså *hvordan* noe bygges, står i `prd-addendum.md`, ikke her. Gjenværende antagelser er samlet i §12.
 
-**Endringer 2026-11-04:** PRD-en er gått gjennom mot arkitekturen. V1 kjøres bare lokalt med testdata (§6). En innlogget bruker kan filtrere på «Mine rapporter» for å finne igjen sine egne rapporter (FR-6, UJ-3). Sortering etter dato gjelder registreringstidspunktet. Kategori er påkrevd, og tekstfeltene har en øvre lengde (FR-3, FR-4). En bekreftelse kan ikke angres, og et problem som kommer tilbake etter **Løst**, meldes som en ny rapport (FR-7). Universell utforming er et nytt krav (NFR-8). KI-leverandøren velges med SM-5-testen i implementeringen, og spørsmålet om hvem som er moderator, stopper ikke v1 (§11).
+**Endringer 2026-11-04:** PRD-en er gått gjennom mot arkitekturen. V1 kjøres bare lokalt med testdata (§6). En innlogget bruker kan filtrere på «Mine rapporter» for å finne igjen sine egne rapporter (FR-6, UJ-3). Sortering etter dato gjelder registreringstidspunktet. Kategori er påkrevd, og tekstfeltene har en øvre lengde (FR-3, FR-4). En bekreftelse kan ikke angres, og et problem som kommer tilbake etter **Løst**, meldes som en ny rapport (FR-7). Telleren «har sett dette» teller med rapportøren, så en ny rapport viser 1 (§3, FR-5). En skjult rapport forsvinner også for rapportøren (FR-9). Å redigere eller slette en rapport og å slette sin egen konto er utenfor v1 (§6.2). Universell utforming er et nytt krav, med en konkret kontroll (NFR-8). Rapporter og bekreftelser vises uten navn (§8). KI-leverandøren velges med SM-5-testen i implementeringen, og spørsmålet om hvem som er moderator, stopper ikke v1 (§11). I tillegg er FR-3, FR-9, UJ-3 og mot-metrikkene i §10 presisert.
 
 **Endringer 2026-10-29:** Visjonen skiller LocalFix tydeligere fra FiksGataMi, som også har kommentar og «bekreft» (§1). Detaljsiden skal vise når statusen sist ble endret (FR-8). Hvem moderator er i praksis, og hva som skjer med en sak moderator ikke kan fikse, er ført som åpent spørsmål (§11). Ingen andre krav er endret.
 
@@ -77,11 +77,11 @@ Appen er ikke teknisk låst til campus. Over tid kan løsningen tas i bruk i and
 **UJ-3. Moderator følger opp.**
 - **Person og kontekst:** Sara er moderator for studentorganisasjonen. En gang i uka sorterer hun lista etter flest bekreftelser.
 - **Forløp:**
-  1. Sara ser at gatelysrapporten har fem bekreftelser.
+  1. Sara ser at fem har sett gatelysrapporten.
   2. Hun melder fra til driften og setter status til **Under behandling**.
   3. Da lyset er fikset, setter hun status til **Løst**.
   4. Sara skjuler også en rapport med et bilde der et bilskilt er lesbart.
-- **Klimaks:** Ida åpner «Mine rapporter» og ser at gatelysrapporten står som **Løst**, og når den sist ble oppdatert. Alle andre som åpner rapporten, ser det samme.
+- **Klimaks:** Ida filtrerer på «Mine rapporter» og ser at gatelysrapporten står som **Løst**. Hun åpner den og ser når den sist ble oppdatert. Alle andre som åpner rapporten, ser det samme.
 - **Kantcase:** Har Sara satt **Løst** for tidlig, kan hun flytte statusen tilbake til **Under behandling**.
 - **Kantcase:** Blir lyset mørkt igjen senere, melder Ida det som en ny rapport. Den gamle rapporten blir stående som **Løst**.
 
@@ -89,6 +89,7 @@ Appen er ikke teknisk låst til campus. Over tid kan løsningen tas i bruk i and
 
 - **Rapport:** En registrert observasjon med beskrivelse, lokasjon, kategori, valgfritt bilde, KI-oppsummering (om den finnes), status, antall bekreftelser, registreringstidspunkt og tidspunktet statusen sist ble endret («sist oppdatert»).
 - **Bekreftelse:** En markering («Jeg har også sett dette») fra en innlogget bruker som ikke er rapportøren. Hver bruker kan gi én per rapport, og den kan ikke angres.
+- **«Har sett dette»:** Telleren på en rapport. Den viser rapportøren pluss antall bekreftelser, så en ny rapport viser 1. Sortering etter antall bekreftelser gir samme rekkefølge.
 - **Status:** **Ny**, **Under behandling** eller **Løst**. Bare moderator kan endre den.
 - **Kategori:** En av de faste verdiene Søppel, Belysning, Vei og fortau, Skadeverk og Annet.
 - **Skjult rapport:** En rapport som moderator har fjernet fra den offentlige lista. Den slettes ikke.
@@ -123,6 +124,7 @@ En innlogget bruker kan registrere en rapport med beskrivelse, lokasjon (tekst e
 - En rapport uten bilde blir lagret.
 - Bilder over en fast grense, eller i andre filformater enn de tillatte, blir avvist [ANTAGELSE: 5 MB, JPEG/PNG/WebP].
 - Brukeren får en kort påminnelse om å unngå ansikter og bilskilt før opplasting.
+- Skjemaet minner også om å unngå personopplysninger i beskrivelsen (§8).
 - Etter innsending vises rapporten i lista med status **Ny**.
 
 #### FR-4: KI-forslag for kategori og oppsummering
@@ -137,11 +139,12 @@ Systemet foreslår kategori og en kort oppsummering ut fra beskrivelsen. Forslag
 ### 4.3 Visning, filtrering og bekreftelse
 
 #### FR-5: Rapportliste og detaljside
-Alle kan se en liste over synlige rapporter, der hver rad viser kategori, oppsummering eller beskrivelse, status og antall bekreftelser. Hver rad lenker til en detaljside.
+Alle kan se en liste over synlige rapporter, der hver rad viser kategori, oppsummering eller beskrivelse, status og telleren «har sett dette». Hver rad lenker til en detaljside.
 
 **Konsekvenser (testbare):**
 - Skjulte rapporter vises ikke for andre enn moderator.
 - Detaljsiden viser alle feltene i rapporten.
+- En ny rapport viser at 1 har sett den, og telleren øker med én for hver bekreftelse (FR-7).
 
 #### FR-6: Filtrering og sortering
 Lista kan filtreres på kategori og status og sorteres etter registreringstidspunkt eller antall bekreftelser. En innlogget bruker kan også filtrere på «Mine rapporter».
@@ -179,8 +182,10 @@ Moderator kan skjule en rapport, for eksempel fordi den viser personer eller bil
 
 **Konsekvenser (testbare):**
 - En skjult rapport forsvinner fra lista og detaljsiden for alle andre enn moderator.
+- Det gjelder også rapportøren. Rapporten forsvinner fra «Mine rapporter», og rapportøren får ingen melding om det i v1.
 - Moderator ser skjulte rapporter, merket som skjult, og kan vise dem igjen.
 - Ingenting blir slettet.
+- Alle andre enn moderator blir avvist (se FR-2).
 
 ## 5. Eksplisitte ikke-mål
 
@@ -206,6 +211,7 @@ V1 kjøres lokalt med testdata, slik sensor gjør det (NFR-2). Den settes ikke i
 - Automatisk duplikatsjekk. Den er parkert, se brief-addendumet. Bekreftelse og sortering etter antall bekreftelser dekker det viktigste.
 - Varsler (e-post eller push) når status endres
 - Sanntidsoppdatering
+- Å redigere eller slette en rapport etter innsending, og å slette sin egen konto. Før appen settes i drift, må det vurderes hvordan en bruker kan få slettet rapportene og kontoen sin.
 - Drift for ekte brukere (hosting, HTTPS og domene). Det har egne spørsmål om personvern, region og kostnad, og spørsmålet om moderator i §11 må være lukket først.
 
 ## 7. Tverrgående ikke-funksjonelle krav
@@ -217,12 +223,13 @@ V1 kjøres lokalt med testdata, slik sensor gjør det (NFR-2). Den settes ikke i
 - **NFR-5 Installerbarhet:** Et PWA-manifest gjør at appen kan legges til på hjemskjermen.
 - **NFR-6 Ytelse:** Lista med 100 rapporter lastes på under 2 sekunder lokalt [ANTAGELSE].
 - **NFR-7 Kostnad:** Utvikling og vurdering skal ikke kreve betalte tjenester. Språkmodellen skal ha et gratisnivå.
-- **NFR-8 Universell utforming:** Appen oppfyller WCAG 2.2 AA. UX-dokumentene (`EXPERIENCE.md` og `DESIGN.md`) beskriver hvordan.
+- **NFR-8 Universell utforming:** Appen oppfyller WCAG 2.2 AA. UX-dokumentene (`EXPERIENCE.md` og `DESIGN.md`) beskriver hvordan. Kontrollen er at kjerneflyten ikke gir alvorlige eller kritiske funn i en automatisk tilgjengelighetstest (for eksempel axe), og at hele kjerneflyten kan gjennomføres bare med tastatur.
 
 ## 8. Personvern og vern
 
 - Bilder kan vise personer eller bilskilt. Derfor får brukeren en påminnelse før opplasting (FR-3), og moderator kan skjule rapporter (FR-9).
 - Adressen vises slik brukeren skrev den. Brukeren skal skrive et sted, for eksempel «gangveien ved bygg A», ikke en privatadresse [ANTAGELSE: veiledningstekst i skjemaet].
+- Rapporter og bekreftelser vises uten navn. Appen viser ikke andre hvem som har registrert eller bekreftet en rapport, bare hvor mange som har sett problemet.
 - Innlogging og én bekreftelse per bruker begrenser spam og oppblåste tellere.
 - **Rapportteksten sendes til en ekstern KI-tjeneste.** Når KI-forslaget (FR-4) bruker en ekte språkmodell, forlater beskrivelsen brukeren skriver, maskinen og sendes til leverandøren av modellen for å få kategori og oppsummering. Derfor gjelder påminnelsen om å unngå personopplysninger også i beskrivelsesfeltet, ikke bare for bilder og adresser. I mock-modus sendes ingenting ut.
 - **Gemini på gratisnivå brukes ikke med ekte brukerdata.** Googles vilkår krever betalt nivå når tjenesten gjøres tilgjengelig for brukere i EØS, og de sier at gratisinnhold brukes til produktforbedring og kan leses av menneskelige vurderere (se researchen i §11).
@@ -252,6 +259,8 @@ Det er ingen egen profilside eller administrasjonsside i v1. Moderatoren gjør a
 **Mot-metrikker**
 - **SM-C1:** Mange rapporter er ikke suksess i seg selv. Duplikater og useriøse rapporter teller ikke.
 - **SM-C2:** Andelen rapporter som står som «Ny» uten at noen følger dem opp, skal ikke vokse uten at noen merker det. Det er denne fallgruven, «roper i tomrommet», moderatorrollen skal motvirke.
+
+Mot-metrikkene kan først måles når appen settes i drift. V1 kjøres bare lokalt med testdata (§6).
 
 ## 11. Åpne spørsmål
 
