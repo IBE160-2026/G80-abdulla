@@ -2,7 +2,7 @@
 title: LocalFix PRD
 status: final
 created: 2026-09-18
-updated: 2026-10-29
+updated: 2026-11-04
 ---
 
 # PRD: LocalFix
@@ -12,6 +12,8 @@ updated: 2026-10-29
 Dette dokumentet er skrevet for prosjektdeltakeren selv, som er PM, designer og utvikler i én person, og for sensor i IBE160 Programmering med KI. Det bygger på product brief (`product-brief.md`, oppdatert 2026-10-29) og gjentar ikke research og resonnement derfra. Konkurrentresearch står i brief-addendumet, og research på brukerstemmer og konkurrenter står i `docs/planning-artifacts/research/user-voice-brukerstemmer-og-konkurrenter-for-lokal-2026-10-29/research.md`. Den siste har svakt grunnlag (ingen verifiserte påstander, nesten ingen norske brukerstemmer), så funnene brukes som hypoteser.
 
 Funksjonene er gruppert, med globalt nummererte funksjonelle krav (FR-N) under hver gruppe. Brukerreiser heter UJ-N og suksessmetrikker SM-N. Tekniske valg, altså *hvordan* noe bygges, står i `prd-addendum.md`, ikke her. Gjenværende antagelser er samlet i §12.
+
+**Endringer 2026-11-04:** PRD-en er gått gjennom mot arkitekturen. V1 kjøres bare lokalt med testdata (§6). En innlogget bruker kan filtrere på «Mine rapporter» for å finne igjen sine egne rapporter (FR-6, UJ-3). Sortering etter dato gjelder registreringstidspunktet. Kategori er påkrevd, og tekstfeltene har en øvre lengde (FR-3, FR-4). En bekreftelse kan ikke angres, og et problem som kommer tilbake etter **Løst**, meldes som en ny rapport (FR-7). Universell utforming er et nytt krav (NFR-8). KI-leverandøren velges med SM-5-testen i implementeringen, og spørsmålet om hvem som er moderator, stopper ikke v1 (§11).
 
 **Endringer 2026-10-29:** Visjonen skiller LocalFix tydeligere fra FiksGataMi, som også har kommentar og «bekreft» (§1). Detaljsiden skal vise når statusen sist ble endret (FR-8). Hvem moderator er i praksis, og hva som skjer med en sak moderator ikke kan fikse, er ført som åpent spørsmål (§11). Ingen andre krav er endret.
 
@@ -79,13 +81,14 @@ Appen er ikke teknisk låst til campus. Over tid kan løsningen tas i bruk i and
   2. Hun melder fra til driften og setter status til **Under behandling**.
   3. Da lyset er fikset, setter hun status til **Løst**.
   4. Sara skjuler også en rapport med et bilde der et bilskilt er lesbart.
-- **Klimaks:** Alle som fulgte rapporten, ser at problemet ble løst.
+- **Klimaks:** Ida åpner «Mine rapporter» og ser at gatelysrapporten står som **Løst**, og når den sist ble oppdatert. Alle andre som åpner rapporten, ser det samme.
 - **Kantcase:** Har Sara satt **Løst** for tidlig, kan hun flytte statusen tilbake til **Under behandling**.
+- **Kantcase:** Blir lyset mørkt igjen senere, melder Ida det som en ny rapport. Den gamle rapporten blir stående som **Løst**.
 
 ## 3. Ordliste
 
-- **Rapport:** En registrert observasjon med beskrivelse, lokasjon, kategori, valgfritt bilde, KI-oppsummering (om den finnes), status og antall bekreftelser.
-- **Bekreftelse:** En markering («Jeg har også sett dette») fra en innlogget bruker som ikke er rapportøren. Hver bruker kan gi én per rapport.
+- **Rapport:** En registrert observasjon med beskrivelse, lokasjon, kategori, valgfritt bilde, KI-oppsummering (om den finnes), status, antall bekreftelser, registreringstidspunkt og tidspunktet statusen sist ble endret («sist oppdatert»).
+- **Bekreftelse:** En markering («Jeg har også sett dette») fra en innlogget bruker som ikke er rapportøren. Hver bruker kan gi én per rapport, og den kan ikke angres.
 - **Status:** **Ny**, **Under behandling** eller **Løst**. Bare moderator kan endre den.
 - **Kategori:** En av de faste verdiene Søppel, Belysning, Vei og fortau, Skadeverk og Annet.
 - **Skjult rapport:** En rapport som moderator har fjernet fra den offentlige lista. Den slettes ikke.
@@ -115,7 +118,8 @@ Systemet skiller mellom bruker og moderator. Moderatorrettigheter blir kontrolle
 En innlogget bruker kan registrere en rapport med beskrivelse, lokasjon (tekst eller adresse), kategori og et valgfritt bilde. Realiserer UJ-1.
 
 **Konsekvenser (testbare):**
-- En rapport uten beskrivelse eller lokasjon blir avvist med en tydelig feilmelding.
+- En rapport uten beskrivelse, lokasjon eller kategori blir avvist med en tydelig feilmelding.
+- Beskrivelse og lokasjon har en øvre lengde, og lengre tekst blir avvist med en tydelig feilmelding [ANTAGELSE: 1000 tegn for beskrivelse og 200 for lokasjon].
 - En rapport uten bilde blir lagret.
 - Bilder over en fast grense, eller i andre filformater enn de tillatte, blir avvist [ANTAGELSE: 5 MB, JPEG/PNG/WebP].
 - Brukeren får en kort påminnelse om å unngå ansikter og bilskilt før opplasting.
@@ -126,7 +130,7 @@ Systemet foreslår kategori og en kort oppsummering ut fra beskrivelsen. Forslag
 
 **Konsekvenser (testbare):**
 - Den foreslåtte kategorien er alltid en av de fem faste. Et ugyldig svar fra modellen gir «ingen forslag».
-- Brukeren kan overstyre både kategori og oppsummering.
+- Brukeren kan overstyre både kategori og oppsummering. Oppsummeringen har en øvre lengde, også når brukeren skriver den selv [ANTAGELSE: 300 tegn].
 - Svarer ikke KI-en, feiler den eller tar for lang tid [ANTAGELSE: over 5 sekunder], kan rapporten fortsatt sendes inn med manuelt valgt kategori og uten oppsummering.
 - Uten API-nøkkel går funksjonen i mock-modus, og registreringen virker likevel.
 
@@ -140,10 +144,11 @@ Alle kan se en liste over synlige rapporter, der hver rad viser kategori, oppsum
 - Detaljsiden viser alle feltene i rapporten.
 
 #### FR-6: Filtrering og sortering
-Lista kan filtreres på kategori og status og sorteres etter dato eller antall bekreftelser.
+Lista kan filtreres på kategori og status og sorteres etter registreringstidspunkt eller antall bekreftelser. En innlogget bruker kan også filtrere på «Mine rapporter».
 
 **Konsekvenser (testbare):**
-- Filtrene kan kombineres, for eksempel «Belysning» og «Ny».
+- Filtrene kan kombineres, for eksempel «Belysning» og «Ny», eller «Mine rapporter» og «Løst».
+- «Mine rapporter» viser bare rapporter brukeren selv har registrert, ikke rapporter hen har bekreftet. Besøkende har ikke dette filteret.
 - Standard er sortering etter nyeste først.
 - Med et kjent testdatasett gir hver kombinasjon av filter og sortering forventet rekkefølge og antall.
 - En tom treffliste gir en melding, ikke en blank side.
@@ -155,6 +160,8 @@ En innlogget bruker kan markere «Jeg har også sett dette» på en rapport som 
 - Telleren øker med én.
 - Bekrefter samme bruker samme rapport igjen, avvises det, også når kallet går direkte til API-et.
 - Rapportøren kan ikke bekrefte sin egen rapport.
+- En bekreftelse kan ikke angres.
+- En bekreftelse på en løst rapport endrer ikke statusen. Kommer et problem tilbake etter **Løst**, registreres det som en ny rapport.
 
 ### 4.4 Moderering og statusflyt
 
@@ -184,10 +191,12 @@ Moderator kan skjule en rapport, for eksempel fordi den viser personer eller bil
 
 ## 6. MVP-omfang
 
+V1 kjøres lokalt med testdata, slik sensor gjør det (NFR-2). Den settes ikke i drift for ekte brukere.
+
 ### 6.1 I omfang (v1)
 - Konto, innlogging og roller (FR-1, FR-2)
 - Registrere rapport med KI-forslag og fallback (FR-3, FR-4)
-- Liste, detaljside, filtrering og sortering (FR-5, FR-6)
+- Liste, detaljside, filtrering (også «Mine rapporter») og sortering (FR-5, FR-6)
 - Bekreftelse, én per bruker (FR-7)
 - Statusflyt og skjuling for moderator (FR-8, FR-9)
 
@@ -197,6 +206,7 @@ Moderator kan skjule en rapport, for eksempel fordi den viser personer eller bil
 - Automatisk duplikatsjekk. Den er parkert, se brief-addendumet. Bekreftelse og sortering etter antall bekreftelser dekker det viktigste.
 - Varsler (e-post eller push) når status endres
 - Sanntidsoppdatering
+- Drift for ekte brukere (hosting, HTTPS og domene). Det har egne spørsmål om personvern, region og kostnad, og spørsmålet om moderator i §11 må være lukket først.
 
 ## 7. Tverrgående ikke-funksjonelle krav
 
@@ -207,6 +217,7 @@ Moderator kan skjule en rapport, for eksempel fordi den viser personer eller bil
 - **NFR-5 Installerbarhet:** Et PWA-manifest gjør at appen kan legges til på hjemskjermen.
 - **NFR-6 Ytelse:** Lista med 100 rapporter lastes på under 2 sekunder lokalt [ANTAGELSE].
 - **NFR-7 Kostnad:** Utvikling og vurdering skal ikke kreve betalte tjenester. Språkmodellen skal ha et gratisnivå.
+- **NFR-8 Universell utforming:** Appen oppfyller WCAG 2.2 AA. UX-dokumentene (`EXPERIENCE.md` og `DESIGN.md`) beskriver hvordan.
 
 ## 8. Personvern og vern
 
@@ -250,12 +261,13 @@ Det er ingen egen profilside eller administrasjonsside i v1. Moderatoren gjør a
    - **Lukkes når** SM-5-testsettet er kjørt mot Cloudflare, Groq og Mistral, bare med testdata, og vinneren treffer minst 16 av 20, gir gyldig JSON hver gang, svarer på under 5 sekunder (FR-4) og ikke viser dansk eller nynorsk i sammendragene ved en språk-ID-sjekk.
    - **Avklares før valget:** om Cloudflare krever betalingskort for gratisnivået, hvor Cloudflare kjører inferensen, og hva gratisgrensene hos Groq og Mistral faktisk er i konsollen.
    - **Utelatt:** Gemini på gratisnivå brukes ikke med ekte brukerdata (se §8).
-   - Leverandøren velges endelig i arkitekturfasen (`bmad-architecture`), bak grensesnittet med mock-modus. Researchen må oppdateres etter 2027-01-28.
+   - Leverandøren velges når SM-5-testen er kjørt, i implementeringen. Arkitekturen valgte ikke leverandør, men la KI-kallet bak et grensesnitt med mock-modus, så valget kan tas sent. Researchen må oppdateres etter 2027-01-28.
 
 2. **Hvem er moderator i praksis, og hva skjer med en sak moderator ikke kan fikse?** **Ikke lukket.**
    - **Grunnlag:** Researchen (2026-10-29) fant ingen kanal ved HiM for hverdagsfeil utendørs, og eierskapet til belysning, gangveier og fortau rundt campus (kommune, fylke, HiM eller Statsbygg) er ikke funnet. Moderator kan oppdatere status, men trolig ikke selv utbedre. Uten en som kan handle, kan **Løst** bli en påstand uten dekning (SM-C2).
    - **Lukkes når** moderatoren er navngitt (for eksempel studentorganisasjonen, HiM drift eller Statsbygg), og det er avklart hvor en sak sendes videre. Om dette trenger en egen funksjon, for eksempel et felt som viser hvem saken er sendt til, avgjøres etterpå. Det er ikke et krav i v1.
    - **Avklares med:** HiM, Statsbygg eller kommunen.
+   - **Betydning for v1:** Spørsmålet stopper ikke v1, som kjøres lokalt med testdata og en ferdig moderatorkonto (§6). Det må lukkes før appen settes i drift.
 
 **Avgjort 2026-10-11:**
 - **Hvordan blir noen moderator?** Hver bruker har en rolle, og «bruker» er standard. Testdataene oppretter én ferdig moderatorkonto, som README oppgir innloggingen til, så sensor kan teste moderatorflyten med én gang. En ekte bruker gjøres til moderator direkte i databasen, og README beskriver hvordan. Det er ingen side for å administrere moderatorer i v1, og en bruker kan aldri endre sin egen rolle.
@@ -263,7 +275,9 @@ Det er ingen egen profilside eller administrasjonsside i v1. Moderatoren gjør a
 ## 12. Antagelsesindeks
 
 - FR-3: Grensen for bilder er 5 MB, og tillatte formater er JPEG, PNG og WebP.
+- FR-3: Beskrivelsen kan være opptil 1000 tegn og lokasjonen opptil 200 tegn.
 - FR-4: KI-kallet får tidsavbrudd etter 5 sekunder.
+- FR-4: Oppsummeringen kan være opptil 300 tegn.
 - §8: Skjemaet har veiledningstekst om å skrive et sted, ikke en privatadresse.
 - NFR-6: Lista med 100 rapporter lastes på under 2 sekunder lokalt.
 

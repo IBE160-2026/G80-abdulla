@@ -28,7 +28,7 @@ Teknisk bakgrunn og retning til arkitekturfasen. PRD-en beskriver *hva* som skal
 
 ## Valg av språkmodell
 
-- Faglæreren krever en løsning med gratisnivå (alternativ A, valgt 2026-10-11). Vi sammenligner leverandører med gratisnivå i arkitekturfasen og sjekker gjeldende vilkår, fordi de endrer seg ofte.
+- Faglæreren krever en løsning med gratisnivå (alternativ A, valgt 2026-10-11). Leverandørene er sammenlignet i researchen under, og det endelige valget tas når SM-5-testen er kjørt i implementeringen. Vilkårene sjekkes på nytt da, fordi de endrer seg ofte.
 - **Research gjort 2026-10-28:** `docs/planning-artifacts/research/technical-ki-leverandor-gratisniva-norsk-klassifis-2026-10-28/research.md` sammenligner Gemini, Cloudflare Workers AI, Groq, Mistral og OpenRouter. Foreløpig valg er Cloudflare Workers AI (Gemma 4 26B A4B), nest beste Groq (gpt-oss-120b). Ingen leverandør har målt norsk kvalitet, så valget bekreftes av SM-5-testen. Se PRD §11. Researchen må oppdateres etter 2027-01-28.
 - Cloudflare og Groq har dokumenterte OpenAI-kompatible chat-endepunkt. Grensesnittet kan derfor skrives mot ett slikt endepunkt, med base-URL, modell og nøkkel i `.env`. For OpenRouter er base-URL-en ikke bekreftet, og for Gemini og Mistral er det ikke undersøkt om slike endepunkt finnes, så regn med egne adaptere der.
 - Gemini på gratisnivå brukes ikke med ekte brukerdata (EØS-vilkår, trening på innholdet, menneskelige vurderere). Se PRD §8.
