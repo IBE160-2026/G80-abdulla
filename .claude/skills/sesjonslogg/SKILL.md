@@ -67,7 +67,7 @@ git commit -m "Logg: <tittel>" -- ".logs/<bruker-slug>/<fil>.md" ".logs/<bruker-
 - Meldingen er `Logg: <tittel>` (tittelen er den samme som i fila, f.eks. `Logg: kurstab-redesign`), pluss eventuelle attribusjonslinjer harnessen krever for commits. Angir prosjektets `CLAUDE.md`/`AGENTS.md` en egen commit-meldingskonvensjon for logger, følg den i stedet.
 - Var `issues.md` uendret i økten (eller finnes den ikke), utelates den fra kommandoene, og bare loggfila committes.
 - Kontroller etterpå med `git show --stat HEAD` at commiten inneholder nøyaktig disse filene: loggfila og eventuelt `issues.md`. Inneholder den mer, angre med `git reset --soft HEAD~1`, unstage det som ikke hører til, og commit på nytt.
-- **Ikke push** med mindre brukeren ber om det i økten. Skillen committer bare lokalt.
+- **Ikke push** med mindre brukeren ber om det i økten. Skillen committer bare lokalt. Ber brukeren om push og prosjektet bruker PR-er mot `main`: legg loggcommiten på en egen branch (`logg/<tittel>`, avgrenet fra `main`) og push den branchen, aldri rett til `main`. Opprett og flett PR bare når brukeren ber om det.
 - Er `.logs/` git-ignorert, eller er prosjektet ikke et git-repo, hopp over commit og nevn det kort i sluttoppsummeringen.
 - Hook-feil: løs årsaken og commit på nytt. Aldri `--no-verify`.
 - Loggfila kan ikke selv inneholde hashen til sin egen commit. Under «Resultat» refererer du til commit-hasher for det *arbeidet* som ble gjort, ikke til loggcommiten.

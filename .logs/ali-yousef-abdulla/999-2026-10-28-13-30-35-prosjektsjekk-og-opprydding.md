@@ -69,7 +69,7 @@ Brukeren ba om en ny sjekk av GitHub og prosjektmappen, så om at loggfila ble r
 - Rettet tre utdaterte linjer i denne fila (om at README-rettelsen ikke var committet, og at branchen ikke var pushet). Committet som `07ffa14` og pushet.
 - `gh` ble logget inn via `gh auth login --web` (konto `alabd0943`, HTTPS).
 - PR #4 «Flytt BMAD-arbeidsmappen til docs/planning-artifacts og angi hovedkopi» opprettet og flettet med flettecommit (`b51605d`). Lokal `main` er oppdatert til `b51605d`.
-- Denne loggen er committet på den nye lokale branchen `logg/prosjektsjekk-pr4`, avgrenet fra `main`, og er ikke pushet.
+- Denne loggen ble committet på den nye lokale branchen `logg/prosjektsjekk-pr4`, avgrenet fra `main`; branchen ble senere pushet og flettet via PR #5.
 
 ### Åpne punkter
 - De to eksisterende punktene i `issues.md` gjelder fortsatt (skills og `_bmad` i repoet, og dobbelt innhold i `docs/`).
@@ -88,7 +88,7 @@ Brukeren ba om en sjekk av at alt stemmer på GitHub og PC-en, så om å gå ove
 - Sjekken: PR #1–#5 flettet, ingen åpne PR-er eller issues, alle seks sammenlignede flate kopier i `docs/` byte-identiske med originalene i `docs/planning-artifacts/`.
 - `main` fast-forwardet til `1d21bfa` (flettecommit for PR #5). `logg/prosjektsjekk-pr4` slettet lokalt og på GitHub; nå finnes bare `main` begge steder.
 - Brukeren avgjorde å beholde alt: `.claude/skills` og `_bmad` blir i repoet, og de flate kopiene i `docs/` blir stående ved siden av `docs/planning-artifacts/`. Ingen filer er endret. Begge punktene er avkrysset i `issues.md`.
-- Loggen er committet på den nye lokale branchen `logg/behold-skills-og-docs`, avgrenet fra `main`, og er ikke pushet.
+- Loggen ble committet på den nye lokale branchen `logg/behold-skills-og-docs`, avgrenet fra `main`; branchen ble senere pushet og flettet via PR #6.
 
 ### Åpne punkter
 - Ingen.
