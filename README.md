@@ -28,6 +28,7 @@ Det finnes ingen kode ennå. Når det gjør det, får denne README-en en fullste
 | [Arkitektur](docs/planning-artifacts/architecture/architecture-LocalFix-2026-10-28/ARCHITECTURE-SPINE.md) | Arkitekturbeslutninger (AD-1 til AD-15), datamodell, stack og mappestruktur. Vurderingene ligger i `reviews/` ved siden av |
 | [Research: KI-leverandør](docs/planning-artifacts/research/technical-ki-leverandor-gratisniva-norsk-klassifis-2026-10-28/research.md) | Språkmodeller med gratisnivå og norsk kvalitet |
 | [Research: brukerstemmer og konkurrenter](docs/planning-artifacts/research/user-voice-brukerstemmer-og-konkurrenter-for-lokal-2026-10-29/research.md) | Hva brukere sier om lignende løsninger, og hvordan LocalFix skiller seg ut |
+| [Research: personvern](docs/planning-artifacts/research/domain-personvern-bilder-og-rapporter-2026-11-06/research.md) | Personvernkrav for bilder og rapporter: hva som gjelder i v1 og hva som må på plass før drift |
 | [docs/coaching-plan.md](docs/coaching-plan.md) | Hvordan jeg bruker Claude Code som coach fra epics og stories til ferdig app |
 | [docs/ki-logg.md](docs/ki-logg.md) | Hvordan KI er brukt i hver økt, hva jeg bestemte og hva jeg avviste |
 | [.logs/](.logs/) | Sesjonslogg for hver arbeidsøkt med Claude Code (oppgave, plan, resultat) og `issues.md` med åpne punkter |
