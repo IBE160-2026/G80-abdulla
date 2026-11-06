@@ -55,3 +55,4 @@
 - [ ] 2026-11-06 [research-personvern](987-2026-11-06-19-30-10-research-personvern.md) — ta personvern med i SM-5: Gemini ut for drift, slå av trening hvis Mistral velges
 - [ ] 2026-11-06 [research-personvern](987-2026-11-06-19-30-10-research-personvern.md) — før drift: behandlingsansvar og grunnlag, personvernerklæring etter art. 13, lagringstid og anonymisering i stedet for «ingenting slettes», EU-region i Supabase og DPA-er (Deferred-tabellen og PRD §6.2)
 - [ ] 2026-11-06 [research-personvern](987-2026-11-06-19-30-10-research-personvern.md) — fullfør researchen: semantisk sitatsjekk og bmad-review på research.md, og test EXIF på iOS og Android
+- [ ] 2026-11-06 [ux-presiseringer](986-2026-11-06-19-44-50-ux-presiseringer.md) — vurdere å droppe den optimistiske +1 på bekreftknappen (vente på `seen_count` fra serveren) hvis tiden blir knapp

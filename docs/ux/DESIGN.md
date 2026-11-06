@@ -3,10 +3,11 @@ name: LocalFix
 description: Rolig og saklig app for å melde og følge opp problemer på campus Molde. Bygget med shadcn/ui på Next.js og Tailwind. Denne filen beskriver bare merkevarelaget, altså det som avviker fra standardoppsettet i shadcn.
 status: final
 created: 2026-10-11
-updated: 2026-10-11
+updated: 2026-11-06
 sources:
   - docs/product-brief.md
   - docs/prd.md
+  - docs/planning-artifacts/architecture/architecture-LocalFix-2026-10-28/ARCHITECTURE-SPINE.md
 colors:
   # Overstyringer av shadcn-standardene. Alle tokens som ikke er nevnt her (card, popover,
   # input, ring, destructive, muted), arver fra shadcn. Bare lys modus i v1.
@@ -121,7 +122,17 @@ Grunnlaget er shadcn/ui. Denne filen beskriver bare det som skiller seg fra stan
 - **Skjult (`{colors.hidden-bg}` / `{colors.hidden-fg}`)** er en grå merking som bare moderator ser.
 - **Feil** bruker shadcns `destructive`.
 
-Alle tekstfarger møter WCAG AA mot bakgrunnen de står på [ASSUMPTION: må verifiseres med en kontrastsjekker under implementering].
+Alle tekstfarger møter WCAG AA (4,5:1) mot bakgrunnen de står på. Kontrasten ble regnet ut med WCAG-formelen 2026-11-06:
+
+| Tekst på bakgrunn | Kontrast |
+|---|---|
+| `primary-foreground` på `primary` | 8,66:1 |
+| `foreground` på `background` | 15,18:1 |
+| `muted-foreground` på `background` / `surface` | 5,39:1 / 5,78:1 |
+| Ny / Under behandling / Løst | 7,37:1 / 6,64:1 / 5,67:1 |
+| Skjult | 5,06:1 |
+
+Kantlinja (`{colors.border}`) har bare 1,31:1 mot hvit flate. Det er greit, fordi ingen komponent kjennes igjen bare på kantlinja: filterbrikkene har tekst, og skjemafeltene har synlig `label`. axe-testen i `EXPERIENCE.md` (NFR-8) bekrefter dette i den ferdige appen.
 
 ## Typography
 
@@ -159,7 +170,7 @@ Skygger arves fra shadcn. Den eneste egne skyggen ligger på den flytende «+»-
 - **Flytende «+»-knapp (`{components.fab-register}`):** Rund knapp på 56 px nede til høyre på rapportlista. Ikonet er «+» og tilgjengelig navn er «Registrer problem».
 - **Merkelappen «Foreslått av KI» (`{components.ai-tag}`):** En liten pille ved siden av kategorivalget. Den forsvinner når brukeren endrer kategori selv.
 - **Filterbrikker:** Vannrett rad som kan rulles sideveis. Aktiv brikke bruker `{components.filter-chip-active}`, inaktiv har kantlinje på hvit bakgrunn.
-- **Moderatorpanel:** Et shadcn-`Card` nederst på detaljsiden, synlig bare for moderator. Det har to knapper for status («← Ny» og «Løst →», merket med nabostatusene) og en skjul-knapp i `outline`-variant.
+- **Moderatorpanel:** Et shadcn-`Card` nederst på detaljsiden, synlig bare for moderator. Det har én eller to knapper for status, merket med nabostatusene: «Under behandling →» når statusen er Ny, «← Ny» og «Løst →» når den er Under behandling, og «← Under behandling» når den er Løst. I tillegg har det en skjul-knapp i `outline`-variant, som blir «Vis rapport» når rapporten er skjult. Oppførselen står i `EXPERIENCE.md`.
 
 ## Do's and Don'ts
 
