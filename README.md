@@ -6,7 +6,7 @@ Gruppeprosjekt (G80) i **IBE160 Programmering med KI** ved Høgskolen i Molde, h
 
 ## Status
 
-🟡 **Planleggingsfasen.** Product brief, PRD og UX er ferdige. Neste steg er arkitektur, deretter epics og stories, og så implementering.
+🟡 **Planleggingsfasen.** Product brief, PRD, UX og arkitektur er ferdige. Neste steg er epics og stories, og så implementering.
 
 Det finnes ingen kode ennå. Når det gjør det, får denne README-en en fullstendig installasjonsguide med forutsetninger, kommandoer, `.env.example`, testbrukere og hvordan testene kjøres.
 
@@ -25,11 +25,15 @@ Det finnes ingen kode ennå. Når det gjør det, får denne README-en en fullste
 | [docs/prd.md](docs/prd.md) | Krav (FR-1 til FR-9), brukerreiser og suksessmetrikker |
 | [docs/prd-addendum.md](docs/prd-addendum.md) | Teknisk retning, tilgangskontroll og KI-testsett |
 | [docs/ux/](docs/ux/) | `DESIGN.md` (utseende), `EXPERIENCE.md` (oppførsel) og skisser i `mockups/` |
+| [Arkitektur](docs/planning-artifacts/architecture/architecture-LocalFix-2026-10-28/ARCHITECTURE-SPINE.md) | Arkitekturbeslutninger (AD-1 til AD-15), datamodell, stack og mappestruktur. Vurderingene ligger i `reviews/` ved siden av |
+| [Research: KI-leverandør](docs/planning-artifacts/research/technical-ki-leverandor-gratisniva-norsk-klassifis-2026-10-28/research.md) | Språkmodeller med gratisnivå og norsk kvalitet |
+| [Research: brukerstemmer og konkurrenter](docs/planning-artifacts/research/user-voice-brukerstemmer-og-konkurrenter-for-lokal-2026-10-29/research.md) | Hva brukere sier om lignende løsninger, og hvordan LocalFix skiller seg ut |
 | [docs/ki-logg.md](docs/ki-logg.md) | Hvordan KI er brukt i hver økt, hva jeg bestemte og hva jeg avviste |
+| [.logs/](.logs/) | Sesjonslogg for hver arbeidsøkt med Claude Code (oppgave, plan, resultat) og `issues.md` med åpne punkter |
 | [docs/beslutninger/](docs/beslutninger/) | Fortløpende beslutningslogger fra hver planleggingsfase |
 | [docs/tilbakemeldinger/](docs/tilbakemeldinger/) | Tilbakemeldinger fra faglærer |
 
-`docs/planning-artifacts/` er BMAD-ens arbeidsmappe for brief, PRD, UX og research. Dokumentene i oversikten over er kopier derfra, og kopiene oppdateres når en fase oppdateres.
+`docs/planning-artifacts/` er BMAD-ens arbeidsmappe for brief, PRD, UX og research. Brief, PRD og UX i `docs/` er kopier derfra, og kopiene oppdateres når en fase oppdateres. Arkitektur og research lenkes direkte til BMAD-mappen.
 
 ## Arbeidsflyt
 

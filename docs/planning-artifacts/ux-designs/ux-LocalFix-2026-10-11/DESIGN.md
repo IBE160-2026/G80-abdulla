@@ -152,7 +152,7 @@ Skygger arves fra shadcn. Den eneste egne skyggen ligger på den flytende «+»-
 
 ## Components
 
-- **Rapportkort (`{components.report-card}`):** Øverste linje har kategori til venstre og statusmerke til høyre. Under kommer oppsummeringen (eller beskrivelsen, hvis KI ikke har laget oppsummering) i `{typography.card-title}`, maks to linjer. Nederst står metadata: «5 har sett dette · 2 dager siden». Det kommer et lite miniatyrbilde til høyre hvis rapporten har bilde [ASSUMPTION].
+- **Rapportkort (`{components.report-card}`):** Øverste linje har kategori til venstre og statusmerke til høyre. Under kommer oppsummeringen (eller beskrivelsen, hvis KI ikke har laget oppsummering) i `{typography.card-title}`, maks to linjer. Nederst står metadata: «5 har sett dette · 2 dager siden». Har rapporten bilde, står et lite bildeikon (lucide `Image`, 16 px, `aria-label="Har bilde"`) sist i metadatalinja. Lista viser ikke selve bildet, for det vises bare på detaljsiden.
 - **Statusmerke:** Bruker `{components.status-badge-new}`, `-progress` og `-done`. Teksten skrives alltid ut, så fargen er aldri eneste bærer av status.
 - **Primærknapp (`{components.button-primary}`):** Brukes til «Send inn» og «Logg inn».
 - **Bekreftknapp (`{components.button-confirm}`):** «Jeg har også sett dette». Den har kantlinje i normaltilstand. Når brukeren har bekreftet, bytter den til `{components.button-confirm-done}` med teksten «Du har sett dette ✓» og blir deaktivert.

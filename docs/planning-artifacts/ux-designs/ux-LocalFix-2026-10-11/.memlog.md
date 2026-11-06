@@ -1,6 +1,6 @@
 ---
 topic: LocalFix UX
-updated: 2026-11-06T11:26
+updated: 2026-11-06T14:33
 ---
 
 - (event) Create startet; kilder: product-brief.md og prd.md (2026-10-11). Faglærer ba om skisser av registreringsskjema, liste og detaljside; mobile-first; designkriteriet teller 10 %
@@ -21,3 +21,6 @@ updated: 2026-11-06T11:26
 - (change) Tilpasset PRD og arkitektur: «Send inn» krever kategori (FR-3); filter-URL bruker category/status/sort med enum-koder (konvensjonen i arkitekturen); telleren viser bekreftelser + 1, så en ny rapport viser «1 har sett dette» (PRD §3); skjult rapport gir 404 også for rapportøren (FR-9); NFR-8-kontroll i Accessibility Floor; Flow 3 får klimaks fra UJ-3
 - (decision) (by user) Skissene liste.html, registrer.html og detalj.html oppdateres så de stemmer med EXPERIENCE.md
 - (event) EXPERIENCE.md og skissene liste/registrer/detalj oppdatert og kopiert til docs/ux/; status står som final
+- (change) 2026-11-06 «Vis flere» fjernet fra Interaction Primitives: lista viser alle synlige rapporter i v1, som i arkitekturen (NFR-6)
+- (change) 2026-11-06 Etter arkitekturreview: menyen viser e-postadressen din (ingen navn lagres), telleren er seen_count fra visningen med optimistisk +1 erstattet av serverens verdi, bekreftknappen er deaktivert på skjult rapport («Skjult rapport») og already_confirmed gir «Du har sett dette ✓» uten feiltoast, «Ingen egne rapporter» bare når «Mine rapporter» er eneste filter, mine ignoreres for besøkende
+- (change) 2026-11-06 Ingen miniatyrbilder i lista: bildeikon (lucide Image) når rapporten har bilde, selve bildet vises bare på detaljsiden. DESIGN.md (Rapportkort), EXPERIENCE.md (Rapportkort) og liste.html er rettet
