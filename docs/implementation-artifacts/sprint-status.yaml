@@ -1,0 +1,66 @@
+# STATUS DEFINITIONS:
+# ==================
+# Epic Status:
+#   - backlog: Epic not yet started
+#   - in-progress: Epic actively being worked on
+#   - done: All stories in epic completed
+
+# Story Status:
+#   - backlog: Story only exists in epic file
+#   - ready-for-dev: Story file created, ready for development
+#   - in-progress: Developer actively working on implementation
+#   - review: Implementation complete, ready for review
+#   - done: Story completed
+
+# Retrospective Status:
+#   - optional: Can be completed but not required
+#   - done: Retrospective has been completed
+
+# Action Item Status:
+#   - open: Committed during a retrospective, not yet addressed
+#   - in-progress: Actively being worked on
+#   - done: Completed
+
+# WORKFLOW NOTES:
+# ===============
+# - Epic transitions to 'in-progress' automatically when its first story starts (via build's sprint sync)
+# - Stories can be worked in parallel if team capacity allows
+# - Developer typically creates the next story after the previous one is 'done' to incorporate learnings
+# - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
+# - Retrospective appends its action items to action_items; the status view surfaces open ones
+generated: 11-06-2026 20:57
+last_updated: 11-06-2026 20:57
+project: LocalFix
+project_key: NOKEY
+tracking_system: file-system
+story_location: docs/implementation-artifacts
+development_status:
+  epic-1: backlog
+  1-1-startpakke-og-lokal-supabase: backlog
+  1-2-testoppsett-vitest-playwright-axe-og-kjerneflyttest: backlog
+  1-3-testrapporter-i-den-lokale-databasen: backlog
+  1-4-rapportlista: backlog
+  1-5-detaljsiden: backlog
+  1-6-bildespike-reglene-for-bilder-er-testet: backlog
+  1-7-bilder-på-detaljsiden-og-i-lista: backlog
+  epic-1-retrospective: optional
+
+  epic-2: backlog
+  2-1-konto-og-innlogging: backlog
+  2-2-registrere-en-rapport: backlog
+  2-3-ki-forslag-for-kategori-og-oppsummering: backlog
+  2-4-legge-ved-et-bilde: backlog
+  2-5-velge-ki-leverandør-med-sm-5-testen: backlog
+  epic-2-retrospective: optional
+
+  epic-3: backlog
+  3-1-filtrere-og-sortere-lista: backlog
+  3-2-mine-rapporter: backlog
+  3-3-bekrefte-en-rapport: backlog
+  epic-3-retrospective: optional
+
+  epic-4: backlog
+  4-1-endre-status: backlog
+  4-2-skjule-og-vise-en-rapport: backlog
+  4-3-sensor-kan-starte-og-vurdere-appen: backlog
+  epic-4-retrospective: optional
