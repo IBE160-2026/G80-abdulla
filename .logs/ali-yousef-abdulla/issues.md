@@ -45,3 +45,4 @@
 - [ ] 2026-11-06 [arkitektur-final](989-2026-11-06-14-33-33-arkitektur-final.md) — ved oppstart: sjekk at startpakkens `proxy.ts` ikke sender besøkende til innlogging, at `npx shadcn@4.23.0 add button` ikke gir v4-syntaks i Tailwind 3.4, at `supabase db reset` laster bildene fra `objects_path`, og at `auth.uid()` virker i visningen (pgTAP)
 - [ ] 2026-11-06 [arkitektur-final](989-2026-11-06-14-33-33-arkitektur-final.md) — Supabase CLI 3.0.0 er ny major (2026-11-02), og v1 er låst til 2.122.1: vurder 3.x etter v1
 - [ ] 2026-11-06 [arkitektur-final](989-2026-11-06-14-33-33-arkitektur-final.md) — før appen settes i drift: lukk at forfatterens uuid er lesbar via REST og at bildemappen står i lenken (Deferred i arkitekturen, PRD §6.2 og §8)
+- [ ] 2026-11-06 [coaching-plan](988-2026-11-06-14-41-52-coaching-plan.md) — fyll inn innleveringsfristen i `docs/coaching-plan.md` og fordel stories over ukene som er igjen
