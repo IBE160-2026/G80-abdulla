@@ -21,6 +21,7 @@ Brukeren kjørte `bmad-deep-recon` og valgte at researchen skulle kjøres her, m
 - README har fått en rad for researchen.
 - Commit `de3d5bd` på branchen `docs/research-personvern`.
 - Ikke kjørt: den semantiske sitatsjekken, bmad-review-poleringen og HTML-briefingen, fordi brukeren ba om commit.
+- Brukeren ba om push og PR. Branchen `docs/research-personvern` er pushet, og PR #18 er laget, men ikke flettet. Loggcommiten for flettingen av PR #17 (fra den lokale branchen `logg/sensorsjekk-pr17-flettet`) er tatt med i samme PR.
 
 ### Åpne punkter
 - Spør faglærer eller HiMoldes personvernombud om v1 med oppdiktede data kan la være å meldes til Sikt.
