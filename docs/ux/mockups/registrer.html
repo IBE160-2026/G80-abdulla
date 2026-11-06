@@ -57,7 +57,7 @@ label{display:block;font-size:14px;font-weight:600;margin:14px 0 6px}
 .note{max-width:360px;font-size:12px;color:#3d4853;margin-top:8px}
 </style></head><body>
 <h1>Ny rapport (registreringsskjema)</h1>
-<p class="lead">EXPERIENCE.md: én side med beskrivelsen først, kategorivalg med «Foreslått av KI», KI-oppsummering, lokasjon, bildeopplasting og Send inn. Tilstander: KI tenker, og KI svarer ikke. Flyt: Ida (steg 3–7).</p>
+<p class="lead">EXPERIENCE.md: én side med beskrivelsen først, tegnteller og påminnelse om personopplysninger, kategorivalg med «Foreslått av KI», KI-oppsummering, lokasjon, bildeopplasting og Send inn. Tilstander: KI tenker, og KI svarer ikke. Flyt: Ida (steg 3–7). Oppdatert 2026-11-06.</p>
 <div class="screens">
 <div><p class="cap">KI-forslag mottatt (forhåndsvalgt)</p>
 <div class="phone">
@@ -65,14 +65,15 @@ label{display:block;font-size:14px;font-weight:600;margin:14px 0 6px}
  <div class="scroll">
   <label>Hva har du sett? <span class="req">(obligatorisk)</span></label>
   <div class="input area">Gatelyset ved gangveien mot campus har vært mørkt i flere dager</div>
-  <label>Kategori</label>
+  <div class="help" style="display:flex;justify-content:space-between;gap:12px"><span>Ikke skriv navn eller andre personopplysninger. Teksten sendes til en KI-tjeneste for å foreslå kategori.</span><span style="white-space:nowrap">63/1000</span></div>
+  <label>Kategori <span class="req">(obligatorisk)</span></label>
   <div class="selrow"><div class="input"><span>Belysning</span><span>▾</span></div><span class="ai">Foreslått av KI</span></div>
   <div class="summary"><span>Mørkt gatelys på gangveien mot campus</span><a>Endre</a></div>
   <label>Hvor? <span class="req">(obligatorisk)</span></label>
   <div class="input">Gangveien mellom bussholdeplassen og bygg A</div>
   <label>Bilde <span class="req">(valgfritt)</span></label>
   <div class="upload">📷 Legg til bilde</div>
-  <div class="help">Unngå ansikter og bilskilt på bildet. Maks 5 MB.</div>
+  <div class="help">Unngå ansikter og bilskilt på bildet. JPEG, PNG eller WebP, maks 5 MB.</div>
   <div style="height:16px"></div>
   <div class="btn btn-p">Send inn</div>
  </div>
@@ -83,7 +84,8 @@ label{display:block;font-size:14px;font-weight:600;margin:14px 0 6px}
  <div class="scroll">
   <label>Hva har du sett? <span class="req">(obligatorisk)</span></label>
   <div class="input area">Gatelyset ved gangveien mot campus har vært mørkt i flere dager</div>
-  <label>Kategori</label>
+  <div class="help" style="display:flex;justify-content:space-between;gap:12px"><span>Ikke skriv navn eller andre personopplysninger. Teksten sendes til en KI-tjeneste for å foreslå kategori.</span><span style="white-space:nowrap">63/1000</span></div>
+  <label>Kategori <span class="req">(obligatorisk)</span></label>
   <div class="help" style="margin:0 0 8px"><span class="spin"></span>Finner kategori …</div>
   <div style="border-top:1px dashed #DCE2E8;margin:10px 0"></div>
   <label>Kategori <span class="req">(velg selv)</span></label>
@@ -95,6 +97,6 @@ label{display:block;font-size:14px;font-weight:600;margin:14px 0 6px}
   <div class="btn btn-p dis">Send inn</div>
  </div>
 </div>
-<p class="note">Øverst: den korte ventetilstanden. Under: det som vises når KI-en ikke svarer, er av eller sender et ugyldig svar. Mock-modus ser ut som venstre skjerm. «Send inn» er deaktivert til de obligatoriske feltene er fylt inn.</p></div>
+<p class="note">Øverst: den korte ventetilstanden. Under: det som vises når KI-en ikke svarer, er av eller sender et ugyldig svar. Mock-modus ser ut som venstre skjerm. «Send inn» er deaktivert til beskrivelse, lokasjon og kategori er fylt inn, også mens KI-en finner kategori (FR-3).</p></div>
 </div>
 </body></html>

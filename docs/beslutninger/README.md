@@ -6,7 +6,7 @@ Hver planleggingsfase i BMAD fører en logg over beslutninger, endringer og anta
 |---|---|---|
 | [brief-beslutningslogg.md](brief-beslutningslogg.md) | [product-brief.md](../product-brief.md) | Første versjon 2026-09-18, oppdatert 2026-10-11 etter faglærers tilbakemelding |
 | [prd-beslutningslogg.md](prd-beslutningslogg.md) | [prd.md](../prd.md) | `override`-linjene viser hvilke tidligere beslutninger som ble endret, og hvorfor |
-| [ux-beslutningslogg.md](ux-beslutningslogg.md) | [ux/](../ux/) | Valgene av stil, farger og oppførsel |
+| [ux-beslutningslogg.md](ux-beslutningslogg.md) | [ux/](../ux/) | Valgene av stil, farger og oppførsel. Oppdatert 2026-11-06 etter PRD-vurderingen |
 
 Typene i loggene:
 - `decision`: en beslutning. «(by user)» betyr at jeg tok valget selv blant flere alternativer.

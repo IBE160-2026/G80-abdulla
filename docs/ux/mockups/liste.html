@@ -57,7 +57,7 @@ label{display:block;font-size:14px;font-weight:600;margin:14px 0 6px}
 .note{max-width:360px;font-size:12px;color:#3d4853;margin-top:8px}
 </style></head><body>
 <h1>Rapportliste (forside)</h1>
-<p class="lead">EXPERIENCE.md: Information Architecture, filterbrikker, sortering, rapportkort, flytende «+»-knapp og tilstanden «Ingen treff». Flyter: Ida (steg 2) og Sara (steg 1–2).</p>
+<p class="lead">EXPERIENCE.md: Information Architecture, filterbrikker med «Mine rapporter», sortering, rapportkort, flytende «+»-knapp og tilstanden «Ingen treff». Flyter: Ida (Flow 1 steg 2 og Flow 3 klimaks) og Sara (Flow 3 steg 1–2). Oppdatert 2026-11-06.</p>
 <div class="screens">
 <div><p class="cap">Standard: «Alle», sortert på Nyeste</p>
 <div class="phone">
@@ -65,7 +65,7 @@ label{display:block;font-size:14px;font-weight:600;margin:14px 0 6px}
  <div class="scroll">
   <div class="title">Rapporter</div>
   <div class="tools"><span>12 rapporter</span><span class="select">Nyeste ▾</span></div>
-  <div class="chips"><span class="chip on">Alle</span><span class="chip">Søppel</span><span class="chip">Belysning</span><span class="chip">Vei og fortau</span><span class="chip">Skadeverk</span></div>
+  <div class="chips"><span class="chip">Mine rapporter</span><span class="chip on">Alle</span><span class="chip">Søppel</span><span class="chip">Belysning</span><span class="chip">Vei og fortau</span><span class="chip">Skadeverk</span></div>
   <div class="card"><div class="body"><div class="row"><span class="cat">Belysning</span><span class="badge new">Ny</span></div><div class="ct">Mørkt gatelys på gangveien mot campus</div><div class="meta">5 har sett dette · 2 dager siden</div></div></div>
   <div class="card"><div class="body"><div class="row"><span class="cat">Vei og fortau</span><span class="badge prog">Under behandling</span></div><div class="ct">Hull i fortauet utenfor bygg A</div><div class="meta">3 har sett dette · 5 dager siden</div></div><div class="thumb"></div></div>
   <div class="card"><div class="body"><div class="row"><span class="cat">Skadeverk</span><span class="badge new">Ny</span></div><div class="ct">Knust glass i leskuret ved bussholdeplassen</div><div class="meta">1 har sett dette · 1 uke siden</div></div><div class="thumb"></div></div>
@@ -79,11 +79,23 @@ label{display:block;font-size:14px;font-weight:600;margin:14px 0 6px}
  <div class="scroll">
   <div class="title">Rapporter</div>
   <div class="tools"><span>0 rapporter</span><span class="select">Nyeste ▾</span></div>
-  <div class="chips"><span class="chip">Alle</span><span class="chip on">Belysning</span><span class="chip on">Ny</span><span class="chip">Under behandling</span></div>
+  <div class="chips"><span class="chip">Mine rapporter</span><span class="chip">Alle</span><span class="chip on">Belysning</span><span class="chip on">Ny</span><span class="chip">Under behandling</span></div>
   <div style="text-align:center;padding:48px 8px;color:#5B6773"><div style="font-size:16px;color:#17212B;font-weight:600;margin-bottom:6px">Ingen rapporter matcher filteret.</div><a style="color:#1F4E79;font-weight:600">Nullstill filter</a></div>
  </div>
  <div class="fab" aria-label="Registrer problem">+</div>
 </div>
-<p class="note">Brikkeraden kan rulles sideveis. Den inneholder «Alle», de fem kategoriene og de tre statusene. Én kategori og én status kan være aktive samtidig.</p></div>
+<p class="note">Brikkeraden kan rulles sideveis. Den inneholder «Mine rapporter» (bare for innloggede), «Alle», de fem kategoriene og de tre statusene. «Mine rapporter», én kategori og én status kan være aktive samtidig. URL-en her er <code>?category=lighting&amp;status=new</code>.</p></div>
+<div><p class="cap">Ida: «Mine rapporter» og «Løst»</p>
+<div class="phone">
+ <div class="top"><b>LocalFix <small>· Campus Molde</small></b><span class="menu">☰</span></div>
+ <div class="scroll">
+  <div class="title">Rapporter</div>
+  <div class="tools"><span>1 rapport</span><span class="select">Nyeste ▾</span></div>
+  <div class="chips"><span class="chip on">Mine rapporter</span><span class="chip">Alle</span><span class="chip">Søppel</span><span class="chip">Belysning</span><span class="chip on">Løst</span></div>
+  <div class="card"><div class="body"><div class="row"><span class="cat">Belysning</span><span class="badge done">Løst</span></div><div class="ct">Mørkt gatelys på gangveien mot campus</div><div class="meta">5 har sett dette · 1 uke siden</div></div></div>
+ </div>
+ <div class="fab" aria-label="Registrer problem">+</div>
+</div>
+<p class="note">Flow 3, klimaks. «Mine rapporter» viser bare rapporter Ida selv har registrert. URL-en er <code>?mine=true&amp;status=resolved</code>. Uten egne rapporter vises «Du har ikke registrert noen rapporter ennå.» og knappen «Registrer problem».</p></div>
 </div>
 </body></html>
