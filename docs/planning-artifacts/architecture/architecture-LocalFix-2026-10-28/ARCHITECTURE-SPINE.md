@@ -7,7 +7,7 @@ paradigm: 'Databasestyrt, servergjengitt monolitt: Postgres (RLS, triggere, visn
 scope: 'LocalFix v1: hele systemet, kjørt lokalt'
 status: draft
 created: '2026-10-28'
-updated: '2026-10-28'
+updated: '2026-10-29'
 binds: [FR-1, FR-2, FR-3, FR-4, FR-5, FR-6, FR-7, FR-8, FR-9, NFR-1, NFR-2, NFR-3, NFR-4, NFR-5, NFR-6, NFR-7]
 sources:
   - docs/planning-artifacts/prds/prd-LocalFix-2026-09-18/prd.md
@@ -73,7 +73,7 @@ Avhengighetsretningen er regelen: piler viser hvem som kan importere hvem. Den s
 
 - **Binds:** FR-1, FR-3, FR-5, FR-6, FR-7, FR-8, FR-9
 - **Prevents:** To tolkninger av entitetene, verdisettene og tomme verdier
-- **Rule:** Tabellene er `profiles`, `reports` og `confirmations` med feltene i ERD-et. `role`, `category` og `status` er Postgres-enum, og rekkefølgen `new, in_progress, resolved` er en del av kontrakten. Alle kolonner er `NOT NULL` unntatt `reports.summary` og `reports.image_path`, som lagrer `NULL` og aldri tom streng. `description` og `location` har `CHECK (length(btrim(x)) > 0)`. Lengdegrensene er `description` 1000, `location` 200 og `summary` 300 tegn, og de samme tallene brukes i skjemaene fra `lib/limits.ts`. Alle fremmednøkler er `ON DELETE RESTRICT`. `confirmations` har sammensatt primærnøkkel `(report_id, user_id)`. Profilraden opprettes bare av triggerfunksjonen `handle_new_user` på `auth.users`, som er den eneste `security definer`-funksjonen i systemet: den har `SET search_path = ''`, kan ikke kjøres av `anon` eller `authenticated`, setter `role = 'user'` hardkodet og leser aldri `raw_user_meta_data` eller `raw_app_meta_data`. Ingen Server Action oppretter eller endrer `profiles`. Det finnes ingen sletting av rapporter (FR-9).
+- **Rule:** Tabellene er `profiles`, `reports` og `confirmations` med feltene i ERD-et. `role`, `category` og `status` er Postgres-enum, og rekkefølgen `new, in_progress, resolved` er en del av kontrakten. Alle kolonner er `NOT NULL` unntatt `reports.summary` og `reports.image_path`, som lagrer `NULL` og aldri tom streng. `description` og `location` har `CHECK (length(btrim(x)) > 0)`. Lengdegrensene er `description` 1000, `location` 200 og `summary` 300 tegn, og de samme tallene brukes i skjemaene fra `lib/limits.ts`. Alle fremmednøkler er `ON DELETE RESTRICT`. `confirmations` har sammensatt primærnøkkel `(report_id, user_id)`. Profilraden opprettes bare av triggerfunksjonen `handle_new_user` på `auth.users`, som er den eneste `security definer`-funksjonen i systemet: den har `SET search_path = ''`, kan ikke kjøres av `anon` eller `authenticated`, setter `role = 'user'` hardkodet og leser aldri `raw_user_meta_data` eller `raw_app_meta_data`. Ingen Server Action oppretter eller endrer `profiles`. `reports.status_changed_at` har `DEFAULT now()`, er tidspunktet for siste statusendring og vises som «sist oppdatert» (FR-8). For en rapport som aldri har fått ny status er det registreringstidspunktet. Den settes bare av triggeren i AD-7, og skjuling endrer den ikke. Det finnes ingen sletting av rapporter (FR-9).
 
 ### AD-5 — Antall bekreftelser kommer fra én visning `[ADOPTED]`
 
@@ -92,7 +92,7 @@ Avhengighetsretningen er regelen: piler viser hvem som kan importere hvem. Den s
 - **Binds:** FR-2, FR-7, FR-8, FR-9, NFR-4
 - **Prevents:** Hopp i statusflyt, endring av andre felt, forfalskede bekreftelser, og 0-rader-oppdateringer som ser ut som suksess
 - **Rule:**
-  - **Oppdatering av `reports`:** RLS-policyen har `USING` for synlige rader og `WITH CHECK (private.is_moderator())`. Triggeren `reports_guard_update` kjører først og kaster SQLSTATE `42501` for ikke-moderatorer, så FR-2 gir 403 og ikke en stille 0-rader-oppdatering. Deretter krever den at alt unntatt `status` og `hidden` er uendret, sjekket som `(to_jsonb(NEW) - 'status' - 'hidden') IS NOT DISTINCT FROM (to_jsonb(OLD) - 'status' - 'hidden')`, ellers feilen `invalid_column_change`. Er `status` uendret er oppdateringen lov (skjuling og tom oppdatering er idempotente). Er `status` endret må forskjellen i enum-rekkefølge være nøyaktig 1, ellers `invalid_status_step`. `status` og `hidden` kan endres i samme oppdatering og på skjulte rapporter.
+  - **Oppdatering av `reports`:** RLS-policyen har `USING` for synlige rader og `WITH CHECK (private.is_moderator())`. Triggeren `reports_guard_update` kjører først og kaster SQLSTATE `42501` for ikke-moderatorer, så FR-2 gir 403 og ikke en stille 0-rader-oppdatering. Deretter krever den at alt unntatt `status` og `hidden` er uendret, sjekket som `(to_jsonb(NEW) - 'status' - 'hidden') IS NOT DISTINCT FROM (to_jsonb(OLD) - 'status' - 'hidden')`, ellers feilen `invalid_column_change`. Er `status` uendret er oppdateringen lov (skjuling og tom oppdatering er idempotente). Er `status` endret må forskjellen i enum-rekkefølge være nøyaktig 1, ellers `invalid_status_step`. Når `status` er endret og begge sjekkene er bestått, setter triggeren `NEW.status_changed_at := now()`. Den settes aldri fra klienten og endres ikke når bare `hidden` endres. `status` og `hidden` kan endres i samme oppdatering og på skjulte rapporter.
   - **Feilkoder:** Triggeren kaster `RAISE EXCEPTION USING ERRCODE = 'P0001', MESSAGE = '<kode>'`, og `lib/errors.ts` slår opp på `MESSAGE`.
   - **Bekreftelser:** INSERT krever `user_id = auth.uid()` og `EXISTS (SELECT 1 FROM reports r WHERE r.id = report_id AND r.hidden = false AND r.author_id <> auth.uid())`. Det brukes aldri `NOT EXISTS` på `author_id`. Moderator kan bekrefte andres rapporter som en bruker, og rapportens status spiller ingen rolle. Det finnes ingen UPDATE- eller DELETE-policy eller -grant på `confirmations`.
   - **Server Actions** sjekker alltid både `error` og antall rader som kommer tilbake.
@@ -134,7 +134,7 @@ Avhengighetsretningen er regelen: piler viser hvem som kan importere hvem. Den s
 | `confirmations` | SELECT (AD-5) | SELECT (AD-5). INSERT (AD-7) | ingen |
 | `storage.objects` (`report-images`) | SELECT (AD-6) | SELECT (AD-6). INSERT og DELETE (AD-9) | SELECT alle |
 
-  INSERT på `reports` gis som kolonnegrant, ikke bredt. `author_id` har `DEFAULT auth.uid()`, `status` har `DEFAULT 'new'`, `hidden` har `DEFAULT false` og `created_at` har `DEFAULT now()`, og ingen av dem kan settes av `authenticated`. INSERT-policyen har `WITH CHECK (author_id = auth.uid())`. Ingen tabell i `public` har DELETE- eller TRUNCATE-grant. Rolle settes bare med SQL som `postgres` (seed og README).
+  INSERT på `reports` gis som kolonnegrant, ikke bredt. `author_id` har `DEFAULT auth.uid()`, `status` har `DEFAULT 'new'`, `hidden` har `DEFAULT false`, og `created_at` og `status_changed_at` har `DEFAULT now()`, og ingen av dem kan settes av `authenticated`. UPDATE-granten til moderator omfatter ikke `status_changed_at`. INSERT-policyen har `WITH CHECK (author_id = auth.uid())`. Ingen tabell i `public` har DELETE- eller TRUNCATE-grant. Rolle settes bare med SQL som `postgres` (seed og README).
 
 ### AD-13 — Ingen mellomlagring av brukeravhengige data
 
@@ -153,14 +153,14 @@ Avhengighetsretningen er regelen: piler viser hvem som kan importere hvem. Den s
 | Concern | Convention |
 | --- | --- |
 | Navn | Engelsk `snake_case` i database, engelske navn i kode. UI-tekst er norsk bokmål uten flerspråkstøtte i v1 |
-| Data og formater | `uuid` som id. `timestamptz` i UTC, vist i `Europe/Oslo`. Valgfrie felt er `NULL`, aldri tom streng. Visning bruker `summary ?? description` |
+| Data og formater | `uuid` som id. `timestamptz` i UTC, vist i `Europe/Oslo`. Valgfrie felt er `NULL`, aldri tom streng. Visning bruker `summary ?? description`. «Sist oppdatert» på detaljsiden viser `status_changed_at` |
 | Server Actions | Svarer `{ ok: true, data }` eller `{ ok: false, error: { code, message } }`. Moderatorhandlinger er `setReportStatus(reportId, from, to)` og `setReportHidden(reportId, hidden)` med eksplisitt målverdi, aldri toggle. `setReportStatus` oppdaterer med `WHERE id = $1 AND status = $2` og gir `stale_state` hvis ingen rad ble endret. `confirmReport(reportId)` gir `already_confirmed` ved SQLSTATE `23505` |
 | Feilkoder | Lukket vokabular: `unauthenticated, forbidden, invalid_status_step, invalid_column_change, already_confirmed, own_report, report_not_found, stale_state, validation_failed, upload_failed, ai_unavailable, unknown`. `lib/errors.ts` slår opp på `MESSAGE` for egne feil og på SQLSTATE `23505` og `42501` for de innebygde. Databasetekst lekkes aldri til brukeren |
 | Filter og sortering | URL-parametrene er `category`, `status` (enum-koder) og `sort` (`newest` er standard, `confirmations`). Ukjente verdier ignoreres. Sortering er `confirmation_count DESC, created_at DESC, id DESC` eller `created_at DESC, id DESC`. Moderator ser skjulte rapporter blandet inn med merket «Skjult» |
 | Detaljside | En rapport som ikke finnes eller ikke er synlig gir `notFound()` (404) i begge tilfeller |
 | Konfigurasjon | Kun via `lib/env.ts`, aldri `process.env` direkte i andre filer |
 | Logging | Bare `console`, aldri rapporttekst eller e-postadresser |
-| Tester | Databaseregler: pgTAP med `supabase test db`, med hjelperne `tests.as_user(uuid)` og `tests.as_anon()` som setter rolle og JWT-claims, ellers blir `auth.uid()` `NULL` og testene består uten å teste noe. REST-grensen testes av et lite Vitest-skript mot lokal PostgREST for 401 og 403 (FR-2, FR-7). Ren logikk: Vitest. SM-5: eget skript i `evals/sm5/` |
+| Tester | Databaseregler: pgTAP med `supabase test db`, med hjelperne `tests.as_user(uuid)` og `tests.as_anon()` som setter rolle og JWT-claims, ellers blir `auth.uid()` `NULL` og testene består uten å teste noe. Testene dekker også at `status_changed_at` flyttes ved statusendring, står uendret ved skjuling og ikke kan settes av en bruker. REST-grensen testes av et lite Vitest-skript mot lokal PostgREST for 401 og 403 (FR-2, FR-7). Ren logikk: Vitest. SM-5: eget skript i `evals/sm5/` |
 | PWA | `app/manifest` gir installerbarhet (NFR-5). Ingen service worker eller frakoblet modus i v1 |
 
 ## Stack
@@ -204,6 +204,7 @@ erDiagram
     report_status status
     boolean hidden
     timestamptz created_at
+    timestamptz status_changed_at
   }
   confirmations {
     uuid report_id PK
@@ -259,7 +260,7 @@ localfix/
 | FR-5 Liste og detalj | Server Components, `reports_with_counts` | AD-3, AD-5, AD-6, AD-13 |
 | FR-6 Filter og sortering | URL-parametre, databasespørring | AD-5, AD-10, konvensjon |
 | FR-7 Bekrefte | Server Action, `confirmations` | AD-1, AD-5, AD-7, AD-12 |
-| FR-8 Endre status | Server Action, trigger | AD-1, AD-7, AD-13 |
+| FR-8 Endre status, «sist oppdatert» | Server Action, trigger, `reports.status_changed_at` | AD-1, AD-4, AD-7, AD-13 |
 | FR-9 Skjule og vise | Server Action, RLS, Storage-policy | AD-1, AD-6, AD-7, AD-13 |
 | NFR-1 Responsivitet | `components/`, Tailwind, shadcn/ui | UX (DESIGN.md, EXPERIENCE.md) |
 | NFR-2, NFR-3 Kjørbar lokalt, ingen nøkler | `supabase/`, `lib/env.ts`, README | AD-11 |
