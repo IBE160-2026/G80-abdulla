@@ -28,7 +28,7 @@ Skissene ligger i `mockups/`: `liste.html`, `registrer.html` og `detalj.html`. H
 | Ny rapport | Den flytende «+»-knappen på lista | Registrere et problem med KI-forslag | FR-3, FR-4 |
 | Logg inn / Registrer konto | Menyen i topplinja, eller automatisk når en besøkende prøver å registrere eller bekrefte | Konto og innlogging | FR-1 |
 
-Topplinja viser «LocalFix · Campus Molde» til venstre og en meny til høyre. Menyen inneholder «Logg inn» eller navnet ditt og «Logg ut». Moderatoren ser i tillegg «Moderator» som en merkelapp i menyen. Det finnes ingen bunnmeny, og navigasjonen er bare ett nivå dyp: fra lista går du til en detaljside eller til skjemaet, og «←» tar deg tilbake.
+Topplinja viser «LocalFix · Campus Molde» til venstre og en meny til høyre. Menyen inneholder «Logg inn» eller e-postadressen din og «Logg ut». Appen lagrer ingen navn i v1, og e-postadressen vises bare for brukeren selv. Moderatoren ser i tillegg «Moderator» som en merkelapp i menyen. Det finnes ingen bunnmeny, og navigasjonen er bare ett nivå dyp: fra lista går du til en detaljside eller til skjemaet, og «←» tar deg tilbake.
 
 Alle flatene har en reise som ender der: UJ-1 i Ny rapport, UJ-2 i Rapportdetalj og UJ-3 i moderatorpanelet.
 
@@ -55,7 +55,7 @@ Her står oppførselen. Utseendet er beskrevet i `DESIGN.md.Components`.
 
 | Komponent | Bruk | Regler for oppførsel |
 |---|---|---|
-| Rapportkort | Lista | Hele kortet er én lenke til detaljsiden. Ingen handlinger på selve kortet. Telleren viser «N har sett dette», der N er antall bekreftelser pluss rapportøren (PRD §3), altså `confirmation_count + 1`. En ny rapport viser «1 har sett dette». |
+| Rapportkort | Lista | Hele kortet er én lenke til detaljsiden. Ingen handlinger på selve kortet. Telleren viser «N har sett dette», der N er `seen_count` fra visningen: antall bekreftelser pluss rapportøren (PRD §3). Grensesnittet regner ikke selv, bortsett fra den optimistiske +1 på bekreftknappen. En ny rapport viser «1 har sett dette». |
 | Filterbrikker | Lista, over kortene | Brikkerad: «Mine rapporter» (bare for innloggede), «Alle», de fem kategoriene og de tre statusene. «Mine rapporter», én kategori og én status kan være aktive samtidig. «Mine rapporter» viser bare rapporter brukeren selv har registrert, ikke de hen har bekreftet. «Alle» nullstiller kategori og status. Et nytt trykk på en aktiv brikke slår den av. Valget lagres i URL-en med kodeverdiene fra arkitekturen, for eksempel `?mine=true&category=lighting&status=new`, så det overlever en ny innlasting og kan deles. Ukjente verdier ignoreres. For en besøkende ignoreres `mine`. |
 | Sortering | Lista, til høyre over brikkene | En shadcn-`Select` med «Nyeste» (standard) og «Flest har sett». Valget lagres i URL-en som `sort=newest` eller `sort=confirmations`. |
 | Flytende «+»-knapp | Lista | Går til Ny rapport. Ikke innlogget: sendes til innlogging og så tilbake til skjemaet. |
@@ -66,7 +66,7 @@ Her står oppførselen. Utseendet er beskrevet i `DESIGN.md.Components`.
 | Bildeopplasting | Ny rapport | Valgfritt. Knappen «Legg til bilde» åpner kamera eller bildebibliotek på mobil. Under knappen står påminnelsen om ansikter og bilskilt. Brukeren ser bildet før innsending og kan fjerne det. Bilder over 5 MB, eller i andre formater enn JPEG, PNG og WebP, avvises med en gang. |
 | Send inn | Ny rapport | Er deaktivert til beskrivelse, lokasjon og kategori er fylt inn (FR-3). Mens KI-en finner kategori, er knappen deaktivert. Svarer ikke KI-en, må brukeren velge kategori selv. Viser «Sender …» mens rapporten sendes. Etter innsending går brukeren til rapportens detaljside og får en toast: «Rapporten er sendt inn». |
 | «Sist oppdatert» | Detalj, under statusmerket | Viser tidspunktet for siste statusendring som dato og klokkeslett i norsk tid, for eksempel «Sist oppdatert 4. november kl. 14:20». Er statusen aldri endret, vises registreringstidspunktet (FR-8). Skjuling endrer ikke tidspunktet. |
-| Bekreftknapp | Detalj | Synlig for alle. Besøkende: sendes til innlogging og så tilbake. Rapportøren selv: deaktivert, med teksten «Din rapport». Allerede bekreftet: «Du har sett dette ✓», deaktivert. En bekreftelse kan ikke angres (FR-7). Ved trykk øker telleren med én med en gang (optimistisk). Feiler kallet, går telleren tilbake og en toast vises. |
+| Bekreftknapp | Detalj | Synlig for alle. Besøkende: sendes til innlogging og så tilbake. Rapportøren selv: deaktivert, med teksten «Din rapport». Allerede bekreftet: «Du har sett dette ✓», deaktivert. Skjult rapport (bare moderator ser den): deaktivert, med teksten «Skjult rapport». En bekreftelse kan ikke angres (FR-7). Ved trykk øker telleren med én med en gang (optimistisk), og tallet erstattes av serverens `seen_count` når svaret kommer. Feiler kallet, går telleren tilbake og en toast vises. Svarer serveren at brukeren allerede har bekreftet, vises «Du har sett dette ✓» uten feiltoast. |
 | Moderatorpanel | Detalj, bare for moderator | Viser nåværende status og knapper bare til nabostatusene. Ny gir «Under behandling →». Under behandling gir «← Ny» og «Løst →». Løst gir «← Under behandling». «Skjul rapport» spør om bekreftelse i en shadcn-`AlertDialog`, mens «Vis rapport» trenger ingen bekreftelse. |
 
 ## State Patterns
@@ -76,7 +76,7 @@ Her står oppførselen. Utseendet er beskrevet i `DESIGN.md.Components`.
 | Laster | Lista | 4 Skeleton-kort i samme form som rapportkortene |
 | Tom database | Lista | «Ingen rapporter ennå. Har du sett noe som bør fikses?» og en primærknapp «Registrer problem» |
 | Ingen treff | Lista | «Ingen rapporter matcher filteret.» og en lenke «Nullstill filter» |
-| Ingen egne rapporter | Lista med «Mine rapporter» | «Du har ikke registrert noen rapporter ennå.» og en primærknapp «Registrer problem» |
+| Ingen egne rapporter | Lista med «Mine rapporter» som eneste aktive filter | «Du har ikke registrert noen rapporter ennå.» og en primærknapp «Registrer problem». Er et kategori- eller statusfilter også aktivt, vises «Ingen treff» i stedet |
 | KI tenker | Ny rapport | En liten spinner og «Finner kategori …» ved kategorivalget. Brukeren kan fortsette å fylle ut skjemaet imens, men «Send inn» venter til det finnes en kategori. |
 | KI svarer ikke etter 5 sekunder, feiler eller er av | Ny rapport | «Vi fikk ikke et forslag. Velg kategori selv.» Kategorivalget står tomt og er obligatorisk. |
 | Mock-modus | Ny rapport | Oppfører seg som et vanlig forslag. Det er ingen synlig forskjell for brukeren. |
