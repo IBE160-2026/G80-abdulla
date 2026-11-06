@@ -30,3 +30,19 @@ Brukeren kjørte `bmad-deep-recon` og valgte at researchen skulle kjøres her, m
 - Ta personvern med i valget av KI-leverandør (SM-5): ta Gemini ut for drift, og slå av trening hvis Mistral velges.
 - Før drift: avklar behandlingsansvar og grunnlag, lag personvernerklæring etter art. 13, innfør lagringstid og anonymisering i stedet for «ingenting slettes», velg EU-region i Supabase og inngå DPA-er. Legg dette i arkitekturens Deferred-tabell og i PRD §6.2.
 - Fullfør researchen: kjør den semantiske sitatsjekken og `bmad-review` på `research.md`, og test selv om iOS og Android fjerner EXIF.
+
+## 2026-11-06 kl. 19:31 — Ali Yousef Abdulla
+
+### Oppgave
+Brukeren ba om å flette PR #18 med researchen på personvern.
+
+### Plan
+- Flettet PR #18 med merge-commit, slik tidligere PR-er er flettet, og oppdaterte den lokale `main`.
+
+### Resultat
+- PR #18 er flettet til `main` (`36f8295`). Researchen, README-raden, sesjonsloggen og loggen for flettingen av PR #17 ligger nå i `main`.
+- Branchene `docs/research-personvern` og `logg/sensorsjekk-pr17-flettet` er ikke slettet.
+- Denne loggen er bare committet lokalt på `logg/research-personvern-flettet`, slik at den kan bli med i neste PR i stedet for å få en egen.
+
+### Åpne punkter
+- Ingen nye.
