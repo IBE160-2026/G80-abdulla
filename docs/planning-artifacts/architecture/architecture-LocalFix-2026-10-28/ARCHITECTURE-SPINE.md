@@ -7,8 +7,8 @@ paradigm: 'Databasestyrt, servergjengitt monolitt: Postgres (RLS, triggere, visn
 scope: 'LocalFix v1: hele systemet, kjørt lokalt'
 status: draft
 created: '2026-10-28'
-updated: '2026-10-29'
-binds: [FR-1, FR-2, FR-3, FR-4, FR-5, FR-6, FR-7, FR-8, FR-9, NFR-1, NFR-2, NFR-3, NFR-4, NFR-5, NFR-6, NFR-7]
+updated: '2026-11-06'
+binds: [FR-1, FR-2, FR-3, FR-4, FR-5, FR-6, FR-7, FR-8, FR-9, NFR-1, NFR-2, NFR-3, NFR-4, NFR-5, NFR-6, NFR-7, NFR-8]
 sources:
   - docs/planning-artifacts/prds/prd-LocalFix-2026-09-18/prd.md
   - docs/planning-artifacts/prds/prd-LocalFix-2026-09-18/addendum.md
@@ -78,8 +78,14 @@ Avhengighetsretningen er regelen: piler viser hvem som kan importere hvem. Den s
 ### AD-5 — Antall bekreftelser kommer fra én visning `[ADOPTED]`
 
 - **Binds:** FR-5, FR-6, FR-7
-- **Prevents:** En teller som driver ut av synk, rapporter som forsvinner fra lista, og to ulike kolonnenavn
-- **Rule:** Visningen heter `reports_with_counts`, har `security_invoker = true` og er `FROM reports LEFT JOIN confirmations`. Den returnerer alle kolonnene i `reports` pluss `confirmation_count integer NOT NULL` (`count(c.user_id)::int`, aldri `NULL`) og `confirmed_by_me boolean NOT NULL` (`false` for anonyme). Lista og detaljsiden leser bare fra visningen, og skriving går alltid mot `reports`. SELECT på `confirmations` er tillatt for `anon` og `authenticated` når den tilhørende rapporten er synlig under RLS. Appen leser aldri `confirmations` direkte og viser aldri hvem som har bekreftet, bare antallet og brukerens egen bekreftelse.
+- **Prevents:** En teller som driver ut av synk, en flate som glemmer å telle med rapportøren, to måter å finne egne rapporter på, rapporter som forsvinner fra lista, og to ulike kolonnenavn
+- **Rule:** Visningen heter `reports_with_counts`, har `security_invoker = true` og er `FROM reports LEFT JOIN confirmations`. Den returnerer alle kolonnene i `reports` pluss:
+  - `confirmation_count integer NOT NULL` (`count(c.user_id)::int`, aldri `NULL`), brukt til sortering.
+  - `seen_count integer NOT NULL` (`confirmation_count + 1`), som er telleren «har sett dette» (rapportøren telles med, PRD §3). Grensesnittet viser bare `seen_count` og regner aldri selv.
+  - `confirmed_by_me boolean NOT NULL` (`false` for anonyme).
+  - `authored_by_me boolean NOT NULL` (`author_id = auth.uid()`, `false` for anonyme). Filteret «Mine rapporter» og teksten «Din rapport» på bekreftknappen bruker bare denne kolonnen, aldri en sammenligning i TypeScript.
+
+  Lista og detaljsiden leser bare fra visningen, og skriving går alltid mot `reports`. SELECT på `confirmations` er tillatt for `anon` og `authenticated` når den tilhørende rapporten er synlig under RLS. Appen leser aldri `confirmations` direkte og viser aldri hvem som har bekreftet, bare antallet og brukerens egen bekreftelse.
 
 ### AD-6 — Skjulte rapporter og bilder følger samme regel `[PROVISIONAL]`
 
@@ -148,19 +154,25 @@ Avhengighetsretningen er regelen: piler viser hvem som kan importere hvem. Den s
 - **Prevents:** Rolle lest fra brukerstyrte kilder, rekursive policyer, åpne tabeller og funksjoner
 - **Rule:** Moderator betyr `EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'moderator')`, uttrykt i funksjonen `private.is_moderator()` (`STABLE`, `SECURITY INVOKER`) som alle policyer og triggere bruker. `profiles` har bare policyen «SELECT egen rad», så funksjonen er ikke rekursiv. Rollen leses aldri fra JWT, `user_metadata` eller `app_metadata`. Hjelpefunksjoner ligger i skjemaet `private`, som PostgREST ikke eksponerer. Hver migrering som oppretter en tabell i `public` slår på RLS i samme migrering og tilbakekaller standardgrants (`REVOKE ALL ... FROM anon, authenticated`) før nødvendige grants gis. En pgTAP-test feiler hvis en tabell i `public` mangler RLS, og hvis `anon` eller `authenticated` kan kjøre en funksjon i `public` som ikke står på en tillatelsesliste.
 
+### AD-15 — Tilgjengelighet og kjerneflyt testes i nettleser `[ADOPTED]`
+
+- **Binds:** NFR-8, NFR-1, SM-1, SM-2, SM-3, SM-4
+- **Prevents:** At universell utforming bare sjekkes for hånd eller med ulike verktøy per side, og at kjerneflyten bare er testet bit for bit
+- **Rule:** Ende-til-ende-tester skrives med Playwright (`@playwright/test`) i `e2e/` og kjører mot appen med lokal Supabase og seed, med KI i mock-modus. Tilgjengelighet sjekkes med `@axe-core/playwright` på lista, detaljsiden, skjemaet og innloggingen, og en test feiler ved funn med alvorlighet `serious` eller `critical`. Én test går hele kjerneflyten bare med tastatur: logge inn, filtrere, åpne en rapport, bekrefte, registrere en rapport, og som moderator endre status og skjule. Testene kjøres med én kommando som står i README. En story som endrer grensesnittet, er ikke ferdig før disse testene består.
+
 ## Consistency Conventions
 
 | Concern | Convention |
 | --- | --- |
 | Navn | Engelsk `snake_case` i database, engelske navn i kode. UI-tekst er norsk bokmål uten flerspråkstøtte i v1 |
-| Data og formater | `uuid` som id. `timestamptz` i UTC, vist i `Europe/Oslo`. Valgfrie felt er `NULL`, aldri tom streng. Visning bruker `summary ?? description`. «Sist oppdatert» på detaljsiden viser `status_changed_at` |
+| Data og formater | `uuid` som id. `timestamptz` i UTC, vist i `Europe/Oslo`. Valgfrie felt er `NULL`, aldri tom streng. Visning bruker `summary ?? description`. «Sist oppdatert» på detaljsiden viser `status_changed_at` som dato og klokkeslett. Telleren viser `seen_count` (AD-5) |
 | Server Actions | Svarer `{ ok: true, data }` eller `{ ok: false, error: { code, message } }`. Moderatorhandlinger er `setReportStatus(reportId, from, to)` og `setReportHidden(reportId, hidden)` med eksplisitt målverdi, aldri toggle. `setReportStatus` oppdaterer med `WHERE id = $1 AND status = $2` og gir `stale_state` hvis ingen rad ble endret. `confirmReport(reportId)` gir `already_confirmed` ved SQLSTATE `23505` |
 | Feilkoder | Lukket vokabular: `unauthenticated, forbidden, invalid_status_step, invalid_column_change, already_confirmed, own_report, report_not_found, stale_state, validation_failed, upload_failed, ai_unavailable, unknown`. `lib/errors.ts` slår opp på `MESSAGE` for egne feil og på SQLSTATE `23505` og `42501` for de innebygde. Databasetekst lekkes aldri til brukeren |
-| Filter og sortering | URL-parametrene er `category`, `status` (enum-koder) og `sort` (`newest` er standard, `confirmations`). Ukjente verdier ignoreres. Sortering er `confirmation_count DESC, created_at DESC, id DESC` eller `created_at DESC, id DESC`. Moderator ser skjulte rapporter blandet inn med merket «Skjult» |
+| Filter og sortering | URL-parametrene er `category`, `status` (enum-koder), `mine` (`true`, filtrerer på `authored_by_me`) og `sort` (`newest` er standard, `confirmations`). Alle kan kombineres. Ukjente verdier ignoreres. `mine=true` for en besøkende gir en tom liste. Det er ingen paginering: lista viser alle synlige rapporter (NFR-6). Sortering er `confirmation_count DESC, created_at DESC, id DESC` eller `created_at DESC, id DESC`. Moderator ser skjulte rapporter blandet inn med merket «Skjult» |
 | Detaljside | En rapport som ikke finnes eller ikke er synlig gir `notFound()` (404) i begge tilfeller |
 | Konfigurasjon | Kun via `lib/env.ts`, aldri `process.env` direkte i andre filer |
 | Logging | Bare `console`, aldri rapporttekst eller e-postadresser |
-| Tester | Databaseregler: pgTAP med `supabase test db`, med hjelperne `tests.as_user(uuid)` og `tests.as_anon()` som setter rolle og JWT-claims, ellers blir `auth.uid()` `NULL` og testene består uten å teste noe. Testene dekker også at `status_changed_at` flyttes ved statusendring, står uendret ved skjuling og ikke kan settes av en bruker. REST-grensen testes av et lite Vitest-skript mot lokal PostgREST for 401 og 403 (FR-2, FR-7). Ren logikk: Vitest. SM-5: eget skript i `evals/sm5/` |
+| Tester | Databaseregler: pgTAP med `supabase test db`, med hjelperne `tests.as_user(uuid)` og `tests.as_anon()` som setter rolle og JWT-claims, ellers blir `auth.uid()` `NULL` og testene består uten å teste noe. Testene dekker også at `status_changed_at` flyttes ved statusendring, står uendret ved skjuling og ikke kan settes av en bruker. REST-grensen testes av et lite Vitest-skript mot lokal PostgREST for 401 og 403 (FR-2, FR-7). Ren logikk: Vitest. Kjerneflyt, axe og tastatur: Playwright i `e2e/` (AD-15). SM-5: eget skript i `evals/sm5/` |
 | PWA | `app/manifest` gir installerbarhet (NFR-5). Ingen service worker eller frakoblet modus i v1 |
 
 ## Stack
@@ -179,6 +191,8 @@ Versjonene er bekreftet mot npm 2026-10-28. Startpakken har ingen låsefil, så 
 | shadcn (CLI) | 4.23.0 |
 | Zod | 4.6.7 |
 | Vitest | 5.0.5 |
+| `@playwright/test` | 1.65.0 (bekreftet mot npm 2026-11-06) |
+| `@axe-core/playwright` | 4.14.0 (bekreftet mot npm 2026-11-06) |
 | Node.js (utvikling) | 24.19.0 |
 | Docker Desktop | påkrevd, ikke installert ennå |
 
@@ -244,6 +258,7 @@ localfix/
     seed.sql            # moderator@localfix.test, brukere, rapporter i alle kategorier og statuser
     seed-images/        # testbilder, lastet inn via objects_path
     tests/              # pgTAP og hjelperne tests.as_user / tests.as_anon
+  e2e/                  # Playwright: kjerneflyt, axe og tastatur (AD-15)
   evals/sm5/            # 20 beskrivelser med fasit og skript som bruker lib/ai
   .env.example
   README.md
@@ -257,8 +272,8 @@ localfix/
 | FR-2 Moderatorrolle | `supabase/migrations` (RLS, trigger, `private.is_moderator`) | AD-1, AD-7, AD-12, AD-14 |
 | FR-3 Registrere rapport | skjema og Server Action | AD-3, AD-4, AD-9, AD-10, AD-12 |
 | FR-4 KI-forslag | `lib/ai/`, Server Action | AD-8, AD-10 |
-| FR-5 Liste og detalj | Server Components, `reports_with_counts` | AD-3, AD-5, AD-6, AD-13 |
-| FR-6 Filter og sortering | URL-parametre, databasespørring | AD-5, AD-10, konvensjon |
+| FR-5 Liste og detalj, telleren | Server Components, `reports_with_counts` (`seen_count`) | AD-3, AD-5, AD-6, AD-13 |
+| FR-6 Filter, sortering og «Mine rapporter» | URL-parametre, databasespørring, `authored_by_me` | AD-5, AD-10, konvensjon |
 | FR-7 Bekrefte | Server Action, `confirmations` | AD-1, AD-5, AD-7, AD-12 |
 | FR-8 Endre status, «sist oppdatert» | Server Action, trigger, `reports.status_changed_at` | AD-1, AD-4, AD-7, AD-13 |
 | FR-9 Skjule og vise | Server Action, RLS, Storage-policy | AD-1, AD-6, AD-7, AD-13 |
@@ -268,7 +283,8 @@ localfix/
 | NFR-5 PWA | `app/manifest` | Konvensjon |
 | NFR-6 Ytelse (100 rapporter under 2 s) | `reports_with_counts`, `createSignedUrls` | AD-5, AD-9 |
 | NFR-7 Kostnad | Ingen betalte tjenester | AD-8, AD-11 |
-| SM-1 til SM-4 | pgTAP, Vitest, seed | AD-7, AD-12, konvensjon (Tester) |
+| NFR-8 Universell utforming | `e2e/` (axe og tastatur), `components/` | AD-15, UX (EXPERIENCE.md, Accessibility Floor) |
+| SM-1 til SM-4 | pgTAP, Vitest, Playwright, seed | AD-7, AD-12, AD-15, konvensjon (Tester) |
 | SM-5, SM-6 KI-testsett og fallback | `evals/sm5/`, `lib/ai/` | AD-8 |
 | SM-7 Start etter README | README, seed, Docker | AD-11 |
 
@@ -280,7 +296,7 @@ localfix/
 | Verifisering av Storage-oppslaget i AD-6, rettigheten `createSignedUrl` krever, og tilfellet med anonyme besøkende (AD-6, AD-9) | Ikke bekreftet i dokumentasjonen | Ved første bygg, med en pgTAP-test per utnyttelse. AD-6 og AD-9 står som foreløpige til da |
 | Kompatibilitet mellom shadcn CLI 4.x og startpakkens Tailwind 3.4, og mellom Vitest 5 og Next.js | Ikke sjekket | Ved oppstart |
 | Hosting av Next.js og Supabase, HTTPS, CI | Ikke et krav i v1, har egne personvern-, region- og kostnadsspørsmål. Installerbarhet (NFR-5) testes på localhost | Hvis en offentlig demo ønskes |
-| Ende-til-ende-tester | Databasetester og Vitest dekker reglene | Etter at kjerneflyten virker |
-| Paginering, varsler, sanntid, kart, frakoblet modus | Utenfor omfang i v1 (PRD §6.2) | Etter v1 |
+| Paginering | Lista viser alle synlige rapporter, og NFR-6 (100 rapporter under 2 s) er grensen i v1 | Hvis lista blir tregere enn NFR-6 |
+| Varsler, sanntid, kart, frakoblet modus | Utenfor omfang i v1 (PRD §6.2) | Etter v1 |
 | Rate limiting av KI-kallet utover innlogging, 2000 tegn og ett kall om gangen | Gratiskvoten er liten, og registrering er åpen | Hvis kvoten tømmes i praksis |
 | Admin-side for moderatorer | Opprykk skjer med SQL (PRD §11) | Etter v1 |

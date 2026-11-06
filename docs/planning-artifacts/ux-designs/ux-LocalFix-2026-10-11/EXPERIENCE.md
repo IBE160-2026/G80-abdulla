@@ -90,7 +90,7 @@ Her står oppførselen. Utseendet er beskrevet i `DESIGN.md.Components`.
 
 - Trykk og klikk er de eneste handlingene. Det er ingen sveip, ingen dra-og-slipp og ingen lange trykk.
 - «←» i topplinja og nettleserens tilbakeknapp gjør det samme.
-- Lista bruker «Vis flere» nederst, med 20 rapporter om gangen. Det er ingen uendelig rulling.
+- Lista viser alle synlige rapporter. Det er ingen «Vis flere» og ingen uendelig rulling i v1 (arkitekturen, NFR-6).
 - Statusendringer vises når siden lastes på nytt (PRD FR-8). Det er ingen sanntidsoppdatering.
 - Det finnes ingen funksjoner som bare virker med mus eller hover.
 
