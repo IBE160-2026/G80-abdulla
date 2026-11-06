@@ -30,3 +30,19 @@ Brukeren kjørte `bmad-deep-recon` og valgte at researchen skulle kjøres her, m
 - Ta personvern med i valget av KI-leverandør (SM-5): ta Gemini ut for drift, og slå av trening hvis Mistral velges.
 - Før drift: avklar behandlingsansvar og grunnlag, lag personvernerklæring etter art. 13, innfør lagringstid og anonymisering i stedet for «ingenting slettes», velg EU-region i Supabase og inngå DPA-er. Legg dette i arkitekturens Deferred-tabell og i PRD §6.2.
 - Fullfør researchen: kjør den semantiske sitatsjekken og `bmad-review` på `research.md`, og test selv om iOS og Android fjerner EXIF.
+
+## 2026-11-06 kl. 19:31 — Ali Yousef Abdulla
+
+### Oppgave
+Brukeren ba om å flette PR #18 med researchen på personvern.
+
+### Plan
+- Flettet PR #18 med merge-commit, slik tidligere PR-er er flettet, og oppdaterte den lokale `main`.
+
+### Resultat
+- PR #18 er flettet til `main` (`36f8295`). Researchen, README-raden, sesjonsloggen og loggen for flettingen av PR #17 ligger nå i `main`.
+- Denne loggen er bare committet lokalt på `logg/research-personvern-flettet`, slik at den kan bli med i neste PR i stedet for å få en egen.
+- Brukeren ba deretter om å slette branchene. Ni branches er slettet lokalt (`git branch -d`), og åtte av dem også på GitHub. Det er `docs/arkitektur-final`, `docs/coaching-plan`, `docs/research-personvern`, `docs/ux-etter-prd-vurdering`, `logg/arkitektur-final-flettet`, `logg/coaching-plan-flettet`, `logg/sensorsjekk-ny-sammenligning` og `logg/sensorsjekk-opprydding`. Den niende, `logg/sensorsjekk-pr17-flettet`, fantes bare lokalt og ble slettet med `-D`, fordi commiten var kopiert inn i `main` (kontrollert med `git cherry`). Punktet om å slette branchene er krysset av i `issues.md`.
+
+### Åpne punkter
+- Ingen nye.
