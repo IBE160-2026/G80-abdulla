@@ -56,18 +56,18 @@ context:
 ## Tasks & Acceptance
 
 **Execution:**
-- [ ] repo-rot -- `npx create-next-app@latest -e with-supabase` i scratchpad, kopier inn (ikke eksempelets `README.md`/`.gitignore`), og fjern demoinnholdet slik beslutningen sier -- create-next-app avviser en mappe som ikke er tom
-- [ ] `package.json`, `.nvmrc` -- eksakte versjoner, `engines.node`, `@types/node` `^24`, `eslint-config-next` lik Next-versjonen, `zod` 4.6.7, `supabase` 2.122.1. `npm install` lager `package-lock.json` -- AR-1
-- [ ] `next.config.ts` -- fjern `cacheComponents` -- AD-13
-- [ ] `lib/supabase/proxy.ts`, `lib/utils.ts` -- fjern redirect og `hasEnvVars` -- AR-2
-- [ ] `lib/env.ts` -- `publicEnv` (Zod, literal `process.env.NEXT_PUBLIC_*`) og `serverEnv()` (`AI_PROVIDER` mock|openai med standard mock; `AI_BASE_URL`, `AI_MODEL`, `AI_API_KEY` påkrevd bare for openai). Alle `lib/supabase/*` bruker den -- AR-4
-- [ ] `lib/env.test.ts` -- én test per rad i I/O-matrisen, kjørt med `node --test` (Node 24 kjører TypeScript direkte) til Vitest kommer i Story 1.2 -- matrisen må være testet
-- [ ] `.env.example` -- alle variablene. Lokale Supabase-verdier fra `npx supabase status` hvis de er like på alle maskiner, ellers plassholder og README-steg -- NFR-3
-- [ ] `components.json`, `app/globals.css` -- kjør `npx shadcn@4.23.0 add button --overwrite`, se på diffen og rett etter AR-2. Sjekken står i Implementation Notes
-- [ ] `supabase/config.toml` -- `npx supabase init`, `project_id = "localfix"`, `enable_confirmations = false`. Egen commit: Realtime, Edge Runtime, Analytics og e-posttesting av -- AR-3, AD-11
-- [ ] `app/manifest.ts`, `public/icons/` -- navn, `start_url: '/'`, `display: 'standalone'`, temafarger #1F4E79/#F5F7FA, PNG-ikoner 192/512 -- AR-17
-- [ ] `README.md` -- Docker Desktop først, forutsetninger med versjoner, kopierbare kommandoer, nedlastingsstørrelse og -tid for første oppstart -- AR-16
-- [ ] `ARCHITECTURE-SPINE.md` -- Stack-tabellen får de låste versjonene -- AR-1
+- [x] repo-rot -- `npx create-next-app@latest -e with-supabase` i scratchpad, kopier inn (ikke eksempelets `README.md`/`.gitignore`), og fjern demoinnholdet slik beslutningen sier -- create-next-app avviser en mappe som ikke er tom
+- [x] `package.json`, `.nvmrc` -- eksakte versjoner, `engines.node`, `@types/node` `^24`, `eslint-config-next` lik Next-versjonen, `zod` 4.6.7, `supabase` 2.122.1. `npm install` lager `package-lock.json` -- AR-1
+- [x] `next.config.ts` -- fjern `cacheComponents` -- AD-13
+- [x] `lib/supabase/proxy.ts`, `lib/utils.ts` -- fjern redirect og `hasEnvVars` -- AR-2
+- [x] `lib/env.ts` -- `publicEnv` (Zod, literal `process.env.NEXT_PUBLIC_*`) og `serverEnv()` (`AI_PROVIDER` mock|openai med standard mock; `AI_BASE_URL`, `AI_MODEL`, `AI_API_KEY` påkrevd bare for openai). Alle `lib/supabase/*` bruker den -- AR-4
+- [x] `lib/env.test.ts`, `lib/supabase/proxy.test.ts` -- én test per rad i I/O-matrisen, kjørt med `node --test` (Node 24 kjører TypeScript direkte) til Vitest kommer i Story 1.2 -- matrisen må være testet
+- [x] `.env.example` -- alle variablene. Lokale Supabase-verdier fra `npx supabase status` hvis de er like på alle maskiner, ellers plassholder og README-steg -- NFR-3
+- [x] `components.json`, `app/globals.css` -- kjør `npx shadcn@4.23.0 add button --overwrite`, se på diffen og rett etter AR-2. Sjekken står i Implementation Notes
+- [x] `supabase/config.toml` -- `npx supabase init`, `project_id = "localfix"`, `enable_confirmations = false`. Egen commit: Realtime, Edge Runtime, Analytics og e-posttesting av -- AR-3, AD-11
+- [x] `app/manifest.ts`, `public/icons/` -- navn, `start_url: '/'`, `display: 'standalone'`, temafarger #1F4E79/#F5F7FA, PNG-ikoner 192/512 -- AR-17
+- [x] `README.md` -- Docker Desktop først, forutsetninger med versjoner, kopierbare kommandoer, nedlastingsstørrelse og -tid for første oppstart -- AR-16
+- [x] `ARCHITECTURE-SPINE.md` -- Stack-tabellen får de låste versjonene -- AR-1
 
 **Acceptance Criteria:**
 - Given en ny klone, when README følges, then starter appen på `http://localhost:3000` uten egne nøkler.
@@ -77,6 +77,18 @@ context:
 - Given appen, when `/manifest.webmanifest` hentes, then har den ikoner på 192 og 512 px, og det finnes ingen service worker.
 
 ## Implementation Notes
+
+- **Commits:** `7b34f87` startpakke, `3c12145` `supabase init`, `ead639c` tjenester av (egen commit), `fa5324b` README, `.env.example` og Stack-tabellen.
+- **AR-2, shadcn:** Med startpakkens `tailwind.config: ""` ga `npx shadcn@4.23.0 add button --overwrite` Tailwind v4-klasser i `button.tsx` (`shadow-xs`, `dark:`). Den installerte også pakken `radix-ui` og feil npm-pakke `cn` med en ødelagt import. `globals.css` ble ikke endret. Rettet ved å la `components.json` peke på `tailwind.config.ts`. Da gir CLI-en en Tailwind 3-knapp, og den opprinnelige knappen er beholdt.
+- **AR-2, proxy:** Regelen som sendte besøkende videre er fjernet. `getClaims()` og cookie-håndteringen er beholdt. Dekket av `lib/supabase/proxy.test.ts`, som koordinatoren la til fordi raden i matrisen bare var sjekket med curl.
+- **Avvik fra spec-en:**
+  - `@types/node` er låst til 24.19.2, ikke `^24`, etter regelen om eksakte versjoner.
+  - TypeScript 5.9.3 og ESLint 9.39.5 er låst til siste versjon i startpakkens områder.
+  - `eslint.config.mjs` er skrevet om til flat config fordi `eslint-config-next` 16 krasjet med FlatCompat.
+- **Tillegg:** `instrumentation.ts` kaller `serverEnv()` ved oppstart, slik at en ugyldig `AI_PROVIDER` stopper serveren før første forespørsel. `auth-button` og `logout-button` er fjernet sammen med demoforsiden, og Geist-fonten er byttet med systemfonten (UX).
+- **Supabase:** `supabase start` bruker sju bilder, ikke åtte (imgproxy starter ikke). Nedlastingen var ≈ 1,1 GB og tok ≈ 55 min på 2–5 Mbit/s. Neste oppstart tok 37 s. `public.ecr.aws` avviste GoTrue og postgres-meta med `toomanyrequests`, så de ble hentet fra Docker Hub.
+- **Beholdt til Story 2.1:** `components/ui/{checkbox,dropdown-menu,badge}`, engelsk tekst på innloggingssidene og `sign-up-success`, som fortsatt ber brukeren bekrefte e-posten.
+- **Verifisert:** `npm ci`, lint, `tsc --noEmit`, `npm run build`, `node --test` 5/5, `supabase start`/`status`, at innlogging virker uten e-postbekreftelse, curl mot `/`, `/noe` og `/auth/login` og manifestet. Sjekken i Chrome DevTools er ikke gjort.
 
 ## Spec Change Log
 
