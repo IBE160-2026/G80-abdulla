@@ -47,6 +47,7 @@ function runProxy(paths: string[]) {
         NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "test-publishable-key",
       },
       encoding: "utf8",
+      timeout: 30000,
     },
   );
   assert.equal(child.status, 0, child.stderr);
@@ -62,6 +63,6 @@ test("besøkende på undersider sendes ikke til /auth/login", () => {
   assert.equal(results.length, PATHS.length);
   for (const { path, status, location } of results) {
     assert.equal(location, null, `${path} sendte videre til ${location}`);
-    assert.ok(status < 300 || status >= 400, `${path} ga status ${status}`);
+    assert.equal(status, 200, `${path} ga status ${status}`);
   }
 });

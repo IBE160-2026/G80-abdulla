@@ -14,7 +14,8 @@ function formatIssues(title: string, issues: z.core.$ZodIssue[]): string {
 
 const publicSchema = z.object({
   NEXT_PUBLIC_SUPABASE_URL: z.url({
-    error: "mangler eller er ikke en gyldig URL",
+    protocol: /^https?$/,
+    error: "mangler eller er ikke en gyldig http- eller https-URL",
   }),
   NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: z
     .string({ error: "mangler" })
@@ -49,7 +50,9 @@ const serverSchema = z.discriminatedUnion(
     z.object({
       AI_PROVIDER: z.literal("openai"),
       AI_BASE_URL: z.url({
-        error: "påkrevd når AI_PROVIDER=openai, og må være en gyldig URL",
+        protocol: /^https?$/,
+        error:
+          "påkrevd når AI_PROVIDER=openai, og må være en gyldig http- eller https-URL",
       }),
       AI_MODEL: z
         .string({ error: "påkrevd når AI_PROVIDER=openai" })
