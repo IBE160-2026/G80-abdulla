@@ -2,7 +2,7 @@
 title: 'Story 1.1: Startpakke og lokal Supabase'
 type: 'feature'
 created: '2026-11-07'
-status: 'in-progress'
+status: 'in-review'
 route: 'dispatch'
 review_loop_iteration: 0
 baseline_commit: '16e32979e6e54e9e6588932956cd21e84803fceb'
@@ -93,6 +93,38 @@ context:
 ## Spec Change Log
 
 ## Review Triage Log
+
+Gjennomgang 1 (2026-11-08). Kilder: B = blind-hunter, E = edge-case-hunter, V = verification-gap.
+
+| # | Funn | Vurdering | Begrunnelse | Rute |
+|---|------|-----------|-------------|------|
+| B1, E1, V-a | `app/auth/confirm/route.ts`: `next` fra spørringen går rett til `redirect()` (open redirect) | medium | Bekreftet. `redirect()` godtar absolutte URL-er og `//host`, og koden er kopiert inn i denne storyen. AR-13 krever retur bare til samme opprinnelse | patch |
+| B2, E2, V-a | `confirm/route.ts`: `error.message` er ikke URL-kodet | low | Bekreftet. `&` eller `#` i meldingen kutter teksten, og retting er `encodeURIComponent` | patch |
+| B2b | `type` castes til `EmailOtpType` uten sjekk | low | `verifyOtp` avviser ukjent type, og en sjekk ville lagt til en ekstra vakt. Avvist | avvist |
+| B3 | `/auth/error` viser vilkårlig tekst fra URL-en | low | React escaper, så det er bare innholdsforfalskning lokalt. Rettingen krever en kodetabell (Story 2.1, `lib/errors.ts`). Avvist | avvist |
+| B4a, E3 | Etter registrering sendes en innlogget bruker til «Check your email» | low | Bekreftet: `enable_confirmations = false` gir sesjon med en gang. Rettingen er én linje (`data.session ? "/" : …`) | patch |
+| B4b, E4, V-c | «Forgot password» er en blindvei uten e-posttjeneste | low | Bekreftet, men siden kan bare nås ved å skrive inn adressen (forsiden har ingen lenker til `/auth`). Rettingen krever omarbeiding av innloggingsflyten, som hører til Story 2.1. Avvist og ført som åpent punkt | avvist |
+| B5, E5, V-b | `additional_redirect_urls` har bare `https://127.0.0.1:3000`, men README sier `http://localhost:3000` | low | Bekreftet. Gjelder bare e-postlenker, men rettingen er én linje | patch (egen commit for `config.toml`) |
+| B6 | Innloggingssidene er på engelsk | low | Beslutningen i intent beholder innloggingssidene urørt til Story 2.1. Avvist | avvist |
+| B7 | Ubrukt startkode: `checkbox` med avhengighet, `./pages` og `./src` i Tailwind-`content`, engelske malkommentarer | low | `checkbox` og stiene som ikke finnes, er bekreftet ubrukte, og rettingen er sletting. `badge` (statusmerker, Story 1.4) og `dropdown-menu` (menyen, Story 2.1) beholdes. Supabase-kommentarene er nyttige advarsler og beholdes | patch (delvis) |
+| B8 | Ingen `test`-skript i `package.json` | low | Bekreftet. `"test": "node --test"` er en direkte retting, og Story 1.2 bytter til Vitest | patch |
+| B9a, V1 | Ingen test av gyldig openai-konfigurasjon | medium | Fra V (forhåndsverifisert). En feil i openai-grenen ville ikke blitt oppdaget | patch |
+| B9b, V2 | Tom `AI_PROVIDER` gir mock, men det er ikke testet | low | Fra V (forhåndsverifisert). `||` byttet med `??` ville ikke blitt oppdaget | patch |
+| V3 | «Oppstart feiler» via `instrumentation.ts` er ikke testet | medium | Fra V (forhåndsverifisert). Uten `serverEnv()` i `register()` består alle testene | patch |
+| B9c | Ingen tester for ugyldig URL, lekket nøkkel eller proxyens cookie-sti | low | Utover matrisen, og cookie-stien testes ende-til-ende i Story 1.2. Avvist | avvist |
+| B10a | `lib/env.ts` kaster ved import også i nettleseren | false | Manglende `NEXT_PUBLIC_*` stopper `next build` (verifisert), så en bunt med feil verdier lages ikke | avvist |
+| B10b, E10 | `z.url()` godtar alle skjemaer (`ftp:`, `mailto:`) | low | Bekreftet. Rettingen er `protocol: /^https?$/` | patch |
+| B10c | `serverEnv()` parser på nytt ved hvert kall | low | Ubetydelig kostnad, og ingen kaller den ofte ennå. Avvist | avvist |
+| B11 | PWA: samme ikon for `maskable`, mangler iOS-metadata, temafargene er ikke i `globals.css` | low | Temaet er Story 1.4 (UX-DR1). Om ikonet beskjæres, er ikke sjekket (maybe-false, i så fall low). iOS kan likevel legge appen på hjemskjermen. Avvist | avvist |
+| B12 | Proxyen kjører på `/manifest.webmanifest` | low | Bekreftet. Rettingen er ett ledd i matcheren | patch |
+| B13 | `engines.node` håndheves ikke | low | Bekreftet. Rettingen er `.npmrc` med `engine-strict=true` | patch |
+| B14 | Svake passordregler | low | Hører til FR-1 og Story 2.1. Avvist | avvist |
+| B15 | Stack-tabellen mangler småpakker | false | Tabellen gjelder rammeverket. Alle versjonene står låst i `package.json`, så ingen regel brytes | avvist |
+| E6 | `router.push('/')` uten `refresh()` etter innlogging | false | Forsiden leser ingen sesjon, og dynamiske sider bufres ikke i ruterens cache i Next 16 | avvist |
+| E7, E8 | `spawnSync` i testene har ingen timeout | low | Bekreftet. Rettingen er `timeout: 30000` | patch |
+| E9 | Proxytesten godtar 4xx og 5xx | low | Bekreftet. En 500 ville bestått, og rettingen er å kreve 200 | patch |
+| V4 | Proxytesten står ikke i Verification i spec-en | low | Rettingen er å endre spec-en. Avvist, men `npm test` (B8) kjører begge testfilene | avvist |
+| V5 | Manifestet testes bare for hånd | medium (ikke verifisert i test) | Statisk konfigurasjon. Hører hjemme i testoppsettet i Story 1.2 | defer |
 
 ## Design Notes
 
