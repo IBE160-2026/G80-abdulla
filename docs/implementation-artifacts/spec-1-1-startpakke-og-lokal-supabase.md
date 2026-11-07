@@ -2,7 +2,7 @@
 title: 'Story 1.1: Startpakke og lokal Supabase'
 type: 'feature'
 created: '2026-11-07'
-status: 'in-review'
+status: 'done'
 route: 'dispatch'
 review_loop_iteration: 0
 baseline_commit: '16e32979e6e54e9e6588932956cd21e84803fceb'
