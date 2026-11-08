@@ -2,7 +2,7 @@
 title: 'Story 1.2: Testoppsett: Vitest, Playwright, axe og kjerneflyttest'
 type: 'chore'
 created: '2026-11-08'
-status: 'in-review'
+status: 'done'
 route: 'dispatch'
 review_loop_iteration: 0
 baseline_commit: '5d31da96ae0f67881345e19f83572063c425254c'
@@ -93,7 +93,11 @@ context:
   - `npm test` (exit 0, 57 s) ga Vitest 16/16 og Playwright 18/18, med alle `les-*` før `endrer-*`. `reset` har ingen tester ennå.
   - `git grep` finner ingen `skip`/`fixme`/`only` og ingen `process.env` utenfor `lib/env.ts`.
   - `PUBLISHABLE_KEY` fra `npx supabase status` er lik verdien i `.env.example`.
-- **Ikke gjort:** README er ikke fulgt på en ny klone, og ingenting er kjørt på macOS eller Linux.
+- **Etter gjennomgangen (`e7cdaf4`):**
+  - `npm run lint` og `npx tsc --noEmit` er rene.
+  - `npm test` (exit 0, 62 s) ga Vitest 19/19 og Playwright 22/22, med `les-*` (10 + 10) før `endrer-*` (1 + 1).
+- **Ny klone (AC 1, B12):** `git clone --branch story/1-2-testoppsett` til en tom mappe, så stegene i README: `npm ci` (39 s), `cp .env.example .env`, `npx supabase start`, `npx playwright install chromium` og `npm test`. Exit 0 etter 71 s, med Vitest 19/19 og Playwright 22/22. Docker-bildene og Chromium lå allerede på maskinen, så første nedlasting er ikke målt på nytt.
+- **Ikke gjort:** ingenting er kjørt på macOS eller Linux.
 
 ## Spec Change Log
 
