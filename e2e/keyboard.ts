@@ -16,13 +16,16 @@ export async function tabTo(
   const target = page.getByRole(role, { name, exact: true });
   for (let i = 0; i < max; i++) {
     await page.keyboard.press("Tab");
-    const focused = await target.evaluateAll((elements) =>
-      elements.some((element) => element === document.activeElement),
+    // Flere elementer kan ha samme rolle og navn, så den som har fokus,
+    // velges med indeksen. Ellers feiler toBeFocused() i strict mode.
+    const index = await target.evaluateAll((elements) =>
+      elements.findIndex((element) => element === document.activeElement),
     );
-    if (focused) {
-      await expect(target).toBeFocused();
-      await expect(target).toBeVisible();
-      return target;
+    if (index >= 0) {
+      const focused = target.nth(index);
+      await expect(focused).toBeFocused();
+      await expect(focused).toBeVisible();
+      return focused;
     }
   }
   throw new Error(

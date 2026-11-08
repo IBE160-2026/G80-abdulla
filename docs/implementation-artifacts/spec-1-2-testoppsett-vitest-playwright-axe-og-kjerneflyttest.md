@@ -2,7 +2,7 @@
 title: 'Story 1.2: Testoppsett: Vitest, Playwright, axe og kjerneflyttest'
 type: 'chore'
 created: '2026-11-08'
-status: 'in-progress'
+status: 'in-review'
 route: 'dispatch'
 review_loop_iteration: 0
 baseline_commit: '5d31da96ae0f67881345e19f83572063c425254c'
@@ -98,6 +98,41 @@ context:
 ## Spec Change Log
 
 ## Review Triage Log
+
+Gjennomgang 1 (2026-11-08). Kilder: B = blind-hunter, E = edge-case-hunter, V = verification-gap.
+
+| # | Funn | Vurdering | Begrunnelse | Rute |
+|---|------|-----------|-------------|------|
+| V1 | Rekkefølgen `les` → `endrer` → `reset` (AC 3) har ingen test | medium | Fra V (forhåndsverifisert). Fjernes `dependencies`, består alle testene | patch |
+| V2, E3 | En spec i `e2e/` som ingen `testMatch` treffer, kjører aldri, og ingenting sier fra | medium | Bekreftet: hvert prosjekt har egen `testMatch`, så `e2e/rapportliste.spec.ts` ville blitt hoppet over. Senere storyer legger til filer her | patch |
+| V3, E10 | 320 px-grenen avhenger av at bredden er nøyaktig 360 | low | Bekreftet. Rettingen er å bruke prosjektnavnet | patch |
+| B1 | Matriseraden gjelder `serious`, men bare `critical` er testet. `null` og `minor` er ikke testet | low | `serious` er bekreftet og rettes med en `color-contrast`-test. `null` og `minor` avvises: filteret sammenligner bare med to verdier, og en egen ren funksjon ville gitt mer kode | patch (delvis) |
+| B2, E4 | `tabTo` kaster en strict mode-feil når to elementer har samme rolle og navn | medium | Bekreftet: `toBeFocused()` på en lokator med flere treff bryter strict mode. Lista i Story 1.4 kan få like navn | patch |
+| B2b | Standardverdien `max = 50` og synlighetssjekken i `tabTo` er ikke testet | low | Liten sjanse for feil, og rettingen ville gitt flere tester uten ny dekning av logikk. Avvist | avvist |
+| B3 | `test.skip`/`test.fixme` og «bare tastatur» i kjerneflyttesten sjekkes bare for hånd | medium | Bekreftet: `forbidOnly` fanger bare `.only`. Regelen gjelder hver senere story | patch (skannetest i Vitest) |
+| B4 | `@next/env` importeres uten å være oppført i `package.json` | low | Bekreftet: pakken finnes bare fordi `next` henter den. Rettingen er én eksakt devDependency | patch |
+| B5 | Sjekken for `process.env` dekker ikke rotfilene | false | `git grep` over alle `*.ts`/`*.mjs` utenom `lib/env.ts`, testene og testkonfigurasjonen gir ingen treff. Rettingen ville dessuten vært å endre spec-en | avvist |
+| B6 | Kommentaren i `vitest.config.ts` og README sier at Vitest bare kjører `lib/` | low | Bekreftet etter at `playwright.config.test.ts` kom med. Rettingen er bare tekst | patch |
+| B7 | `epic-1-context.md` sier fortsatt at `npm test` kjører `node --test` | low | Bekreftet. Rettingen er én linje i en fil som kan redigeres fritt | patch |
+| B8 | Spec-en står som `in-review`, mens `sprint-status.yaml` står som `in-progress` | false | Steg 5 i arbeidsflyten setter storyen til `review`, så avviket finnes bare mellom stegene | avvist |
+| B9 | Kommentaren sier at `&&`-kjeden virker i PowerShell | low | Bekreftet: Windows PowerShell 5.1 har ikke `&&`. Playwright kjører kommandoen i `cmd.exe`. Rettingen er bare tekst | patch |
+| B10 | Manifesttesten leser ikke pikselstørrelsen i PNG-en og sjekker ikke `<link rel="manifest">` | low | Next legger inn lenken selv fra `app/manifest.ts`, og ikonene er laget med riktig størrelse. Liten sjanse for feil, og rettingen ville gitt mer kode. Avvist | avvist |
+| B11 | Ingen ende-til-ende-test viser at testserveren går i mock | low | Mekanismen er dekket av konfigurasjonstesten og testen av `@next/env`. Det finnes ingen KI-flate å se dette på før Story 2.3. Avvist | avvist |
+| B12 | AC 1 (ny klone) er ikke verifisert | medium | Bekreftet. Koordinatoren følger README på en ny klone etter rettingene | patch (verifisering) |
+| B13 | Hjelpetestene kjører i begge breddene og trenger et helt bygg | low | Det koster noen sekunder. Et eget prosjekt ville gjort konfigurasjonen mer komplisert. Avvist | avvist |
+| B14, E7 | Breddesjekken ser bare på `document.documentElement`, ikke på `overflow-x: hidden` eller rullebokser | low | Stemmer, men NFR-1 gjelder scrolling av hele siden, og forsiden har ingen slike elementer. Regelen om lange ord i Story 1.5 bør testes direkte der. Avvist | avvist |
+| B15 | Kjerneflyttesten kjører ikke axe på 320 px | low | Bekreftet. Rettingen er ett kall til | patch |
+| B16 | `test` gjentar flaggene fra `test:unit` | low | Bekreftet. Rettingen er `npm run test:unit && npm run test:e2e` | patch |
+| B17a | Tallene i dokumentene stemmer ikke (61 mot 57 s, «minst 13») | low | 61 s og 57 s er to ulike målinger, og README sier «omtrent ett minutt». «Minst 13» står i spec-en, og funn som må rettes i spec-en, avvises | avvist |
+| B17b | axe-meldingen viser ikke hvilke elementer som feiler | low | Bekreftet. Rettingen er å legge til selektorene i samme linje | patch |
+| E1 | Vitest har 5 s som standard tidsgrense, og testene som starter egne prosesser, kan bruke lengre tid | low | Den tregeste testen brukte 471 ms. Liten sjanse for feil. Avvist | avvist |
+| E2 | `testMatch` sammenlignes med full sti, så en mappe som heter `les`, `endrer` eller `reset` et sted i stien, gir feil prosjekt | low | Bekreftet i `createFileMatcher`, som setter `**/` foran mønsteret. Rettingen er å starte mønstrene med `e2e/` | patch |
+| E5 | `tabTo` går en hel runde når målet allerede har fokus | low | Liten sjanse for feil, og rettingen krever en ekstra gren. Avvist | avvist |
+| E6 | `max` på 0, negativ eller `NaN` gir en villedende melding | low | Bare testkode kaller hjelperen, med faste verdier. Rettingen krever en vakt. Avvist | avvist |
+| E8 | axe-funn i `incomplete` med alvorlighet `serious` blir ignorert | false | AD-15 sier at testen skal feile på `violations` etter `analyze()`. `incomplete` er funn axe ikke kan avgjøre, og de skal sjekkes for hånd | avvist |
+| E9 | Testen av `.env` består selv om `.env` aldri ble lest (ingen positiv kontroll) | medium | Bekreftet: `AI_PROVIDER` er `mock` uansett. Rettingen er en kontrollvariabel i samme `.env` | patch |
+| E11 | `sizes` kan være en liste med mellomrom, og da feiler manifesttesten | low | Bekreftet etter manifest-spesifikasjonen. Rettingen er `split` | patch |
+| E12 | Kjerneflyttesten kaller `setViewportSize`, `evaluate` og axe etter `goto` | false | AD-15 forbyr `click`, `focus`, `fill` og `goto`. Målinger og endring av vindusstørrelse er ikke brukerinput | avvist |
 
 ## Design Notes
 

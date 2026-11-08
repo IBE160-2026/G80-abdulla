@@ -81,7 +81,7 @@ npx playwright install chromium
 npm test
 ```
 
-`npm test` kjører alt med én kommando: først Vitest (ren logikk i `lib/`), så Playwright (`e2e/`). Playwright tilbakestiller den lokale databasen (`npx supabase db reset`), bygger appen (`next build`) og starter den med `next start` på port 3100, så en åpen `npm run dev` på port 3000 ikke blir testet. KI-en går alltid i mock-modus i testene, også om `.env` har `AI_PROVIDER=openai`. Testene kjører i to skjermbredder, 360 og 1280 px, og sjekker tilgjengelighet med axe.
+`npm test` kjører alt med én kommando: først Vitest (ren logikk i `lib/` og en sjekk av Playwright-oppsettet i `playwright.config.test.ts`), så Playwright (`e2e/`). Playwright tilbakestiller den lokale databasen (`npx supabase db reset`), bygger appen (`next build`) og starter den med `next start` på port 3100, så en åpen `npm run dev` på port 3000 ikke blir testet. KI-en går alltid i mock-modus i testene, også om `.env` har `AI_PROVIDER=openai`. Testene kjører i to skjermbredder, 360 og 1280 px, og sjekker tilgjengelighet med axe.
 
 | Kommando | Hva den kjører |
 |---|---|

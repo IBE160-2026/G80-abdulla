@@ -12,7 +12,8 @@ test("manifestet har ikoner på 192 og 512 px, og hvert ikon svarer med PNG", as
   const manifest = (await response.json()) as { icons?: Icon[] };
   const icons = manifest.icons ?? [];
 
-  const sizes = icons.map((icon) => icon.sizes);
+  // sizes er en liste med mellomrom mellom størrelsene.
+  const sizes = icons.flatMap((icon) => icon.sizes.trim().split(/\s+/));
   expect(sizes).toContain("192x192");
   expect(sizes).toContain("512x512");
 

@@ -6,12 +6,18 @@ export const A11Y_TAGS = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"
 
 /**
  * Kjører axe på siden og feiler bare på brudd med `impact` `serious` eller
- * `critical`. Feilmeldingen lister regel-id og antall noder for hvert brudd.
+ * `critical`. Feilmeldingen lister regel-id, antall noder og velgerne til
+ * nodene for hvert brudd.
  */
 export async function expectNoSeriousA11yViolations(page: Page) {
   const results = await new AxeBuilder({ page }).withTags(A11Y_TAGS).analyze();
   const serious = results.violations
     .filter((v) => v.impact === "serious" || v.impact === "critical")
-    .map((v) => `${v.id} (${v.impact}): ${v.nodes.length} noder`);
+    .map(
+      (v) =>
+        `${v.id} (${v.impact}): ${v.nodes.length} noder: ${v.nodes
+          .map((node) => node.target.join(" "))
+          .join(", ")}`,
+    );
   expect(serious, `axe fant brudd på ${page.url()}`).toEqual([]);
 }

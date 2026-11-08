@@ -52,7 +52,7 @@ En besøkende åpner appen, ser lista over testrapportene og kan åpne en detalj
 
 ## Cross-Story Dependencies
 
-- Story 1.1 er ferdig: startpakke, låste versjoner, `lib/env.ts`, lokal Supabase og manifest finnes. `npm test` kjører foreløpig `node --test` (testene for `lib/env.ts` og proxyen); Story 1.2 innfører Vitest og den samlede testkommandoen, og de eksisterende testene må fortsatt kjøre.
+- Story 1.1 er ferdig: startpakke, låste versjoner, `lib/env.ts`, lokal Supabase og manifest finnes. Story 1.2 er ferdig: `npm test` kjører Vitest (`lib/**/*.test.ts` og `playwright.config.test.ts`) og deretter Playwright (`e2e/`), med `npm run test:unit` og `npm run test:e2e` for raske kjøringer. Hjelperne `expectNoSeriousA11yViolations` (`e2e/a11y.ts`), `tabTo` (`e2e/keyboard.ts`) og `expectNoHorizontalScroll` (`e2e/layout.ts`) finnes, og `e2e/core-flow.spec.ts` ligger i `endrer`-prosjektene.
 - 1.2 → 1.3 → 1.4 → 1.5: testoppsettet må finnes før flater bygges, og hver flate-story utvider kjerneflyttesten og axe-sjekken. Virker ikke Vitest 5 med Next.js, velger prosjekteieren versjon og fører det i `docs/beslutninger/` og Stack-tabellen.
 - Story 1.3 setter av to seed-brukere til kjerneflyttesten, én per Playwright-prosjekt; tester som endrer data bruker egne rapporter og brukere.
 - Story 1.4 fyller Playwright-prosjektet for ytelsestesten. Menyen kommer i Story 2.1, knappen «Registrer problem» i Story 2.2.

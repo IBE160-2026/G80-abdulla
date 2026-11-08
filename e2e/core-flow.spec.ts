@@ -16,8 +16,9 @@ test("kjerneflyten med tastatur", async ({ page }) => {
   await expectNoHorizontalScroll(page);
 
   // I 360-prosjektet sjekkes også den smaleste bredden, 320 px (NFR-1).
-  if (page.viewportSize()?.width === 360) {
+  if (test.info().project.name === "endrer-360") {
     await page.setViewportSize({ width: 320, height: 800 });
+    await expectNoSeriousA11yViolations(page);
     await expectNoHorizontalScroll(page);
   }
 });

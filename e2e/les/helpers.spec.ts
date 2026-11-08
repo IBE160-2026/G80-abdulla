@@ -22,6 +22,17 @@ test("axe-hjelperen feiler på critical og lister regel-id og antall noder", asy
   );
 });
 
+test("axe-hjelperen feiler på serious og lister regel-id og antall noder", async ({
+  page: p,
+}) => {
+  await p.setContent(
+    html(`<p style="color: #eeeeee; background: #ffffff">Lav kontrast</p>`),
+  );
+  await expect(expectNoSeriousA11yViolations(p)).rejects.toThrow(
+    /color-contrast \(serious\): 1 noder/,
+  );
+});
+
 test("axe-hjelperen feiler ikke på funn med impact moderate", async ({
   page: p,
 }) => {

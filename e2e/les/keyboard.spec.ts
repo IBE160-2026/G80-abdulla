@@ -17,6 +17,21 @@ test("tabTo finner knappen med riktig navn", async ({ page }) => {
   await expect(page.getByRole("button", { name: "Andre" })).toBeFocused();
 });
 
+test("tabTo virker når to elementer har samme rolle og navn", async ({
+  page,
+}) => {
+  await page.setContent(`
+    <main>
+      <button type="button">Første</button>
+      <button type="button">Lagre</button>
+      <button type="button">Lagre</button>
+    </main>
+  `);
+  const focused = await tabTo(page, "button", "Lagre");
+  await expect(focused).toBeFocused();
+  await expect(page.getByRole("button", { name: "Lagre" }).first()).toBeFocused();
+});
+
 test("tabTo feiler og navngir rolle og navn når elementet mangler", async ({
   page,
 }) => {

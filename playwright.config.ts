@@ -23,32 +23,37 @@ export default defineConfig({
     baseURL: BASE_URL,
     trace: "retain-on-failure",
   },
+  // Playwright legger **/ foran mønstrene og sammenligner med hele stien, så
+  // de starter med e2e/. Ellers kunne en mappe som heter les, endrer eller
+  // reset et sted i stien til klonen trekke testene inn i feil prosjekt.
   projects: [
-    { name: "les-360", testMatch: "les/**/*.spec.ts", use: { viewport: SMALL } },
-    { name: "les-1280", testMatch: "les/**/*.spec.ts", use: { viewport: LARGE } },
+    { name: "les-360", testMatch: "e2e/les/**/*.spec.ts", use: { viewport: SMALL } },
+    { name: "les-1280", testMatch: "e2e/les/**/*.spec.ts", use: { viewport: LARGE } },
     {
       name: "endrer-360",
-      testMatch: ["core-flow.spec.ts", "endrer/**/*.spec.ts"],
+      testMatch: ["e2e/core-flow.spec.ts", "e2e/endrer/**/*.spec.ts"],
       dependencies: ["les-360", "les-1280"],
       use: { viewport: SMALL },
     },
     {
       name: "endrer-1280",
-      testMatch: ["core-flow.spec.ts", "endrer/**/*.spec.ts"],
+      testMatch: ["e2e/core-flow.spec.ts", "e2e/endrer/**/*.spec.ts"],
       dependencies: ["les-360", "les-1280"],
       use: { viewport: LARGE },
     },
     {
       // Tester som kjører `db reset` selv. Tomt til en story trenger det.
       name: "reset",
-      testMatch: "reset/**/*.spec.ts",
+      testMatch: "e2e/reset/**/*.spec.ts",
       dependencies: ["endrer-360", "endrer-1280"],
       use: { viewport: LARGE },
     },
   ],
   webServer: {
-    // Én kjede med && garanterer rekkefølgen reset → build → start, og virker
-    // i cmd, PowerShell og sh. Next leser .env selv.
+    // Én kjede med && garanterer rekkefølgen reset → build → start. Playwright
+    // kjører kommandoen gjennom cmd.exe på Windows og sh ellers, så kjeden
+    // virker også når npm test startes fra Windows PowerShell 5.1, som ikke
+    // har &&. Next leser .env selv.
     command: `npx supabase db reset && npx next build && npx next start -p ${PORT}`,
     url: BASE_URL,
     // Port 3100, så en åpen `npm run dev` på 3000 aldri blir testet ved et uhell.
