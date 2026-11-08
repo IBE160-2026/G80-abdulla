@@ -85,6 +85,8 @@ update public.profiles set role = 'moderator'
 where id = (select id from auth.users where email = 'navn@localfix.test');
 ```
 
+Svaret skal være `UPDATE 1`. Står det `UPDATE 0`, finnes ikke e-postadressen, og ingen rolle er endret.
+
 ### Stopp og start igjen
 
 ```sh
@@ -108,7 +110,7 @@ npm test
 |---|---|
 | `npm test` | Vitest, databasetestene og deretter Playwright |
 | `npm run test:unit` | Bare Vitest for ren logikk, uten Supabase og bygg (noen sekunder) |
-| `npm run test:db` | `db reset`, pgTAP (`supabase/tests/`) og Vitest-testene mot lokal Supabase (`lib/**/*.db.test.ts`) |
+| `npm run test:db` | `db reset`, en sjekk av at `lib/supabase/database.types.ts` er lik skjemaet, pgTAP (`supabase/tests/`) og Vitest-testene mot lokal Supabase (`lib/**/*.db.test.ts`) |
 | `npm run test:e2e` | Bare Playwright |
 | `npm run db:types` | Genererer `lib/supabase/database.types.ts` fra den lokale databasen. Kjøres etter hver ny migrering, og fila committes |
 

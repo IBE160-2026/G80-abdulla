@@ -147,7 +147,7 @@ values
   (
     '20000000-0000-4000-8000-000000000005',
     '10000000-0000-4000-8000-000000000002',
-    E'Det lekker vann fra taket i gangen utenfor rom 214.\nDet drypper ned på gulvet hver gang det regner, og gulvet blir glatt.\n\nKart: https://campus.example.no/kart/bygg-a/etasje-2/rom-214?visning=plantegning&markering=vannlekkasje-i-taket&kilde=localfix-testdata-uten-mellomrom\n\nTesttekst som skal vises som ren tekst: <b>fet</b> <script>alert(1)</script>',
+    E'Det lekker vann fra taket i gangen utenfor rom 214.\nDet drypper ned på gulvet hver gang det regner, og gulvet blir glatt.\n\nKart: https://campus.localfix.test/kart/bygg-a/etasje-2/rom-214?visning=plantegning&markering=vannlekkasje-i-taket&kilde=localfix-testdata-uten-mellomrom\n\nTesttekst som skal vises som ren tekst: <b>fet</b> <script>alert(1)</script>',
     'Gangen utenfor rom 214, bygg A',
     'other',
     'Vannlekkasje fra taket utenfor rom 214',

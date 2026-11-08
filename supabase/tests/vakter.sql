@@ -3,7 +3,7 @@
 begin;
 \ir hjelpere.psql
 
-select plan(9);
+select plan(12);
 
 select is_empty(
   $$
@@ -72,6 +72,34 @@ select is_empty(
       and p.oid::regprocedure::text <> all (array[]::text[])
   $$,
   'anon og authenticated kan ikke kjøre funksjoner i public utenom tillatelseslista'
+);
+
+-- authenticated har USAGE på private, så hver funksjon der som anon eller
+-- authenticated kan kjøre, må stå på tillatelseslista. Policyene på reports
+-- og confirmations kaller is_moderator() som authenticated (AD-14).
+select is(
+  array(
+    select r.rolname || ' ' || p.oid::regprocedure::text
+    from pg_proc p
+    cross join (values ('anon'), ('authenticated')) as r (rolname)
+    where p.pronamespace = 'private'::regnamespace
+      and has_function_privilege(r.rolname, p.oid, 'EXECUTE')
+    order by 1
+  ),
+  array['authenticated private.is_moderator()'],
+  'anon og authenticated kan bare kjøre funksjonene i private som står på tillatelseslista'
+);
+
+select ok(
+  not has_schema_privilege('anon', 'private', 'USAGE'),
+  'anon har ikke USAGE på skjemaet private'
+);
+
+-- Policyene navngir alltid rollen (AD-12): TO anon eller TO authenticated,
+-- aldri TO public, som er standard når TO mangler.
+select is_empty(
+  $$select tablename, policyname from pg_policies where schemaname = 'public' and 'public' = any (roles)$$,
+  'ingen policy i public gjelder rollen public'
 );
 
 select results_eq(

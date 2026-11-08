@@ -19,6 +19,13 @@ export default defineConfig({
           name: "unit",
           include: ["lib/**/*.test.ts", "playwright.config.test.ts"],
           exclude: [...configDefaults.exclude, "lib/**/*.db.test.ts"],
+          // expectTypeOf gjør ingenting ved kjøring, og next build sjekker
+          // ikke testfilene. Typesjekken gjør at typetestene faktisk feiler.
+          typecheck: {
+            enabled: true,
+            include: ["lib/**/*.test.ts"],
+            exclude: [...configDefaults.exclude, "lib/**/*.db.test.ts"],
+          },
         },
       },
       {

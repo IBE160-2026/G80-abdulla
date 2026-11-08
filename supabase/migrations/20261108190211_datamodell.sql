@@ -15,6 +15,15 @@
 -- funksjonene her kan ikke kalles via REST (AD-14).
 create schema private;
 revoke all on schema private from public, anon, authenticated;
+-- authenticated får USAGE på private (se is_moderator under), så nye
+-- funksjoner her skal ikke få EXECUTE til PUBLIC automatisk. Hver funksjon
+-- som skal kunne kalles, får en eksplisitt grant. Postgres gir EXECUTE til
+-- PUBLIC som global standard, og den kan ikke tilbakekalles per skjema
+-- (ALTER DEFAULT PRIVILEGES IN SCHEMA kan bare oppheve en grant per skjema).
+-- Derfor tilbakekalles den globalt for funksjoner postgres lager. Supabase
+-- sine egne standardgrants per skjema (public, storage og andre) gjelder
+-- fortsatt. vakter.sql sjekker uansett hver funksjon i private.
+alter default privileges for role postgres revoke execute on functions from public;
 
 -- Enumene (AD-10). Rekkefølgen i report_status er en del av kontrakten.
 create type public.user_role as enum ('user', 'moderator');

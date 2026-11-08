@@ -20,9 +20,9 @@ test.each([
   { name: "vanlig tekst med æøå", input: "Søppel på fortauet", expected: 18 },
   { name: "én emoji (to UTF-16-enheter)", input: "😀", expected: 1 },
   // e + kombinerende akutt aksent: to kodepunkter, som char_length.
-  { name: "kombinert tegn", input: "é", expected: 2 },
+  { name: "kombinert tegn", input: "e\u0301", expected: 2 },
   // Familie-emoji: tre personer og to ZWJ, fem kodepunkter.
-  { name: "emoji med ZWJ", input: "👨‍👩‍👧", expected: 5 },
+  { name: "emoji med ZWJ", input: "\u{1F468}\u200D\u{1F469}\u200D\u{1F467}", expected: 5 },
 ])("charCount teller kodepunkter: $name", ({ input, expected }) => {
   expect(charCount(input)).toBe(expected);
 });

@@ -4,7 +4,7 @@
 begin;
 \ir hjelpere.psql
 
-select plan(14);
+select plan(21);
 
 -- Setter inn en rapport fra bruker1 med gitt beskrivelse, sted og sammendrag.
 create function pg_temp.ny_rapport(description text, location text, summary text)
@@ -21,9 +21,13 @@ select throws_ok($$select pg_temp.ny_rapport('   ', 'Bygg A', null)$$, '23514', 
 select throws_ok($$select pg_temp.ny_rapport(repeat('a', 1001), 'Bygg A', null)$$, '23514', null, 'description på 1001 tegn avvises');
 select lives_ok($$select pg_temp.ny_rapport(repeat('a', 1000), 'Bygg A', null)$$, 'description på 1000 tegn godtas');
 select throws_ok($$select pg_temp.ny_rapport('Hull i veien', '', null)$$, '23514', null, 'location tom avvises');
+select throws_ok($$select pg_temp.ny_rapport('Hull i veien', '   ', null)$$, '23514', null, 'location med bare mellomrom avvises');
 select throws_ok($$select pg_temp.ny_rapport('Hull i veien', repeat('a', 201), null)$$, '23514', null, 'location på 201 tegn avvises');
+select lives_ok($$select pg_temp.ny_rapport('Hull i veien', repeat('a', 200), null)$$, 'location på 200 tegn godtas');
 select throws_ok($$select pg_temp.ny_rapport('Hull i veien', 'Bygg A', '')$$, '23514', null, 'summary tom avvises (NULL, ikke tom streng)');
+select throws_ok($$select pg_temp.ny_rapport('Hull i veien', 'Bygg A', '   ')$$, '23514', null, 'summary med bare mellomrom avvises');
 select throws_ok($$select pg_temp.ny_rapport('Hull i veien', 'Bygg A', repeat('a', 301))$$, '23514', null, 'summary på 301 tegn avvises');
+select lives_ok($$select pg_temp.ny_rapport('Hull i veien', 'Bygg A', repeat('a', 300))$$, 'summary på 300 tegn godtas');
 
 -- Grensen telles i tegn (kodepunkter), ikke byte eller UTF-16-enheter, som
 -- [...s].length i lib/limits.ts.
@@ -54,12 +58,34 @@ select is(
   'ny konto med role i metadata får role = user'
 );
 
--- Ingen sletting: en bruker med rapporter kan ikke slettes.
+-- Én bekreftelse per bruker og rapport. bruker2 har bekreftet rapport 1 i seed.
+select throws_ok(
+  $$insert into public.confirmations (report_id, user_id) values ('20000000-0000-4000-8000-000000000001', '10000000-0000-4000-8000-000000000003')$$,
+  '23505',
+  null,
+  'samme bekreftelse to ganger avvises'
+);
+
+-- Ingen sletting (ON DELETE RESTRICT). Kontoen i auth.users stoppes av
+-- profilen, og profilen av rapportene og bekreftelsene.
 select throws_ok(
   $$delete from auth.users where id = '10000000-0000-4000-8000-000000000002'$$,
   '23503',
   null,
-  'sletting av en bruker med rapporter avvises (ON DELETE RESTRICT)'
+  'sletting av en konto med profil avvises (ON DELETE RESTRICT)'
+);
+select throws_ok(
+  $$delete from public.profiles where id = '10000000-0000-4000-8000-000000000002'$$,
+  '23503',
+  'update or delete on table "profiles" violates foreign key constraint "reports_author_id_fkey" on table "reports"',
+  'sletting av en profil med rapporter avvises av reports_author_id_fkey'
+);
+-- Moderatoren har bekreftelser, men ingen rapporter.
+select throws_ok(
+  $$delete from public.profiles where id = '10000000-0000-4000-8000-000000000001'$$,
+  '23503',
+  'update or delete on table "profiles" violates foreign key constraint "confirmations_user_id_fkey" on table "confirmations"',
+  'sletting av en profil med bare bekreftelser avvises av confirmations_user_id_fkey'
 );
 select throws_ok(
   $$delete from public.reports where id = '20000000-0000-4000-8000-000000000001'$$,

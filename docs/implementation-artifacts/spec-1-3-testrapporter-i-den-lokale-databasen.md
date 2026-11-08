@@ -2,7 +2,7 @@
 title: 'Story 1.3: Testrapporter i den lokale databasen'
 type: 'feature'
 created: '2026-11-08'
-status: 'in-progress'
+status: 'in-review'
 route: 'dispatch'
 review_loop_iteration: 0
 baseline_commit: 'c207c4f5e0a2b0e5eb24eb65c03666fc448f730b'
@@ -105,15 +105,52 @@ context:
 ## Implementation Notes
 
 - Migreringen er `supabase/migrations/20261108190211_datamodell.sql`. I tillegg til spec-en har den indekser på fremmednøklene `reports.author_id` og `confirmations.user_id`. `private.is_moderator()` har også `SET search_path = ''`, og `authenticated` får `USAGE` på `private` og `EXECUTE` på `is_moderator` (policyene kaller den med brukerens rettigheter). `anon` får ingen tilgang til `private`.
-- `ir` virker i `supabase test db` (pg_prove 3.36). Hjelperne ligger i `supabase/tests/hjelpere.psql`, som ikke kjøres som test fordi bare `.sql` og `.pg` kjøres. Første kjøring laster ned Docker-bildet `supabase/pg_prove` (står i README).
+- `\ir` virker i `supabase test db` (pg_prove 3.36). Hjelperne ligger i `supabase/tests/hjelpere.psql`, som ikke kjøres som test fordi bare `.sql` og `.pg` kjøres. Første kjøring laster ned Docker-bildet `supabase/pg_prove` (står i README).
 - pgTAP: `lesing.sql` (lesereglene og kontrolltesten for `as_user`), `skriving.sql` (hele grant-matrisen i AD-12 og 42501 på INSERT, UPDATE, DELETE og TRUNCATE for anon, bruker og moderator), `begrensninger.sql` (CHECK, emoji, falsk rolle, ON DELETE RESTRICT) og `vakter.sql`. Vakttestene og grant-matrisen er sjekket ved å bryte reglene i databasen for hånd: de feilet som forventet.
 - `lib/supabase/types.test.ts` sjekker med `expectTypeOf` at `REPORT_COLUMNS` er alle kolonnene i visningen unntatt `author_id` og `image_path`. Typesjekken kjøres av `npx tsc --noEmit`.
 - `seed-login.db.test.ts` sjekker også rollen i brukerens egen profil mot rollekolonnen i README.
 - README har fått SQL-en for å gjøre en konto til moderator (AD-12: rolle settes bare med SQL som `postgres`, i seed og README), og forventet tid for `npm test` er oppdatert til omtrent to minutter.
+- **Etter gjennomgangen:**
+  - **Avvik fra rettingen B4:** `alter default privileges in schema private revoke execute ... from public` virker ikke, fordi Postgres ikke kan tilbakekalle den globale standarden (EXECUTE til PUBLIC) per skjema. Migreringen bruker derfor `alter default privileges for role postgres revoke execute on functions from public` (linje 26). Det gjelder bare funksjoner som `postgres` lager, altså migreringene. Supabase sine egne standarder per skjema i `public` og `storage` er urørt. Vakten i `vakter.sql` fanger en funksjon i `private` som kan kalles, uansett.
+  - `db:types` kjører nå `node scripts/db-types.mjs`. Skriptet skriver til en midlertidig fil og bytter den inn bare hvis `gen types` lyktes. `--check` brukes i `test:db` og dekker AC 3.
+  - `Report` (`Omit<ReportRow, "author_id" | "image_path">`) er radtypen til komponentene, og `ReportRow` brukes bare på serveren.
+  - Typecheck er på for `unit`-prosjektet i Vitest. Den første kjøringen i subagenten tok 367 s og hadde én feil i `env.test.ts`. Alle senere kjøringer tok ≈ 8 s og besto.
+- **Verifisert av koordinatoren etter gjennomgangen:**
+  - Lint og `tsc` er rene.
+  - `npm test` (exit 0, 94 s) ga Vitest `unit` 47/47 uten typefeil, pgTAP 114/114 i 5 filer, Vitest `db` 7/7 og Playwright 22/22.
+  - Ingen `.tmp`-fil ble liggende igjen.
 
 ## Spec Change Log
 
 ## Review Triage Log
+
+Gjennomgang 1 (2026-11-08). Kilder: B = blind-hunter, E = edge-case-hunter, V = verification-gap.
+
+| # | Funn | Vurdering | Begrunnelse | Rute |
+|---|------|-----------|-------------|------|
+| V1 | Typetestene i `types.test.ts` kjører ikke i `npm test` | medium | Fra V (forhåndsverifisert): `expectTypeOf` gjør ingenting ved kjøring, typecheck i Vitest er av, og `next build` ignorerer testfiler | patch |
+| V2, B7 | `confirmation_count`, det like antallet mellom rapport 1 og 2, og de positive lesetilfellene er ikke testet | medium | Fra V (forhåndsverifisert), og bekreftet for B7: bare negative tilfeller og `seen_count = 1` er testet. Story 3.1 trenger det like antallet | patch |
+| V3, B10 | AC 3 (genererte typer = committet fil) sjekkes bare for hånd | medium | Bekreftet. Gjelder akseptansekriteriet i denne storyen, så det automatiseres i `test:db` | patch |
+| V4, B16b | Den genererte typefila er uformatert | low | Den genereres og endres aldri for hånd, og prosjektet har ingen formatsjekk. Avvist | avvist |
+| B1 | Spec-en står som `in-review`, mens sprintstatus står som `in-progress` | false | Steg 5 i arbeidsflyten setter storyen til `review` | avvist |
+| B2 | Skrivefeil i Implementation Notes: `ir` i stedet for `\ir` | low | Rettingen er i spec-en, ikke i koden. Rettet i teksten | avvist (rettet i spec) |
+| B3, E6 | RESTRICT-testen sletter fra `auth.users` og stopper på `profiles_id_fkey`, så `reports.author_id` og `confirmations.user_id` testes aldri | medium | Bekreftet: alle seed-brukere har en profil | patch |
+| E7 | Ingen konto kan slettes, heller ikke uten innhold | false | PRD §6.2 sier at kontoen ikke kan slettes i v1, og AD-4 krever `ON DELETE RESTRICT` | avvist |
+| B4 | Nye funksjoner i `private` kan kjøres av `authenticated`, fordi Postgres gir EXECUTE til PUBLIC | medium | Bekreftet: `authenticated` har USAGE på `private`, og det finnes ingen `alter default privileges` | patch |
+| B5 | Ingen vakt mot policyer uten `TO anon`/`TO authenticated` | low | Bekreftet. Regelen står under Always, og vakten er én spørring | patch |
+| B6, E8 | Ingen vakt mot materialiserte visninger | low | Ingen er planlagt i arkitekturen, og vakten ville vært mer kode. Avvist | avvist |
+| B8 | Grensetestene mangler for `location` og `summary`, og for duplikat i `confirmations` | low | Bekreftet. Rettingen er bare testkode, og `already_confirmed` i Story 3.3 bygger på 23505 | patch |
+| B9 | Løftene i seed-dataene er ikke testet (kategorier, statuser, én skjult, likt antall, `status_changed_at`, kjerneflytbrukerne uten data) | medium | Bekreftet. En senere endring i seed kunne ødelagt kjerneflyttesten eller sorteringen | patch |
+| B11, E5 | `db:types` tømmer typefila hvis `gen types` feiler | low | Bekreftet: `>` åpner fila før kommandoen kjører. Rettes sammen med V3 | patch |
+| B12 | `ReportRow` har `author_id` og `image_path`, men skal brukes av komponentene | medium | Bekreftet mot AD-5: komponentene skal aldri trenge de to kolonnene | patch |
+| B13 | Falsk rolle er bare testet med INSERT som `postgres`, ikke via GoTrue | medium | Bekreftet. GoTrue setter inn som `supabase_auth_admin`, og det er den veien en angriper bruker | patch |
+| B14, E9 | Kombinerte tegn står som usynlige tegn i `limits.test.ts` | low | Bekreftet. Rettingen er escape-sekvenser | patch |
+| B15 | Seed bruker `campus.example.no`, som ikke er et reservert domene | low | Bekreftet: bare `example.com/.net/.org` og `.test` er reservert. Rettingen er én tekst | patch |
+| B16 | Diffen til gjennomgangen manglet låsefila og typefila | false | Utelatt med vilje. Versjonene er sjekket i `package.json`, og typefila er sjekket mot `db:types` | avvist |
+| E1, E2 | `anon` kan lese `author_id`, `image_path` og `confirmations.user_id` direkte via REST | false | Godtatt i AD-5 («Personvern, godtatt 2026-11-06») for v1, og ført som Deferred før drift | avvist |
+| E3 | Tekst med bare NBSP eller nullbredde-mellomrom slipper gjennom `~ '\S'` | low | `CHECK` står slik i AD-4, og skjemaene i Epic 2 trimmer tekst. Avvist | avvist |
+| E4 | Enslige surrogater og U+0000 telles som vanlige tegn i `charCount` | low | Kan ikke skje fra et vanlig skjema, og rettingen ville gitt en ekstra vakt. Avvist | avvist |
+| E10 | SQL-en for moderator i README oppdaterer 0 rader uten å si fra | low | Bekreftet. Rettingen er én setning i README | patch |
 
 ## Design Notes
 
