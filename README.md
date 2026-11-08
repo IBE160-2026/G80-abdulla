@@ -6,7 +6,7 @@ Gruppeprosjekt (G80) i **IBE160 Programmering med KI** ved Høgskolen i Molde, h
 
 ## Status
 
-🟡 **Implementeringen er i gang (Epic 1).** Startpakken og lokal Supabase er på plass (Story 1.1). Appen viser foreløpig bare en forside. Testbrukere, testdata og testkommandoen kommer i de neste storyene, og da utvides denne guiden.
+🟡 **Implementeringen er i gang (Epic 1).** Startpakken og lokal Supabase er på plass (Story 1.1), og det samme er testkommandoen (Story 1.2). Appen viser foreløpig bare en forside. Testbrukere og testdata kommer i de neste storyene, og da utvides denne guiden.
 
 ## Kom i gang
 
@@ -70,6 +70,32 @@ Stopper nedlastingen med `toomanyrequests: Rate exceeded`, kjører du bare `npx 
 npx supabase stop     # stopper Supabase og beholder dataene
 npx supabase start    # starter den igjen
 ```
+
+### Kjør testene
+
+Testene trenger Docker Desktop og lokal Supabase, så start Supabase først. Nettleseren til Playwright installerer du én gang:
+
+```sh
+npx supabase start
+npx playwright install chromium
+npm test
+```
+
+`npm test` kjører alt med én kommando: først Vitest (ren logikk i `lib/` og en sjekk av Playwright-oppsettet i `playwright.config.test.ts`), så Playwright (`e2e/`). Playwright tilbakestiller den lokale databasen (`npx supabase db reset`), bygger appen (`next build`) og starter den med `next start` på port 3100, så en åpen `npm run dev` på port 3000 ikke blir testet. KI-en går alltid i mock-modus i testene, også om `.env` har `AI_PROVIDER=openai`. Testene kjører i to skjermbredder, 360 og 1280 px, og sjekker tilgjengelighet med axe.
+
+| Kommando | Hva den kjører |
+|---|---|
+| `npm test` | Vitest og deretter Playwright |
+| `npm run test:unit` | Bare Vitest, uten Supabase og bygg (noen sekunder) |
+| `npm run test:e2e` | Bare Playwright |
+
+**Forventet tid:** Omtrent ett minutt. På utviklermaskinen tok `npm test` 61 sekunder med et kaldt bygg. Det meste av tiden går til `db reset` og `next build`, selve testene tar noen sekunder.
+
+Første gang laster `npx playwright install chromium` ned nettleseren. Brytes nedlastingen, kan kommandoen likevel avslutte uten feil. Kjør den da på nytt. Sier `npm test` at `chrome-headless-shell.exe` mangler, er det samme årsak.
+
+Utskriften viser antall tester som besto. `npx playwright show-report` åpner rapporten fra siste Playwright-kjøring.
+
+`npm test` tilbakestiller den lokale databasen, så data du har lagt inn selv mens du prøvde appen, forsvinner.
 
 ### Miljøvariabler
 

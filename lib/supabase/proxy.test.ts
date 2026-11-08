@@ -1,13 +1,13 @@
 // Tester at proxyen aldri sender besøkende til innlogging (AR-2, I/O-matrisen
-// i Story 1.1). Kjøres med `node --test lib/supabase/proxy.test.ts` til Vitest
-// kommer i Story 1.2.
+// i Story 1.1). Kjøres med `npm run test:unit` (Vitest).
 //
-// updateSession kjøres i en egen Node-prosess med Supabase-variablene satt, og
-// stiene med «@/» oversettes til prosjektroten med en resolve-hook, siden Node
-// ikke leser `paths` i tsconfig.json.
-import assert from "node:assert/strict";
+// updateSession kjøres i en egen Node-prosess med Supabase-variablene satt,
+// fordi lib/env.ts validerer ved import. Stiene med «@/» oversettes til
+// prosjektroten med en resolve-hook, siden Node ikke leser `paths` i
+// tsconfig.json.
 import { spawnSync } from "node:child_process";
-import { test } from "node:test";
+import { NextRequest } from "next/server";
+import { expect, test } from "vitest";
 
 const ROOT_URL = new URL("../../", import.meta.url).href;
 const PATHS = ["/", "/noe", "/auth/login", "/rapporter/123"];
@@ -50,7 +50,7 @@ function runProxy(paths: string[]) {
       timeout: 30000,
     },
   );
-  assert.equal(child.status, 0, child.stderr);
+  expect(child.status, child.stderr).toBe(0);
   return JSON.parse(child.stdout.trim().split("\n").at(-1) ?? "[]") as {
     path: string;
     status: number;
@@ -58,11 +58,19 @@ function runProxy(paths: string[]) {
   }[];
 }
 
+// Prøvetesten for at Vitest virker med Next.js (AC i issue #23): next/server
+// importeres i selve Vitest-prosessen, ikke i en egen Node-prosess.
+test("Vitest kan importere NextRequest fra next/server", () => {
+  const request = new NextRequest("http://localhost:3000/rapporter/123?x=1");
+  expect(request.nextUrl.pathname).toBe("/rapporter/123");
+  expect(request.nextUrl.searchParams.get("x")).toBe("1");
+});
+
 test("besøkende på undersider sendes ikke til /auth/login", () => {
   const results = runProxy(PATHS);
-  assert.equal(results.length, PATHS.length);
+  expect(results).toHaveLength(PATHS.length);
   for (const { path, status, location } of results) {
-    assert.equal(location, null, `${path} sendte videre til ${location}`);
-    assert.equal(status, 200, `${path} ga status ${status}`);
+    expect(location, `${path} sendte videre til ${location}`).toBeNull();
+    expect(status, `${path} ga status ${status}`).toBe(200);
   }
 });
