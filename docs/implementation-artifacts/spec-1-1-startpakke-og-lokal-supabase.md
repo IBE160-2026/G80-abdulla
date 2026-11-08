@@ -126,6 +126,14 @@ Gjennomgang 1 (2026-11-08). Kilder: B = blind-hunter, E = edge-case-hunter, V = 
 | V4 | Proxytesten står ikke i Verification i spec-en | low | Rettingen er å endre spec-en. Avvist, men `npm test` (B8) kjører begge testfilene | avvist |
 | V5 | Manifestet testes bare for hånd | medium (ikke verifisert i test) | Statisk konfigurasjon. Hører hjemme i testoppsettet i Story 1.2 | defer |
 
+Gjennomgang 2 (2026-11-08, `bmad-walkthrough` av PR #44 sammen med brukeren). Kilde: W = walkthrough.
+
+| # | Funn | Vurdering | Begrunnelse | Rute |
+|---|------|-----------|-------------|------|
+| W1 | `confirm/route.ts`: sperren fra B1 slipper gjennom `next=/%09/evil.example`. Nettleseren fjerner tab og linjeskift, så `/\t/evil.example` blir `//evil.example` | medium | Bekreftet med `new URL("/\t/evil.example", origin)`, som gir `http://evil.example/`. Rettet med `lib/safe-next.ts`, som følger regelen i AD-3 (`new URL(next, origin).origin === origin`, ellers `/`) og returnerer den normaliserte stien. `lib/safe-next.test.ts` tester `//`, `/\`, `https:`, en annen port, `javascript:`, tab, linjeskift og CR. Story 2.1 kan bruke funksjonen i `requireUser` | patch |
+| W2 | Med ugyldig `.env` stopper `npm run dev` (kode 1 etter ≈ 5 s), men `next start` kjører videre og svarer 500 på alle sider | low | Sett i walkthrough. Ingen side vises med feil oppsett, og README bruker `npm run dev`. Ført som åpent punkt | defer |
+| W3 | `engines.node` `^24.0.0` med `engine-strict` stopper `npm ci` på Node 26, som er gjeldende LTS | low | Bevisst valg (AR-1), og README sier Node 24. Vurderes når README følges på en ny klone ved slutten av Epic 1 | defer |
+
 ## Design Notes
 
 `cacheComponents` fjernes i stedet for å skrive om AD-13: arkitekturen sier eksplisitt `force-dynamic`, og Next 16 avviser den innstillingen sammen med `cacheComponents`. Det endrer ingen regel, så det trengs ingen beslutningslogg, men valget nevnes i PR-en.

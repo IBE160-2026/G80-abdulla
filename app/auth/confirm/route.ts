@@ -1,21 +1,15 @@
+import { safeNextPath } from "@/lib/safe-next";
 import { createClient } from "@/lib/supabase/server";
 import { type EmailOtpType } from "@supabase/supabase-js";
 import { redirect } from "next/navigation";
 import { type NextRequest } from "next/server";
 
 export async function GET(request: NextRequest) {
-  const { searchParams } = new URL(request.url);
+  const { searchParams, origin } = new URL(request.url);
   const token_hash = searchParams.get("token_hash");
   const type = searchParams.get("type") as EmailOtpType | null;
   // Bare stier i appen godtas, ellers kan lenken sende brukeren til et annet nettsted.
-  const nextParam = searchParams.get("next");
-  const next =
-    nextParam &&
-    nextParam.startsWith("/") &&
-    !nextParam.startsWith("//") &&
-    !nextParam.startsWith("/\\")
-      ? nextParam
-      : "/";
+  const next = safeNextPath(searchParams.get("next"), origin);
 
   if (token_hash && type) {
     const supabase = await createClient();
