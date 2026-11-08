@@ -2,7 +2,7 @@
 title: 'Story 1.3: Testrapporter i den lokale databasen'
 type: 'feature'
 created: '2026-11-08'
-status: 'in-review'
+status: 'done'
 route: 'dispatch'
 review_loop_iteration: 0
 baseline_commit: 'c207c4f5e0a2b0e5eb24eb65c03666fc448f730b'
