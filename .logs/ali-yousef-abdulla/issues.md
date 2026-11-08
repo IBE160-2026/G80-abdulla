@@ -66,3 +66,6 @@
 - [ ] 2026-11-07 [story-1-1-startpakke](982-2026-11-07-23-44-08-story-1-1-startpakke.md) — Story 1.2: automatisk test av PWA-manifestet (`docs/implementation-artifacts/deferred-work.md`), og bytt `npm test` (`node --test`) til Vitest
 - [ ] 2026-11-07 [story-1-1-startpakke](982-2026-11-07-23-44-08-story-1-1-startpakke.md) — sjekk manifestet i Chrome DevTools > Application (ikke gjort i Story 1.1)
 - [ ] 2026-11-07 [story-1-1-startpakke](982-2026-11-07-23-44-08-story-1-1-startpakke.md) — ESLint 9.39.5 får varselet «no longer supported», og `npm audit` melder 8 moderate sårbarheter som ikke er undersøkt
+- [ ] 2026-11-08 [story-1-1-startpakke](982-2026-11-07-23-44-08-story-1-1-startpakke.md) — med ugyldig `.env` kjører `next start` videre og svarer 500 i stedet for å stoppe, slik `npm run dev` gjør (W2 i spec-en)
+- [ ] 2026-11-08 [story-1-1-startpakke](982-2026-11-07-23-44-08-story-1-1-startpakke.md) — `engine-strict` med `^24.0.0` stopper `npm ci` på Node 26 (gjeldende LTS); vurder det når README følges på en ny klone ved slutten av Epic 1 (W3 i spec-en)
+- [ ] 2026-11-08 [story-1-1-startpakke](982-2026-11-07-23-44-08-story-1-1-startpakke.md) — sjekk at den offentlige nøkkelen i `.env.example` er lik `PUBLISHABLE_KEY` fra `npx supabase status` (bare sjekket på én maskin)
