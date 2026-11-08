@@ -14,53 +14,53 @@ const PNG =
   "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
 
 test("axe-hjelperen feiler på critical og lister regel-id og antall noder", async ({
-  page: p,
+  page,
 }) => {
-  await p.setContent(html(`<img src="${PNG}">`));
-  await expect(expectNoSeriousA11yViolations(p)).rejects.toThrow(
-    /image-alt \(critical\): 1 noder/,
+  await page.setContent(html(`<img src="${PNG}">`));
+  await expect(expectNoSeriousA11yViolations(page)).rejects.toThrow(
+    /image-alt \(critical\): 1 node:/,
   );
 });
 
 test("axe-hjelperen feiler på serious og lister regel-id og antall noder", async ({
-  page: p,
+  page,
 }) => {
-  await p.setContent(
+  await page.setContent(
     html(`<p style="color: #eeeeee; background: #ffffff">Lav kontrast</p>`),
   );
-  await expect(expectNoSeriousA11yViolations(p)).rejects.toThrow(
-    /color-contrast \(serious\): 1 noder/,
+  await expect(expectNoSeriousA11yViolations(page)).rejects.toThrow(
+    /color-contrast \(serious\): 1 node:/,
   );
 });
 
 test("axe-hjelperen feiler ikke på funn med impact moderate", async ({
-  page: p,
+  page,
 }) => {
   // html-xml-lang-mismatch er en WCAG 2 A-regel (3.1.1) med impact moderate.
   // Først sjekkes det at axe faktisk finner bruddet, ellers ville testen
   // bestått uten å teste noe.
-  await p.setContent(
+  await page.setContent(
     `<!doctype html><html lang="nb" xml:lang="en"><head><title>Test</title></head><body><main><p>Tekst</p></main></body></html>`,
   );
-  const { violations } = await new AxeBuilder({ page: p })
+  const { violations } = await new AxeBuilder({ page })
     .withTags(A11Y_TAGS)
     .analyze();
   expect(violations.map((v) => `${v.id}:${v.impact}`)).toContain(
     "html-xml-lang-mismatch:moderate",
   );
-  await expectNoSeriousA11yViolations(p);
+  await expectNoSeriousA11yViolations(page);
 });
 
 test("breddehjelperen feiler og oppgir bredden når siden er for bred", async ({
-  page: p,
+  page,
 }) => {
-  await p.setContent(html(`<div style="width: 2000px">Bred</div>`));
-  await expect(expectNoHorizontalScroll(p)).rejects.toThrow(
+  await page.setContent(html(`<div style="width: 2000px">Bred</div>`));
+  await expect(expectNoHorizontalScroll(page)).rejects.toThrow(
     /scrollWidth \d+ px er større enn clientWidth \d+ px/,
   );
 });
 
-test("breddehjelperen godtar en side som får plass", async ({ page: p }) => {
-  await p.setContent(html(`<p>Smal</p>`));
-  await expectNoHorizontalScroll(p);
+test("breddehjelperen godtar en side som får plass", async ({ page }) => {
+  await page.setContent(html(`<p>Smal</p>`));
+  await expectNoHorizontalScroll(page);
 });

@@ -15,7 +15,7 @@ export async function expectNoSeriousA11yViolations(page: Page) {
     .filter((v) => v.impact === "serious" || v.impact === "critical")
     .map(
       (v) =>
-        `${v.id} (${v.impact}): ${v.nodes.length} noder: ${v.nodes
+        `${v.id} (${v.impact}): ${v.nodes.length} ${v.nodes.length === 1 ? "node" : "noder"}: ${v.nodes
           .map((node) => node.target.join(" "))
           .join(", ")}`,
     );

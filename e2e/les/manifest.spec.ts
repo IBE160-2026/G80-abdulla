@@ -2,7 +2,7 @@
 // deferred-work.md).
 import { expect, test } from "@playwright/test";
 
-type Icon = { src: string; sizes: string; type?: string };
+type Icon = { src: string; sizes: string };
 
 test("manifestet har ikoner på 192 og 512 px, og hvert ikon svarer med PNG", async ({
   request,

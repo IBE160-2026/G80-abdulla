@@ -14,7 +14,6 @@ export default defineConfig({
   testDir: "e2e",
   // Testene deler én database, så de kjører én og én.
   workers: 1,
-  fullyParallel: false,
   forbidOnly: true,
   retries: 0,
   reporter: [["list"], ["html", { open: "never" }]],
