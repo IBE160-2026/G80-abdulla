@@ -185,24 +185,26 @@ Avhengighetsretningen er regelen: piler viser hvem som kan importere hvem. Den s
 
 ## Stack
 
-Versjonene er bekreftet mot npm 2026-10-28. Startpakken har ingen låsefil, så tabellen oppdateres til de låste versjonene ved første installasjon (AD-2).
+Versjonene med «låst» er låst eksakt i `package.json` og `package-lock.json` ved første installasjon 2026-11-07 (Story 1.1, AD-2). De andre er bekreftet mot npm og låses av storyen som installerer dem.
 
 | Name | Version |
 | --- | --- |
-| Next.js | 16.4.3 |
-| React | 19.3.1 |
-| `@supabase/supabase-js` | 2.118.0 |
-| `@supabase/ssr` | 0.12.7 |
-| Supabase CLI (`supabase`, eksakt devDependency, kjøres med `npx supabase`) | 2.122.1 (`v2.stable`). 3.0.0 er en ny major (2026-11-02) og er ikke verifisert |
+| Next.js | 16.4.5 (låst) |
+| React | 19.3.1 (låst) |
+| `@supabase/supabase-js` | 2.119.0 (låst) |
+| `@supabase/ssr` | 0.12.7 (låst) |
+| Supabase CLI (`supabase`, eksakt devDependency, kjøres med `npx supabase`) | 2.122.1 (låst, `v2.stable`). 3.0.0 er en ny major (2026-11-02) og er ikke verifisert |
 | `type-fest` | 5.10.0 (`MergeDeep`, AD-5) |
-| PostgreSQL (lokal Supabase) | 17 |
-| Tailwind CSS | 3.4.x (følger startpakken) |
-| shadcn (CLI) | 4.23.0 |
-| Zod | 4.6.7 |
+| PostgreSQL (lokal Supabase) | 17 (bildet `supabase/postgres:17.11.0.006` med CLI 2.122.1) |
+| Tailwind CSS | 3.4.19 (låst, følger startpakken) |
+| shadcn (CLI) | 4.23.0 (kjøres med `npx shadcn@4.23.0`; `components.json` peker på `tailwind.config.ts`, ellers lager CLI-en Tailwind v4-komponenter) |
+| Zod | 4.6.7 (låst) |
+| TypeScript | 5.9.3 (låst, siste 5.x) |
+| ESLint | 9.39.5 (låst, siste 9.x) med `eslint-config-next` 16.4.5 |
 | Vitest | 5.0.5 |
 | `@playwright/test` | 1.65.0 (bekreftet mot npm 2026-11-06) |
 | `@axe-core/playwright` | 4.14.0 (bekreftet mot npm 2026-11-06) |
-| Node.js | 24 LTS (`engines.node` `^24.0.0` og `.nvmrc`; utviklermaskinen har 24.19.0) |
+| Node.js | 24 LTS (`engines.node` `^24.0.0` og `.nvmrc`; utviklermaskinen har 24.19.0; `@types/node` 24.19.2 låst) |
 | Docker Desktop | påkrevd |
 
 ## Structural Seed
