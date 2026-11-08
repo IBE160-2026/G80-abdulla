@@ -71,3 +71,4 @@
 - [ ] 2026-11-08 [story-1-1-startpakke](982-2026-11-07-23-44-08-story-1-1-startpakke.md) — sjekk at den offentlige nøkkelen i `.env.example` er lik `PUBLISHABLE_KEY` fra `npx supabase status` (bare sjekket på én maskin)
 - [ ] 2026-11-08 [story-1-2-testoppsett](981-2026-11-08-18-47-29-story-1-2-testoppsett.md) — Story 1.5: test at lange ord brytes ved å se på elementene, siden `e2e/layout.ts` bare sjekker scrolling av hele siden (B14/E7 i spec-en for Story 1.2)
 - [ ] 2026-11-08 [story-1-2-testoppsett](981-2026-11-08-18-47-29-story-1-2-testoppsett.md) — testoppsettet (`npm test`) er ikke prøvd på macOS eller Linux
+- [ ] 2026-11-08 [story-1-3-testrapporter](980-2026-11-08-20-59-49-story-1-3-testrapporter.md) — første kjøring av `test:unit` med typecheck tok 367 s og hadde én feil i `env.test.ts` (senere ≈ 8 s og grønt); følg med på om det skjer igjen

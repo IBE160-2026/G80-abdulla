@@ -6,7 +6,7 @@ Gruppeprosjekt (G80) i **IBE160 Programmering med KI** ved Høgskolen i Molde, h
 
 ## Status
 
-🟡 **Implementeringen er i gang (Epic 1).** Startpakken og lokal Supabase er på plass (Story 1.1), og det samme er testkommandoen (Story 1.2). Appen viser foreløpig bare en forside. Testbrukere og testdata kommer i de neste storyene, og da utvides denne guiden.
+🟡 **Implementeringen er i gang (Epic 1).** Startpakken og lokal Supabase er på plass (Story 1.1), og det samme er testkommandoen (Story 1.2). Den lokale databasen har datamodellen, lesereglene, testbrukere og testrapporter (Story 1.3). Appen viser foreløpig bare en forside. Lista og detaljsiden kommer i de neste storyene, og da utvides denne guiden.
 
 ## Kom i gang
 
@@ -64,6 +64,29 @@ npm run dev
 
 Stopper nedlastingen med `toomanyrequests: Rate exceeded`, kjører du bare `npx supabase start` på nytt. Bildene som allerede er lastet ned, beholdes.
 
+### Testbrukere
+
+`npx supabase start` og `npx supabase db reset` legger inn faste testdata fra `supabase/seed.sql`: fem kontoer og ni rapporter i alle kategorier og statuser, der én er skjult. Alle kontoene har samme passord.
+
+| E-post | Passord | Rolle | Brukes til |
+|---|---|---|---|
+| `moderator@localfix.test` | `localfix-test` | moderator | Ser også skjulte rapporter |
+| `bruker1@localfix.test` | `localfix-test` | user | Har skrevet testrapporter |
+| `bruker2@localfix.test` | `localfix-test` | user | Har skrevet testrapporter |
+| `kjerneflyt360@localfix.test` | `localfix-test` | user | Satt av til kjerneflyttesten på 360 px |
+| `kjerneflyt1280@localfix.test` | `localfix-test` | user | Satt av til kjerneflyttesten på 1280 px |
+
+v1 bruker bare oppdiktede testdata og behandler ingen personopplysninger. Kontoene, e-postadressene og rapporttekstene er oppdiktet, og domenet `localfix.test` finnes ikke.
+
+En ny konto får alltid rollen `user`. Rollen kan bare endres med SQL som `postgres`, for eksempel i Supabase Studio:
+
+```sql
+update public.profiles set role = 'moderator'
+where id = (select id from auth.users where email = 'navn@localfix.test');
+```
+
+Svaret skal være `UPDATE 1`. Står det `UPDATE 0`, finnes ikke e-postadressen, og ingen rolle er endret.
+
 ### Stopp og start igjen
 
 ```sh
@@ -81,17 +104,19 @@ npx playwright install chromium
 npm test
 ```
 
-`npm test` kjører alt med én kommando: først Vitest (ren logikk i `lib/` og en sjekk av Playwright-oppsettet i `playwright.config.test.ts`), så Playwright (`e2e/`). Playwright tilbakestiller den lokale databasen (`npx supabase db reset`), bygger appen (`next build`) og starter den med `next start` på port 3100, så en åpen `npm run dev` på port 3000 ikke blir testet. KI-en går alltid i mock-modus i testene, også om `.env` har `AI_PROVIDER=openai`. Testene kjører i to skjermbredder, 360 og 1280 px, og sjekker tilgjengelighet med axe.
+`npm test` kjører alt med én kommando: først Vitest (ren logikk i `lib/` og en sjekk av Playwright-oppsettet i `playwright.config.test.ts`), så databasetestene og til slutt Playwright (`e2e/`). Databasetestene tilbakestiller den lokale databasen (`npx supabase db reset`), tester lesereglene med pgTAP (`npx supabase test db`, filene i `supabase/tests/`) og logger inn med hver testbruker i tabellen over. Playwright tilbakestiller den lokale databasen (`npx supabase db reset`), bygger appen (`next build`) og starter den med `next start` på port 3100, så en åpen `npm run dev` på port 3000 ikke blir testet. KI-en går alltid i mock-modus i testene, også om `.env` har `AI_PROVIDER=openai`. Testene kjører i to skjermbredder, 360 og 1280 px, og sjekker tilgjengelighet med axe.
 
 | Kommando | Hva den kjører |
 |---|---|
-| `npm test` | Vitest og deretter Playwright |
-| `npm run test:unit` | Bare Vitest, uten Supabase og bygg (noen sekunder) |
+| `npm test` | Vitest, databasetestene og deretter Playwright |
+| `npm run test:unit` | Bare Vitest for ren logikk, uten Supabase og bygg (noen sekunder) |
+| `npm run test:db` | `db reset`, en sjekk av at `lib/supabase/database.types.ts` er lik skjemaet, pgTAP (`supabase/tests/`) og Vitest-testene mot lokal Supabase (`lib/**/*.db.test.ts`) |
 | `npm run test:e2e` | Bare Playwright |
+| `npm run db:types` | Genererer `lib/supabase/database.types.ts` fra den lokale databasen. Kjøres etter hver ny migrering, og fila committes |
 
-**Forventet tid:** Omtrent ett minutt. På utviklermaskinen tok `npm test` 61 sekunder med et kaldt bygg. Det meste av tiden går til `db reset` og `next build`, selve testene tar noen sekunder.
+**Forventet tid:** Omtrent to minutter. På utviklermaskinen tok `npm test` 98 sekunder. Det meste av tiden går til de to `db reset`-ene (databasetestene og Playwright) og `next build`, selve testene tar noen sekunder.
 
-Første gang laster `npx playwright install chromium` ned nettleseren. Brytes nedlastingen, kan kommandoen likevel avslutte uten feil. Kjør den da på nytt. Sier `npm test` at `chrome-headless-shell.exe` mangler, er det samme årsak.
+Første gang laster `npx supabase test db` ned Docker-bildet `supabase/pg_prove`, og `npx playwright install chromium` laster ned nettleseren. Brytes nedlastingen, kan kommandoen likevel avslutte uten feil. Kjør den da på nytt. Sier `npm test` at `chrome-headless-shell.exe` mangler, er det samme årsak.
 
 Utskriften viser antall tester som besto. `npx playwright show-report` åpner rapporten fra siste Playwright-kjøring.
 

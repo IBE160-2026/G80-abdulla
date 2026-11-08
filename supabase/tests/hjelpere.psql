@@ -1,0 +1,59 @@
+-- Hjelpere for pgTAP-testene (AD-14, Tester i arkitekturen). Lastes øverst i
+-- hver testfil med `\ir hjelpere.psql`, inne i testens transaksjon, så alt her
+-- rulles tilbake etterpå. Fila har endelsen .psql, så `supabase test db`
+-- kjører den ikke som en egen test (bare .sql og .pg kjøres).
+--
+-- tests.as_user og tests.as_anon setter både rollen og request.jwt.claims.
+-- Uten claims blir auth.uid() NULL, og testene ville bestått uten å teste
+-- noe. tests.as_postgres går tilbake til postgres (seed-rollen).
+
+create schema if not exists tests;
+
+create or replace function tests.as_user(user_id uuid)
+returns void
+language plpgsql
+as $$
+begin
+  perform set_config(
+    'request.jwt.claims',
+    json_build_object('sub', user_id::text, 'role', 'authenticated')::text,
+    true
+  );
+  set local role authenticated;
+end;
+$$;
+
+create or replace function tests.as_anon()
+returns void
+language plpgsql
+as $$
+begin
+  perform set_config('request.jwt.claims', json_build_object('role', 'anon')::text, true);
+  set local role anon;
+end;
+$$;
+
+create or replace function tests.as_postgres()
+returns void
+language plpgsql
+as $$
+begin
+  perform set_config('request.jwt.claims', '', true);
+  set local role postgres;
+end;
+$$;
+
+-- De faste uuid-ene fra supabase/seed.sql.
+create or replace function tests.moderator() returns uuid language sql immutable
+as $$ select '10000000-0000-4000-8000-000000000001'::uuid $$;
+create or replace function tests.bruker1() returns uuid language sql immutable
+as $$ select '10000000-0000-4000-8000-000000000002'::uuid $$;
+create or replace function tests.bruker2() returns uuid language sql immutable
+as $$ select '10000000-0000-4000-8000-000000000003'::uuid $$;
+create or replace function tests.skjult_rapport() returns uuid language sql immutable
+as $$ select '20000000-0000-4000-8000-000000000007'::uuid $$;
+
+-- Rollene må kunne kalle hjelperne for å bytte rolle igjen. SET ROLE sjekkes
+-- mot sesjonsbrukeren (postgres), så byttet er lov fra hvilken som helst rolle.
+grant usage on schema tests to anon, authenticated;
+grant execute on all functions in schema tests to anon, authenticated;
