@@ -201,9 +201,10 @@ Versjonene med «låst» er låst eksakt i `package.json` og `package-lock.json`
 | Zod | 4.6.7 (låst) |
 | TypeScript | 5.9.3 (låst, siste 5.x) |
 | ESLint | 9.39.5 (låst, siste 9.x) med `eslint-config-next` 16.4.5 |
-| Vitest | 5.0.5 |
-| `@playwright/test` | 1.65.0 (bekreftet mot npm 2026-11-06) |
-| `@axe-core/playwright` | 4.14.0 (bekreftet mot npm 2026-11-06) |
+| Vitest | 5.0.5 (låst i Story 1.2) |
+| `vite` (peer-avhengighet for Vitest) | 8.3.6 (låst i Story 1.2, siste 8.x) |
+| `@playwright/test` | 1.65.0 (låst i Story 1.2) |
+| `@axe-core/playwright` | 4.14.0 (låst i Story 1.2) |
 | Node.js | 24 LTS (`engines.node` `^24.0.0` og `.nvmrc`; utviklermaskinen har 24.19.0; `@types/node` 24.19.2 låst) |
 | Docker Desktop | påkrevd |
 
