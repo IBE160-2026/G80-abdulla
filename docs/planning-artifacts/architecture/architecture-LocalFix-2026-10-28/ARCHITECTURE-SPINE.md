@@ -194,7 +194,7 @@ Versjonene med «låst» er låst eksakt i `package.json` og `package-lock.json`
 | `@supabase/supabase-js` | 2.119.0 (låst) |
 | `@supabase/ssr` | 0.12.7 (låst) |
 | Supabase CLI (`supabase`, eksakt devDependency, kjøres med `npx supabase`) | 2.122.1 (låst, `v2.stable`). 3.0.0 er en ny major (2026-11-02) og er ikke verifisert |
-| `type-fest` | 5.10.0 (`MergeDeep`, AD-5) |
+| `type-fest` | 5.10.0 (låst i Story 1.3, `MergeDeep`, AD-5) |
 | PostgreSQL (lokal Supabase) | 17 (bildet `supabase/postgres:17.11.0.006` med CLI 2.122.1) |
 | Tailwind CSS | 3.4.19 (låst, følger startpakken) |
 | shadcn (CLI) | 4.23.0 (kjøres med `npx shadcn@4.23.0`; `components.json` peker på `tailwind.config.ts`, ellers lager CLI-en Tailwind v4-komponenter) |

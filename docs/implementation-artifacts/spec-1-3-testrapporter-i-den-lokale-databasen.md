@@ -85,17 +85,17 @@ context:
 ## Tasks & Acceptance
 
 **Execution:**
-- [ ] `supabase/migrations/<ts>_datamodell.sql` -- skjemaet `private`, enumene, tabellene med standardverdier, `CHECK` og fremmednøkler, RLS, `REVOKE` og lesegrants, policyene, `private.is_moderator()`, `private.handle_new_user()` med trigger på `auth.users`, og visningen -- AR-3 til AR-7
-- [ ] `supabase/seed.sql` -- fem kontoer etter beslutningen, i `auth.users` og `auth.identities`. Moderatoren oppgraderes. Minst åtte rapporter fra `bruker1` og `bruker2`, i alle kategorier og statuser, med én skjult. To synlige rapporter har like mange bekreftelser (Story 3.1). Én rapport har linjeskift, en URL på over 120 tegn uten mellomrom og teksten `<b>fet</b> <script>alert(1)</script>`. `status_changed_at = created_at` for `new`, ellers senere. Ingen av kjerneflytbrukerne har rapporter eller bekreftelser -- FR-2, P-2
-- [ ] `supabase/tests/` -- hjelperne og tester for hver rad i matrisen som gjelder databasen. Vakttester for tabeller uten RLS, visninger uten `security_invoker` eller med mer enn SELECT, funksjoner i `public` som `anon`/`authenticated` kan kjøre (tillatelseslista er tom nå), og at `handle_new_user` er eneste `security definer` i `public`/`private`. Visningens kolonner = kolonnene i `reports` + 4. Kontrolltest: `as_user` gir riktig `auth.uid()` og `authored_by_me = true` for egen rapport -- AR-7, AD-5
-- [ ] `lib/supabase/database.types.ts` -- generert med `npm run db:types` -- AR-10
-- [ ] `lib/supabase/types.ts` -- `ReportRow` fra visningen med `MergeDeep`, så kolonnene som aldri er `NULL` blir ikke-nullbare. `REPORT_COLUMNS` er en eksplisitt liste uten `author_id` og `image_path` -- AD-5
-- [ ] `lib/labels.ts` -- `CATEGORY_LABELS` og `STATUS_LABELS` som `Record` nøklet på enumtypene, så en ny kode gir typefeil -- AR-10
-- [ ] `lib/limits.ts` + `lib/limits.test.ts` -- `DESCRIPTION_MAX` 1000, `LOCATION_MAX` 200, `SUMMARY_MAX` 300 og `charCount(s)` med `[...s].length`. Testen bruker emoji og kombinerte tegn
-- [ ] `lib/supabase/seed-login.db.test.ts` -- leser tabellen over testbrukere i README og logger inn med hver konto via Supabase Auth -- AC i issue #24
-- [ ] `vitest.config.ts`, `package.json` -- prosjektene `unit` og `db`, skriptene `test:db` og `db:types`, `test` utvidet, og `type-fest` 5.10.0
-- [ ] `README.md` -- status, «Testbrukere» med tabellen, P-2-setningen («v1 bruker bare oppdiktede testdata og behandler ingen personopplysninger»), og `test:db` i tabellen over kommandoer -- AR-16
-- [ ] `ARCHITECTURE-SPINE.md` -- Stack-tabellen: `type-fest` 5.10.0 er låst
+- [x] `supabase/migrations/<ts>_datamodell.sql` -- skjemaet `private`, enumene, tabellene med standardverdier, `CHECK` og fremmednøkler, RLS, `REVOKE` og lesegrants, policyene, `private.is_moderator()`, `private.handle_new_user()` med trigger på `auth.users`, og visningen -- AR-3 til AR-7
+- [x] `supabase/seed.sql` -- fem kontoer etter beslutningen, i `auth.users` og `auth.identities`. Moderatoren oppgraderes. Minst åtte rapporter fra `bruker1` og `bruker2`, i alle kategorier og statuser, med én skjult. To synlige rapporter har like mange bekreftelser (Story 3.1). Én rapport har linjeskift, en URL på over 120 tegn uten mellomrom og teksten `<b>fet</b> <script>alert(1)</script>`. `status_changed_at = created_at` for `new`, ellers senere. Ingen av kjerneflytbrukerne har rapporter eller bekreftelser -- FR-2, P-2
+- [x] `supabase/tests/` -- hjelperne og tester for hver rad i matrisen som gjelder databasen. Vakttester for tabeller uten RLS, visninger uten `security_invoker` eller med mer enn SELECT, funksjoner i `public` som `anon`/`authenticated` kan kjøre (tillatelseslista er tom nå), og at `handle_new_user` er eneste `security definer` i `public`/`private`. Visningens kolonner = kolonnene i `reports` + 4. Kontrolltest: `as_user` gir riktig `auth.uid()` og `authored_by_me = true` for egen rapport -- AR-7, AD-5
+- [x] `lib/supabase/database.types.ts` -- generert med `npm run db:types` -- AR-10
+- [x] `lib/supabase/types.ts` -- `ReportRow` fra visningen med `MergeDeep`, så kolonnene som aldri er `NULL` blir ikke-nullbare. `REPORT_COLUMNS` er en eksplisitt liste uten `author_id` og `image_path` -- AD-5
+- [x] `lib/labels.ts` -- `CATEGORY_LABELS` og `STATUS_LABELS` som `Record` nøklet på enumtypene, så en ny kode gir typefeil -- AR-10
+- [x] `lib/limits.ts` + `lib/limits.test.ts` -- `DESCRIPTION_MAX` 1000, `LOCATION_MAX` 200, `SUMMARY_MAX` 300 og `charCount(s)` med `[...s].length`. Testen bruker emoji og kombinerte tegn
+- [x] `lib/supabase/seed-login.db.test.ts` -- leser tabellen over testbrukere i README og logger inn med hver konto via Supabase Auth -- AC i issue #24
+- [x] `vitest.config.ts`, `package.json` -- prosjektene `unit` og `db`, skriptene `test:db` og `db:types`, `test` utvidet, og `type-fest` 5.10.0
+- [x] `README.md` -- status, «Testbrukere» med tabellen, P-2-setningen («v1 bruker bare oppdiktede testdata og behandler ingen personopplysninger»), og `test:db` i tabellen over kommandoer -- AR-16
+- [x] `ARCHITECTURE-SPINE.md` -- Stack-tabellen: `type-fest` 5.10.0 er låst
 
 **Acceptance Criteria:**
 - Given en ny klone med Supabase i gang, when `npm test` kjøres, then består Vitest (`unit` og `db`), pgTAP og Playwright.
@@ -103,6 +103,13 @@ context:
 - Given en endring i skjemaet, when `npm run db:types` kjøres, then er `database.types.ts` lik den committede fila.
 
 ## Implementation Notes
+
+- Migreringen er `supabase/migrations/20261108190211_datamodell.sql`. I tillegg til spec-en har den indekser på fremmednøklene `reports.author_id` og `confirmations.user_id`. `private.is_moderator()` har også `SET search_path = ''`, og `authenticated` får `USAGE` på `private` og `EXECUTE` på `is_moderator` (policyene kaller den med brukerens rettigheter). `anon` får ingen tilgang til `private`.
+- `ir` virker i `supabase test db` (pg_prove 3.36). Hjelperne ligger i `supabase/tests/hjelpere.psql`, som ikke kjøres som test fordi bare `.sql` og `.pg` kjøres. Første kjøring laster ned Docker-bildet `supabase/pg_prove` (står i README).
+- pgTAP: `lesing.sql` (lesereglene og kontrolltesten for `as_user`), `skriving.sql` (hele grant-matrisen i AD-12 og 42501 på INSERT, UPDATE, DELETE og TRUNCATE for anon, bruker og moderator), `begrensninger.sql` (CHECK, emoji, falsk rolle, ON DELETE RESTRICT) og `vakter.sql`. Vakttestene og grant-matrisen er sjekket ved å bryte reglene i databasen for hånd: de feilet som forventet.
+- `lib/supabase/types.test.ts` sjekker med `expectTypeOf` at `REPORT_COLUMNS` er alle kolonnene i visningen unntatt `author_id` og `image_path`. Typesjekken kjøres av `npx tsc --noEmit`.
+- `seed-login.db.test.ts` sjekker også rollen i brukerens egen profil mot rollekolonnen i README.
+- README har fått SQL-en for å gjøre en konto til moderator (AD-12: rolle settes bare med SQL som `postgres`, i seed og README), og forventet tid for `npm test` er oppdatert til omtrent to minutter.
 
 ## Spec Change Log
 
