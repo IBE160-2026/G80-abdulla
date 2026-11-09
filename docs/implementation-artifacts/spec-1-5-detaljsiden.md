@@ -43,7 +43,7 @@ context:
 
 **Beslutning (2026-11-09): registreringstidspunktet.** «Registrert 20. oktober kl. 10:15», fra `created_at`, i samme format som «Sist oppdatert».
 
-**Beslutning (2026-11-09): norsk feilside.** `app/error.tsx` tas med og gjelder alle sider. Den viser «Noe gikk galt. Prøv igjen.», knappen «Prøv igjen» (`reset`) og en lenke til lista. Den logger ingenting selv, fordi serveren allerede har logget feilkoden.
+**Beslutning (2026-11-09): norsk feilside.** `app/error.tsx` tas med og gjelder alle sider. Den viser «Noe gikk galt. Prøv igjen.», knappen «Prøv igjen» (`retry`, godtatt av prosjekteier 2026-11-09 i stedet for `reset`) og en lenke til lista. Den logger ingenting selv, fordi serveren allerede har logget feilkoden.
 
 **Beslutning (2026-11-09):** Spec-en beholdes samlet (≈ 3 300 tokens), fordi Story 1.5 er én issue, én branch og én PR.
 
@@ -112,6 +112,8 @@ context:
 - **Verifisert etter rettelsene (2026-11-09):** lint og `tsc` er rene. `npm test` ga Vitest `unit` 151/151 uten typefeil, pgTAP 114/114, Vitest `db` 7/7 og Playwright 68 av 69. Den ene som feilet, var «tom database» i `reset`, der `npx supabase db reset` fikk `ETIMEDOUT` i Docker (kjøringen tok 22,7 min mot vanlig ca. 5). Ny kjøring av prosjektet `reset` ga 3/3, og ytelsestesten målte 505 ms for 108 rapporter.
 
 ## Spec Change Log
+
+- 2026-11-09, etter presentasjonen: prosjekteieren godtok avviket fra gjennomgangsrad B5. Den frosne beslutningen om feilsiden sier nå `retry` i stedet for `reset`, som koden alltid har brukt. Ingen kodeendring.
 
 ## Review Triage Log
 
