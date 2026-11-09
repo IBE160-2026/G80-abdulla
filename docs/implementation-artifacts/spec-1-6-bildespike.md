@@ -2,7 +2,7 @@
 title: 'Story 1.6: Bildespike: reglene for bilder er testet'
 type: 'feature'
 created: '2026-11-09'
-status: 'in-review'
+status: 'done'
 route: 'dispatch'
 review_loop_iteration: 0
 baseline_commit: 'dc5e09a18c75a432a29c90f6b1da25f5752e90dd'
