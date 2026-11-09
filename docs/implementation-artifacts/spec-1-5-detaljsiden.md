@@ -2,7 +2,7 @@
 title: 'Story 1.5: Detaljsiden'
 type: 'feature'
 created: '2026-11-09'
-status: 'in-review'
+status: 'done'
 route: 'dispatch'
 review_loop_iteration: 0
 baseline_commit: '2cfd75ff127ecbda8c433b31ae72eeba742ae53f'
@@ -109,6 +109,7 @@ context:
 - Rapport 5 ble sjekket på 360 px etter et bygg: siden følger `detalj.html`, med unntakene i beslutningene og uten bilde og bekreftknapp.
 - **Lagt til av koordinatoren etter matrisesjekken:** `app/rapporter/[id]/page.test.ts` dekker «uten databasekall» i raden «Ugyldig id». Den mocker `getReport` og `notFound` og sjekker at en ugyldig id aldri slår opp, at en id uten rad gir `notFound()` etter ett oppslag, og at store bokstaver slås opp med små. Raden «Databasefeil» er dekket av `reports.test.ts` (bare feilkoden logges, feilen kastes) og `app/error.test.ts` (den norske feilsiden). En e2e-test med en database som feiler er ikke laget.
 - **Verifisert av koordinatoren:** `test:unit` 149/149 uten typefeil, `tsc` og lint er rene. I agentens `npm test` besto alt unntatt ytelsestesten i `reset`, der `db reset` hang i Docker. Den besto ved ny kjøring av prosjektet `reset`.
+- **Verifisert etter rettelsene (2026-11-09):** lint og `tsc` er rene. `npm test` ga Vitest `unit` 151/151 uten typefeil, pgTAP 114/114, Vitest `db` 7/7 og Playwright 68 av 69. Den ene som feilet, var «tom database» i `reset`, der `npx supabase db reset` fikk `ETIMEDOUT` i Docker (kjøringen tok 22,7 min mot vanlig ca. 5). Ny kjøring av prosjektet `reset` ga 3/3, og ytelsestesten målte 505 ms for 108 rapporter.
 
 ## Spec Change Log
 
