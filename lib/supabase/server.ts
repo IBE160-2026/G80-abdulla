@@ -1,6 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { publicEnv } from "@/lib/env";
+import type { Database } from "./types";
 
 /**
  * Especially important if using Fluid compute: Don't put this client in a
@@ -10,7 +11,8 @@ import { publicEnv } from "@/lib/env";
 export async function createClient() {
   const cookieStore = await cookies();
 
-  return createServerClient(
+  // Med Database-typen gir .select(REPORT_COLUMNS) riktig radtype.
+  return createServerClient<Database>(
     publicEnv.NEXT_PUBLIC_SUPABASE_URL,
     publicEnv.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
     {

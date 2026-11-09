@@ -82,7 +82,8 @@ where id = '10000000-0000-4000-8000-000000000001';
 -- Rapportene: alle kategorier og statuser, én skjult (rapport 7).
 -- status_changed_at = created_at for status new, ellers senere.
 -- Rapport 5 har linjeskift, en lang URL uten mellomrom og HTML-lignende tekst,
--- som alltid skal vises som ren tekst.
+-- som alltid skal vises som ren tekst. Den har ingen oppsummering, så lista
+-- viser selve beskrivelsen (Story 1.4).
 insert into public.reports (
   id,
   author_id,
@@ -150,7 +151,7 @@ values
     E'Det lekker vann fra taket i gangen utenfor rom 214.\nDet drypper ned på gulvet hver gang det regner, og gulvet blir glatt.\n\nKart: https://campus.localfix.test/kart/bygg-a/etasje-2/rom-214?visning=plantegning&markering=vannlekkasje-i-taket&kilde=localfix-testdata-uten-mellomrom\n\nTesttekst som skal vises som ren tekst: <b>fet</b> <script>alert(1)</script>',
     'Gangen utenfor rom 214, bygg A',
     'other',
-    'Vannlekkasje fra taket utenfor rom 214',
+    null,
     'in_progress',
     false,
     '2026-10-26T10:00:00Z',

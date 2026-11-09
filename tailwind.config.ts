@@ -1,6 +1,8 @@
 import type { Config } from "tailwindcss";
 import tailwindcssAnimate from "tailwindcss-animate";
 
+// Temaet fra docs/ux/DESIGN.md (UX-DR1–3). Fargene er variabler i
+// app/globals.css. Radiusene og fontstørrelsene står eksplisitt her.
 export default {
   content: [
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
@@ -42,18 +44,39 @@ export default {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
-        chart: {
-          "1": "hsl(var(--chart-1))",
-          "2": "hsl(var(--chart-2))",
-          "3": "hsl(var(--chart-3))",
-          "4": "hsl(var(--chart-4))",
-          "5": "hsl(var(--chart-5))",
+        // Statusfargene brukes bare på statusmerkene (DESIGN.md, Colors).
+        status: {
+          new: {
+            DEFAULT: "hsl(var(--status-new))",
+            foreground: "hsl(var(--status-new-foreground))",
+          },
+          progress: {
+            DEFAULT: "hsl(var(--status-progress))",
+            foreground: "hsl(var(--status-progress-foreground))",
+          },
+          done: {
+            DEFAULT: "hsl(var(--status-done))",
+            foreground: "hsl(var(--status-done-foreground))",
+          },
+          hidden: {
+            DEFAULT: "hsl(var(--status-hidden))",
+            foreground: "hsl(var(--status-hidden-foreground))",
+          },
         },
       },
       borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
+        sm: "6px",
+        md: "8px",
+        lg: "12px",
+      },
+      // Systemfonten fra Tailwinds sans-stack. Brukes som text-title osv.
+      // Klassenavnene står også i lib/utils.ts, så cn() vet at de er
+      // fontstørrelser og ikke farger.
+      fontSize: {
+        title: ["20px", { lineHeight: "1.3", fontWeight: "600" }],
+        "card-title": ["15px", { lineHeight: "1.35", fontWeight: "600" }],
+        meta: ["13px", { lineHeight: "1.4", fontWeight: "400" }],
+        badge: ["12px", { lineHeight: "1.4", fontWeight: "600" }],
       },
     },
   },

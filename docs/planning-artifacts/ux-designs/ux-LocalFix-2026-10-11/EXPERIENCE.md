@@ -2,7 +2,7 @@
 name: LocalFix
 status: final
 created: 2026-10-11
-updated: 2026-11-06
+updated: 2026-11-09
 sources:
   - docs/product-brief.md
   - docs/prd.md
@@ -55,7 +55,7 @@ Her står oppførselen. Utseendet er beskrevet i `DESIGN.md.Components`.
 
 | Komponent | Bruk | Regler for oppførsel |
 |---|---|---|
-| Rapportkort | Lista | Hele kortet er én lenke til detaljsiden. Ingen handlinger på selve kortet. Har rapporten bilde, står et lite bildeikon («Har bilde») sist i metadatalinja, og lista viser aldri selve bildet. Telleren viser «N har sett dette», der N er `seen_count` fra visningen: antall bekreftelser pluss rapportøren (PRD §3). Grensesnittet regner ikke selv, bortsett fra den optimistiske +1 på bekreftknappen. En ny rapport viser «1 har sett dette». |
+| Rapportkort | Lista | Hele kortet er én lenke til detaljsiden. Ingen handlinger på selve kortet. Har rapporten bilde, står et lite bildeikon («Har bilde») sist i metadatalinja, og lista viser aldri selve bildet. Telleren viser «N har sett dette», der N er `seen_count` fra visningen: antall bekreftelser pluss rapportøren (PRD §3). Grensesnittet regner ikke selv, bortsett fra den optimistiske +1 på bekreftknappen. En ny rapport viser «1 har sett dette». Tiden i metadatalinja er relativ og regnes fra registreringen: under ett minutt, eller fram i tid (for eksempel ved klokkeforskjell), vises som «nå». Deretter «N minutter siden» (under en time), «N timer siden» (under et døgn), «N dager siden» (under 7 døgn), «N uker siden» (under 30 døgn), «N måneder siden» (under 365 døgn, 30 døgn per måned) og «N år siden» (365 døgn per år), med entall for 1 («1 minutt siden», «1 time siden», «1 dag siden», «1 uke siden», «1 måned siden») og tallene rundet ned. |
 | Filterbrikker | Lista, over kortene | Brikkerad: «Mine rapporter» (bare for innloggede), «Alle», de fem kategoriene og de tre statusene. «Mine rapporter», én kategori og én status kan være aktive samtidig. «Mine rapporter» viser bare rapporter brukeren selv har registrert, ikke de hen har bekreftet. «Alle» nullstiller kategori og status. Et nytt trykk på en aktiv brikke slår den av. Valget lagres i URL-en med kodeverdiene fra arkitekturen, for eksempel `?mine=true&category=lighting&status=new`, så det overlever en ny innlasting og kan deles. Ukjente verdier ignoreres. For en besøkende ignoreres `mine`. |
 | Sortering | Lista, til høyre over brikkene | En shadcn-`Select` med «Nyeste» (standard) og «Flest har sett». Valget lagres i URL-en som `sort=newest` eller `sort=confirmations`. |
 | Flytende «+»-knapp | Lista | Går til Ny rapport. Ikke innlogget: sendes til innlogging og så tilbake til skjemaet. |

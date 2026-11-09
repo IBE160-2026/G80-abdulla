@@ -1,14 +1,22 @@
-export default function Home() {
+import { ReportList } from "@/components/report-list";
+import { LIST_LIMIT, listReports } from "@/lib/supabase/reports";
+
+// Lista leser visningen med brukerens sesjon og skal aldri caches (AR-11).
+export const dynamic = "force-dynamic";
+
+export default async function Home() {
+  const { reports, truncated } = await listReports();
+  const now = new Date();
+
   return (
-    <main className="mx-auto flex min-h-svh w-full max-w-[640px] flex-col gap-4 px-4 py-8">
-      <h1 className="text-2xl font-semibold">LocalFix · Campus Molde</h1>
-      <p>
-        Her melder du fra om problemer du ser på campus ved Høgskolen i Molde,
-        som ødelagte gatelys, søppel, hull i veien eller farlige fortau.
-      </p>
-      <p className="text-muted-foreground">
-        Lista over rapportene kommer snart.
-      </p>
+    <main className="mx-auto w-full max-w-[640px] px-4 pb-8 pt-4">
+      <h1 className="mb-1 text-title">Rapporter</h1>
+      <ReportList
+        reports={reports}
+        truncated={truncated}
+        limit={LIST_LIMIT}
+        now={now}
+      />
     </main>
   );
 }

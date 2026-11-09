@@ -2,33 +2,49 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+ * Temaet fra docs/ux/DESIGN.md (UX-DR1–3). Fargene står som HSL, fordi
+ * shadcn-komponentene bruker hsl(var(--…)). Hver verdi gir nøyaktig hex-verdien
+ * i DESIGN.md. Tokens som DESIGN.md ikke nevner (popover, input, ring,
+ * destructive, muted, secondary, accent), har shadcn-standardverdiene.
+ * Bare lys modus i v1.
+ */
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 0 0% 3.9%;
+    /* background #F5F7FA */
+    --background: 216 33.3% 97.1%;
+    /* foreground #17212B */
+    --foreground: 210 30.3% 12.9%;
+    /* surface #FFFFFF: kort og skjema ligger på hvit flate */
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 3.9%;
+    --card-foreground: 210 30.3% 12.9%;
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 3.9%;
-    --primary: 0 0% 9%;
-    --primary-foreground: 0 0% 98%;
+    --popover-foreground: 210 30.3% 12.9%;
+    /* primary #1F4E79 (Fjordblå) og primary-foreground #FFFFFF */
+    --primary: 208.7 59.2% 29.8%;
+    --primary-foreground: 0 0% 100%;
     --secondary: 0 0% 96.1%;
     --secondary-foreground: 0 0% 9%;
     --muted: 0 0% 96.1%;
-    --muted-foreground: 0 0% 45.1%;
+    /* muted-foreground #5B6773 */
+    --muted-foreground: 210 11.7% 40.4%;
     --accent: 0 0% 96.1%;
     --accent-foreground: 0 0% 9%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 89.8%;
+    /* border #DCE2E8 */
+    --border: 210 20.7% 88.6%;
     --input: 0 0% 89.8%;
     --ring: 0 0% 3.9%;
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
-    --radius: 0.5rem;
+    /* Statusmerkene: Ny, Under behandling, Løst og Skjult */
+    --status-new: 210 64.7% 93.3%; /* #E3EEF9 */
+    --status-new-foreground: 208.7 59.2% 29.8%; /* #1F4E79 */
+    --status-progress: 39.5 100% 92%; /* #FFF1D6 */
+    --status-progress-foreground: 36.9 100% 23.9%; /* #7A4B00 */
+    --status-done: 134.1 41.5% 92%; /* #E2F3E6 */
+    --status-done-foreground: 137.1 56.2% 26.9%; /* #1E6B34 */
+    --status-hidden: 210 13.3% 94.1%; /* #EEF0F2 */
+    --status-hidden-foreground: 210 11.7% 40.4%; /* #5B6773 */
   }
 }
 

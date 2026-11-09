@@ -7,7 +7,16 @@ import nextTs from "eslint-config-next/typescript";
 const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
-  globalIgnores([".next/**", "out/**", "build/**", "next-env.d.ts"]),
+  // playwright-report/ og test-results/ lages av Playwright og har trace-
+  // visningen som bundlet JavaScript når en test feiler.
+  globalIgnores([
+    ".next/**",
+    "out/**",
+    "build/**",
+    "next-env.d.ts",
+    "playwright-report/**",
+    "test-results/**",
+  ]),
 ]);
 
 export default eslintConfig;
