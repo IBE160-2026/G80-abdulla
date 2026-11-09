@@ -5,17 +5,19 @@ type Role = Parameters<Page["getByRole"]>[0];
 /**
  * Trykker Tab til elementet med rollen og det tilgjengelige navnet har fokus,
  * og sjekker at det er synlig (AC 2). Feiler etter `max` trykk og navngir
- * rollen og navnet.
+ * rollen og navnet. Med `reverse` brukes Shift+Tab, for eksempel for å nå
+ * topplinja etter en sidebytte der elementet med fokus forsvant: nettleseren
+ * fortsetter da fra stedet der det sto, ikke fra toppen av siden.
  */
 export async function tabTo(
   page: Page,
   role: Role,
   name: string | RegExp,
-  { max = 50 }: { max?: number } = {},
+  { max = 50, reverse = false }: { max?: number; reverse?: boolean } = {},
 ) {
   const target = page.getByRole(role, { name, exact: true });
   for (let i = 0; i < max; i++) {
-    await page.keyboard.press("Tab");
+    await page.keyboard.press(reverse ? "Shift+Tab" : "Tab");
     // Flere elementer kan ha samme rolle og navn, så den som har fokus,
     // velges med indeksen. Ellers feiler toBeFocused() i strict mode.
     const index = await target.evaluateAll((elements) =>
@@ -29,6 +31,6 @@ export async function tabTo(
     }
   }
   throw new Error(
-    `tabTo: ${role} «${String(name)}» fikk ikke fokus etter ${max} trykk på Tab.`,
+    `tabTo: ${role} «${String(name)}» fikk ikke fokus etter ${max} trykk på ${reverse ? "Shift+Tab" : "Tab"}.`,
   );
 }

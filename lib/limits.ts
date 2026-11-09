@@ -12,3 +12,10 @@ export const SUMMARY_MAX = 300;
 export function charCount(s: string): number {
   return [...s].length;
 }
+
+/**
+ * Minste passordlengde ved registrering. Samme tall som
+ * `minimum_password_length` i supabase/config.toml, som er den egentlige
+ * kontrollen. lib/limits.test.ts sjekker at de er like.
+ */
+export const MIN_PASSWORD_LENGTH = 6;

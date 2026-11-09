@@ -1,22 +1,14 @@
 // Den skjulte rapporten 7 med bilde for innloggede brukere (Story 1.7, AD-6).
 // Forfatteren (bruker1) er en vanlig bruker og får 404 uten signert lenke.
 // Moderatoren ser rapporten og bildet, og bildeikonet på kortet i lista.
-// Innloggingen bruker skjemaet fra startpakken (`/auth/login`), som Story 2.1
-// erstatter. Testene endrer ingen data.
-import { expect, test, type Page } from "@playwright/test";
+// Innloggingen bruker den felles hjelperen i e2e/auth.ts (Story 2.1). Testene
+// endrer ingen data.
+import { expect, test } from "@playwright/test";
 import { expectNoSeriousA11yViolations } from "../a11y";
+import { logIn } from "../auth";
 
 const REPORT_7 = "/rapporter/20000000-0000-4000-8000-000000000007";
-const PASSWORD = "localfix-test";
 const SIGNED_LINK = /\/storage\/v1\/object\/sign\//;
-
-async function logIn(page: Page, email: string) {
-  await page.goto("/auth/login");
-  await page.getByLabel("Email").fill(email);
-  await page.getByLabel("Password").fill(PASSWORD);
-  await page.getByRole("button", { name: "Login" }).click();
-  await expect(page).toHaveURL("/");
-}
 
 test("forfatteren av den skjulte rapporten 7 får 404 og ingen signert lenke", async ({
   page,

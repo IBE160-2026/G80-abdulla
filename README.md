@@ -6,7 +6,7 @@ Gruppeprosjekt (G80) i **IBE160 Programmering med KI** ved Høgskolen i Molde, h
 
 ## Status
 
-🟡 **Implementeringen er i gang (Epic 1).** Startpakken og lokal Supabase er på plass (Story 1.1), og det samme er testkommandoen (Story 1.2). Den lokale databasen har datamodellen, lesereglene, testbrukere og testrapporter (Story 1.3). Forsiden viser lista over rapportene, nyeste først (Story 1.4), og hvert kort åpner en detaljside med hele rapporten, når den sist ble oppdatert og hvor mange som har sett problemet (Story 1.5). Reglene for bilder er testet: den lokale bildelagringen har tre testbilder, og bare moderatoren kan lese bildet til en skjult rapport (Story 1.6). Detaljsiden viser bildet til rapporten, og i lista har kortene til rapportene med bilde et bildeikon (Story 1.7).
+🟡 **Implementeringen er i gang (Epic 2).** Epic 1 er ferdig: startpakken og lokal Supabase er på plass (Story 1.1), og det samme er testkommandoen (Story 1.2). Den lokale databasen har datamodellen, lesereglene, testbrukere og testrapporter (Story 1.3). Forsiden viser lista over rapportene, nyeste først (Story 1.4), og hvert kort åpner en detaljside med hele rapporten, når den sist ble oppdatert og hvor mange som har sett problemet (Story 1.5). Reglene for bilder er testet: den lokale bildelagringen har tre testbilder, og bare moderatoren kan lese bildet til en skjult rapport (Story 1.6). Detaljsiden viser bildet til rapporten, og i lista har kortene til rapportene med bilde et bildeikon (Story 1.7). I Epic 2 kan du opprette konto og logge inn med e-post og passord fra menyen i topplinja, og du kommer tilbake til siden du kom fra (Story 2.1).
 
 ## Kom i gang
 
@@ -78,7 +78,11 @@ I lista har kortene til de to synlige rapportene med bilde, «Slukkede gatelys p
 | `kjerneflyt360@localfix.test` | `localfix-test` | user | Satt av til kjerneflyttesten på 360 px |
 | `kjerneflyt1280@localfix.test` | `localfix-test` | user | Satt av til kjerneflyttesten på 1280 px |
 
-v1 bruker bare oppdiktede testdata og behandler ingen personopplysninger. Kontoene, e-postadressene og rapporttekstene er oppdiktet, og domenet `localfix.test` finnes ikke. Testbildene er CC0-bilder fra Wikimedia Commons uten ansikter, lesbare bilskilt eller metadata. Kilde og lisens for hvert bilde står i [`supabase/KILDER-seed-images.md`](supabase/KILDER-seed-images.md).
+### Logg inn
+
+Åpne menyen ☰ øverst til høyre og velg «Logg inn». Skriv inn en av e-postadressene i tabellen over og passordet `localfix-test`. Etterpå er du tilbake på siden du kom fra, og menyen viser e-postadressen din, «Logg ut» og, for `moderator@localfix.test`, merkelappen «Moderator». Du kan også opprette en ny konto med «Registrer konto» på innloggingssiden. Passordet må ha minst 6 tegn, og kontoen er innlogget med en gang, uten e-postbekreftelse. Glemt passord og sletting av konto finnes ikke i v1.
+
+v1 bruker bare oppdiktede testdata og behandler ingen personopplysninger. Kontoene, e-postadressene og rapporttekstene er oppdiktet, og domenet `localfix.test` finnes ikke. Testbildene er CC0-bilder fra Wikimedia Commons uten ansikter, lesbare bilskilt eller metadata. Kilde og lisens for hvert bilde står i [`supabase/KILDER-seed-images.md`](supabase/KILDER-seed-images.md). Registreringen godtar likevel hvilken som helst e-postadresse, så bruk en oppdiktet adresse, for eksempel på `localfix.test`, når du oppretter en konto lokalt.
 
 En ny konto får alltid rollen `user`. Rollen kan bare endres med SQL som `postgres`, for eksempel i Supabase Studio:
 
@@ -137,7 +141,7 @@ Alle variablene står i `.env.example`, og `lib/env.ts` validerer dem når appen
 
 ### Lokal Supabase
 
-`supabase/config.toml` slår av Realtime, Edge Functions, Analytics og e-posttesting, som appen ikke bruker. Da laster første oppstart ned mindre, og Docker-daemonen trenger ikke eksponeres på Windows. E-postbekreftelse er slått av (`enable_confirmations = false`), så nye brukere kan logge inn med en gang. Bucketen `report-images` for bildene er privat og godtar JPEG, PNG og WebP på høyst 5 MiB. Testbildene i `supabase/seed-images/` lastes opp ved `npx supabase start` og `npx supabase db reset`.
+`supabase/config.toml` slår av Realtime, Edge Functions, Analytics og e-posttesting, som appen ikke bruker. Da laster første oppstart ned mindre, og Docker-daemonen trenger ikke eksponeres på Windows. E-postbekreftelse er slått av (`enable_confirmations = false`), så nye brukere kan logge inn med en gang. Derfor har appen heller ingen sider for bekreftelse, glemt passord eller nytt passord. Minste passordlengde er 6 tegn (`minimum_password_length`), og `lib/limits.ts` har samme tall. Bucketen `report-images` for bildene er privat og godtar JPEG, PNG og WebP på høyst 5 MiB. Testbildene i `supabase/seed-images/` lastes opp ved `npx supabase start` og `npx supabase db reset`.
 
 Supabase Studio, et grensesnitt for den lokale databasen, ligger på <http://127.0.0.1:54323> mens Supabase kjører.
 

@@ -1,7 +1,8 @@
 // Kjerneflyttesten (AR-14). Etter første `goto` brukes bare `page.keyboard`.
 // Hver flate-story utvider testen med tastaturstegene sine (`tabTo` i
 // keyboard.ts), axe-sjekken og breddesjekken. Den ligger i endrer-prosjektene,
-// fordi den skal endre data fra Story 2.2.
+// fordi den skal endre data fra Story 2.2. Fra Story 2.1 logger den inn til
+// slutt med kjerneflytbrukeren for prosjektet (360 eller 1280).
 import { expect, test } from "@playwright/test";
 import { expectNoSeriousA11yViolations } from "./a11y";
 import { tabTo } from "./keyboard";
@@ -17,9 +18,11 @@ test("kjerneflyten med tastatur", async ({ page }) => {
   await expectNoSeriousA11yViolations(page);
   await expectNoHorizontalScroll(page);
 
-  // Story 1.4: Tab til topplinjelenken og så gjennom alle kortlenkene, i
-  // rekkefølgen i lista. Hvert kort får fokus og rulles inn i bildet.
+  // Story 1.4: Tab til topplinjelenken, menyknappen (Story 2.1) og så gjennom
+  // alle kortlenkene, i rekkefølgen i lista. Hvert kort får fokus og rulles
+  // inn i bildet.
   await tabTo(page, "link", "LocalFix · Campus Molde", { max: 5 });
+  await tabTo(page, "button", "Meny", { max: 1 });
   for (let i = 0; i < 8; i++) {
     await page.keyboard.press("Tab");
     const card = cards.nth(i);
@@ -75,4 +78,42 @@ test("kjerneflyten med tastatur", async ({ page }) => {
     await expectNoSeriousA11yViolations(page);
     await expectNoHorizontalScroll(page);
   }
+
+  // Story 2.1: tilbake til lista, åpne menyen, velg «Logg inn» og logg inn
+  // med kjerneflytbrukeren for prosjektet. Etterpå er brukeren på lista med
+  // e-postadressen i menyen.
+  await tabTo(page, "link", "Tilbake til lista", { max: 10 });
+  await page.keyboard.press("Enter");
+  await expect(page).toHaveURL("/");
+  await expect(listHeading).toBeVisible();
+
+  await tabTo(page, "button", "Meny", { max: 5 });
+  await page.keyboard.press("Enter");
+  await expect(page.getByRole("menuitem", { name: "Logg inn", exact: true })).toBeFocused();
+  await page.keyboard.press("Enter");
+  await expect(page).toHaveURL("/auth/login?next=%2F");
+  await expect(page.getByRole("heading", { level: 1, name: "Logg inn" })).toBeVisible();
+  // Menyen tones ut når den lukkes. axe venter til den er borte.
+  await expect(page.getByRole("menu")).toBeHidden();
+  await expectNoSeriousA11yViolations(page);
+  await expectNoHorizontalScroll(page);
+
+  const email = narrow ? "kjerneflyt360@localfix.test" : "kjerneflyt1280@localfix.test";
+  await tabTo(page, "textbox", "E-post", { max: 5 });
+  await page.keyboard.type(email);
+  await page.keyboard.press("Tab");
+  await page.keyboard.type("localfix-test");
+  await page.keyboard.press("Enter");
+  await expect(page).toHaveURL("/");
+  await expect(listHeading).toBeVisible();
+
+  // Passordfeltet som hadde fokus, er borte, og nettleseren fortsetter
+  // derfra. Shift+Tab går opp til menyknappen i topplinja.
+  await tabTo(page, "button", "Meny", { max: 15, reverse: true });
+  await page.keyboard.press("Enter");
+  const menu = page.getByRole("menu");
+  await expect(menu.getByText(email, { exact: true })).toBeVisible();
+  await expect(page.getByRole("menuitem", { name: "Logg ut", exact: true })).toBeFocused();
+  await expectNoSeriousA11yViolations(page);
+  await expectNoHorizontalScroll(page);
 });

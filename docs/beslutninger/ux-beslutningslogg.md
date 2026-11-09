@@ -1,6 +1,6 @@
 ---
 topic: LocalFix UX
-updated: 2026-11-09T20:00
+updated: 2026-11-09T22:00
 ---
 
 - (event) Create startet; kilder: product-brief.md og prd.md (2026-10-11). Faglærer ba om skisser av registreringsskjema, liste og detaljside; mobile-first; designkriteriet teller 10 %
@@ -41,3 +41,12 @@ updated: 2026-11-09T20:00
 - (decision) (by user) 2026-11-09 Bildet på detaljsiden har alt="Bilde fra rapporten". Overskriften rett over sier hva rapporten gjelder, så skjermleseren gjentar den ikke, og teksten lover ikke mer enn vi vet om bildet
 - (decision) (by user) 2026-11-09 Bildet på detaljsiden har full bredde, og høyden følger bildet, men er høyst 480 px. Høye bilder vises hele med object-contain på bg-muted, så ingenting av problemet kuttes bort. Hjørnene er {rounded.lg} (12 px), og margen er 8 px over og 12 px under, som .photo i detalj.html
 - (change) 2026-11-09 EXPERIENCE.md (begge kopier): bildet og visningen i raden «Rapportdetalj», ny tilstand «Bildet mangler» i State Patterns og den alternative teksten og bildeikonet i Accessibility Floor
+- (event) 2026-11-09 Story 2.1 (konto og innlogging): valgene under ble tatt i spec-en for storyen (docs/implementation-artifacts/spec-2-1-konto-og-innlogging.md) og ført inn i EXPERIENCE.md
+- (decision) (by user) 2026-11-09 Menyknappen i topplinja er lucide Menu (☰) med aria-label="Meny", 44 × 44 px, lik for besøkende og innloggede
+- (decision) (by user) 2026-11-09 «Gjenta passord» er fjernet. Registreringen har to felt, «E-post» og «Passord», som innloggingen, og hjelpeteksten «Minst 6 tegn.»
+- (decision) (by user) 2026-11-09 Startpakkens sider for glemt passord, nytt passord, /auth/sign-up-success, /auth/confirm og /auth/error er fjernet. De trengs bare ved e-postbekreftelse (enable_confirmations = false), og glemt passord er utenfor v1 (PRD §6.2)
+- (decision) (by user) 2026-11-09 Feilmeldingene i innloggingen og registreringen er faste norske tekster fra lib/auth-errors.ts. Tekst fra Supabase vises aldri. Feltfeil står under feltet med aria-describedby og aria-invalid, skjemafeil over knappen med role="alert", og fokus går til første feil
+- (decision) (KI-forslag) 2026-11-09 Feilmeldingene har vanlig tekstfarge (foreground) og et feilikon (lucide CircleAlert) i destructive, og feltet med feil får rød kantlinje. shadcns destructive (#EF4444) har bare 3,8:1 mot hvit flate og ville gitt color-contrast i axe for liten tekst
+- (decision) (KI-forslag) 2026-11-09 Skjemaene sjekker også formen på e-postadressen med samme regel som nettleseren bruker for type="email", fordi Supabase svarer med den generelle koden validation_failed på «abc», og matrisen i spec-en krever «Skriv inn en gyldig e-postadresse.». Passordlengden sjekkes bare ved registrering
+- (decision) (KI-forslag) 2026-11-09 Menyen er ikke modal (modal={false}). En modal meny gir resten av siden aria-hidden mens lenkene der fortsatt kan få fokus, som axe melder som aria-hidden-focus (serious). Fokus går fortsatt inn i menyen, og Escape lukker den og gir fokus tilbake til knappen
+- (change) 2026-11-09 EXPERIENCE.md (begge kopier): menyknappen i Information Architecture, radene «Meny» og «Innlogging og registrering» i Component Patterns, «Feil i feltene» og «Innlogging eller registrering feiler» i State Patterns, en linje i Voice and Tone og menyknappen og skjemafeilene i Accessibility Floor

@@ -1,11 +1,15 @@
 // Tester at charCount teller som char_length i Postgres (AD-4), så skjemaet
 // og CHECK-uttrykkene gir samme svar. supabase/tests/begrensninger.sql
-// sjekker at databasen godtar 1000 emoji.
+// sjekker at databasen godtar 1000 emoji. Til slutt at minste passordlengde
+// er den samme som i supabase/config.toml (Story 2.1).
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import { expect, test } from "vitest";
 import {
   charCount,
   DESCRIPTION_MAX,
   LOCATION_MAX,
+  MIN_PASSWORD_LENGTH,
   SUMMARY_MAX,
 } from "./limits";
 
@@ -31,4 +35,17 @@ test("1000 emoji er 1000 tegn, akkurat på grensen", () => {
   const description = "😀".repeat(DESCRIPTION_MAX);
   expect(description.length).toBe(2000);
   expect(charCount(description)).toBe(DESCRIPTION_MAX);
+});
+
+test("MIN_PASSWORD_LENGTH er lik minimum_password_length i supabase/config.toml", () => {
+  const config = readFileSync(
+    fileURLToPath(new URL("../supabase/config.toml", import.meta.url)),
+    "utf8",
+  );
+  const values = [
+    ...config.matchAll(/^minimum_password_length\s*=\s*(\d+)\s*$/gm),
+  ].map((match) => Number(match[1]));
+  // Én linje i [auth], og den er lik konstanten.
+  expect(values).toEqual([MIN_PASSWORD_LENGTH]);
+  expect(MIN_PASSWORD_LENGTH).toBe(6);
 });
