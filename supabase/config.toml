@@ -118,12 +118,15 @@ enabled = true
 # The maximum file size allowed (e.g. "5MB", "500KB").
 file_size_limit = "50MiB"
 
-# Uncomment to configure local storage buckets
-# [storage.buckets.images]
-# public = false
-# file_size_limit = "50MiB"
-# allowed_mime_types = ["image/png", "image/jpeg"]
-# objects_path = "./images"
+# Bildene til rapportene (AD-6, AD-9). Privat: bildene leses bare med
+# signerte lenker, og policyene på storage.objects avgjør hvem som får dem.
+# Objektene i seed-images/<forfatter-uuid>/ lastes opp ved `supabase start`
+# og `db reset`, med objektnavn lik reports.image_path i seed.sql.
+[storage.buckets.report-images]
+public = false
+file_size_limit = "5MiB"
+allowed_mime_types = ["image/jpeg", "image/png", "image/webp"]
+objects_path = "./seed-images"
 
 # Allow connections via S3 compatible clients
 [storage.s3_protocol]
