@@ -6,7 +6,7 @@ Gruppeprosjekt (G80) i **IBE160 Programmering med KI** ved Høgskolen i Molde, h
 
 ## Status
 
-🟡 **Implementeringen er i gang (Epic 1).** Startpakken og lokal Supabase er på plass (Story 1.1), og det samme er testkommandoen (Story 1.2). Den lokale databasen har datamodellen, lesereglene, testbrukere og testrapporter (Story 1.3). Forsiden viser lista over rapportene, nyeste først (Story 1.4), og hvert kort åpner en detaljside med hele rapporten, når den sist ble oppdatert og hvor mange som har sett problemet (Story 1.5). Reglene for bilder er testet: den lokale bildelagringen har tre testbilder, og bare moderatoren kan lese bildet til en skjult rapport (Story 1.6). Appen viser bildene i neste story, og da utvides denne guiden.
+🟡 **Implementeringen er i gang (Epic 1).** Startpakken og lokal Supabase er på plass (Story 1.1), og det samme er testkommandoen (Story 1.2). Den lokale databasen har datamodellen, lesereglene, testbrukere og testrapporter (Story 1.3). Forsiden viser lista over rapportene, nyeste først (Story 1.4), og hvert kort åpner en detaljside med hele rapporten, når den sist ble oppdatert og hvor mange som har sett problemet (Story 1.5). Reglene for bilder er testet: den lokale bildelagringen har tre testbilder, og bare moderatoren kan lese bildet til en skjult rapport (Story 1.6). Detaljsiden viser bildet til rapporten, og i lista har kortene til rapportene med bilde et bildeikon (Story 1.7).
 
 ## Kom i gang
 
@@ -68,6 +68,8 @@ Stopper nedlastingen med `toomanyrequests: Rate exceeded`, kjører du bare `npx 
 
 `npx supabase start` og `npx supabase db reset` legger inn faste testdata fra `supabase/seed.sql`: fem kontoer og ni rapporter i alle kategorier og statuser, der én er skjult. Alle kontoene har samme passord. Tre av rapportene har bilde, også den skjulte. Bildene ligger i `supabase/seed-images/` og lastes opp til den private bucketen `report-images` i den lokale bildelagringen.
 
+I lista har kortene til de to synlige rapportene med bilde, «Slukkede gatelys på gangveien» og «Hull i asfalten ved P2», et lite bildeikon sist i linja med «har sett dette». Åpner du en av dem, vises bildet mellom overskriften og beskrivelsen. Bildet hentes fra en signert lenke som serveren lager for hver visning, og lenken virker i 60 sekunder. Last siden på nytt for å få en ny lenke. Den skjulte rapporten gir 404 for alle andre enn moderatoren, og da lages ingen lenke til bildet.
+
 | E-post | Passord | Rolle | Brukes til |
 |---|---|---|---|
 | `moderator@localfix.test` | `localfix-test` | moderator | Ser også skjulte rapporter |
@@ -104,7 +106,7 @@ npx playwright install chromium
 npm test
 ```
 
-`npm test` kjører alt med én kommando: først Vitest (ren logikk i `lib/` og en sjekk av Playwright-oppsettet i `playwright.config.test.ts`), så databasetestene og til slutt Playwright (`e2e/`). Databasetestene tilbakestiller den lokale databasen (`npx supabase db reset`), tester lesereglene og bildereglene med pgTAP (`npx supabase test db`, filene i `supabase/tests/`), logger inn med hver testbruker i tabellen over og lager signerte lenker til testbildene. Playwright tilbakestiller den lokale databasen (`npx supabase db reset`), bygger appen (`next build`) og starter den med `next start` på port 3100, så en åpen `npm run dev` på port 3000 ikke blir testet. KI-en går alltid i mock-modus i testene, også om `.env` har `AI_PROVIDER=openai`. Testene kjører i to skjermbredder, 360 og 1280 px, og sjekker tilgjengelighet med axe. Til slutt kjører prosjektet `reset` testene som trenger andre data enn seed (lista med 100 og 500 ekstra rapporter og en tom database). De legger inn data med `npx supabase db query --local` og kjører `npx supabase db reset` selv, også etter siste test, så databasen har seed-dataene igjen når `npm test` er ferdig.
+`npm test` kjører alt med én kommando: først Vitest (ren logikk i `lib/` og en sjekk av Playwright-oppsettet i `playwright.config.test.ts`), så databasetestene og til slutt Playwright (`e2e/`). Databasetestene tilbakestiller den lokale databasen (`npx supabase db reset`), tester lesereglene og bildereglene med pgTAP (`npx supabase test db`, filene i `supabase/tests/`), logger inn med hver testbruker i tabellen over og lager signerte lenker til testbildene. Playwright tilbakestiller den lokale databasen (`npx supabase db reset`), bygger appen (`next build`) og starter den med `next start` på port 3100, så en åpen `npm run dev` på port 3000 ikke blir testet. KI-en går alltid i mock-modus i testene, også om `.env` har `AI_PROVIDER=openai`. Testene kjører i to skjermbredder, 360 og 1280 px, og sjekker tilgjengelighet med axe. Til slutt kjører prosjektet `reset` testene som trenger andre data enn seed (lista med 100 og 500 ekstra rapporter, en tom database og en rapport der bildet mangler i bildelagringen). De legger inn data med `npx supabase db query --local` og kjører `npx supabase db reset` selv, også etter siste test, så databasen har seed-dataene igjen når `npm test` er ferdig.
 
 | Kommando | Hva den kjører |
 |---|---|
@@ -114,7 +116,7 @@ npm test
 | `npm run test:e2e` | Bare Playwright, med `db reset` før bygget og flere `db reset` i prosjektet `reset` |
 | `npm run db:types` | Genererer `lib/supabase/database.types.ts` fra den lokale databasen. Kjøres etter hver ny migrering, og fila committes |
 
-**Forventet tid:** Omtrent fem minutter. På utviklermaskinen tok `npm test` 4 minutter og 28 sekunder. Det meste av tiden går til `db reset` (rundt et halvt minutt hver gang: databasetestene, Playwright før bygget og tre ganger i prosjektet `reset`) og `next build`. Selve testene tar noen sekunder.
+**Forventet tid:** Omtrent fem minutter. På utviklermaskinen tok `npm test` 4 minutter og 28 sekunder. Det meste av tiden går til `db reset` (rundt et halvt minutt hver gang: databasetestene, Playwright før bygget og fire ganger i prosjektet `reset`) og `next build`. Selve testene tar noen sekunder.
 
 Første gang laster `npx supabase test db` ned Docker-bildet `supabase/pg_prove`, og `npx playwright install chromium` laster ned nettleseren. Brytes nedlastingen, kan kommandoen likevel avslutte uten feil. Kjør den da på nytt. Sier `npm test` at `chrome-headless-shell.exe` mangler, er det samme årsak.
 

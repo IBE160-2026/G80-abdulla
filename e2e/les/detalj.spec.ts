@@ -1,7 +1,8 @@
-// Detaljsiden (Story 1.5). Testene leser seed-dataene i supabase/seed.sql som
-// besøkende og endrer ingenting. Tidspunktene er i norsk tid: sommertid
-// (UTC+2) til og med 25. oktober 2026, vintertid (UTC+1) etter.
-import { expect, test, type Page } from "@playwright/test";
+// Detaljsiden (Story 1.5) og bildet på den (Story 1.7). Testene leser
+// seed-dataene i supabase/seed.sql som besøkende og endrer ingenting.
+// Tidspunktene er i norsk tid: sommertid (UTC+2) til og med 25. oktober 2026,
+// vintertid (UTC+1) etter. Rapport 2, 3 og 7 (skjult) har bilde.
+import { expect, test, type APIRequestContext, type Page } from "@playwright/test";
 import { expectNoSeriousA11yViolations } from "../a11y";
 import { expectNoHorizontalScroll } from "../layout";
 
@@ -21,6 +22,20 @@ const backLink = (page: Page) =>
 /** Sjekker at main viser feltet med nøyaktig denne teksten. */
 async function expectField(page: Page, text: string) {
   await expect(main(page).getByText(text, { exact: true })).toBeVisible();
+}
+
+// Bildet på detaljsiden og den signerte lenken det vises fra (Story 1.7).
+const IMAGE_ALT = "Bilde fra rapporten";
+const image = (page: Page) => main(page).getByRole("img", { name: IMAGE_ALT, exact: true });
+// En signert lenke til et bilde i bucketen report-images, slik den står i
+// HTML-en og RSC-nyttelasten.
+const SIGNED_URL = /https?:\/\/[^\s"'<>\\]+\/storage\/v1\/object\/sign\/report-images\/[^\s"'<>\\]+/g;
+
+/** Henter siden som HTML og som RSC-nyttelast, slik klientnavigasjonen gjør. */
+async function fetchHtmlAndRsc(request: APIRequestContext, path: string) {
+  const html = await request.get(path);
+  const rsc = await request.get(path, { headers: { RSC: "1" } });
+  return { html, rsc };
 }
 
 test("rapport 2 viser alle feltene, «Sist oppdatert» fra statusendringen og telleren", async ({
@@ -64,6 +79,109 @@ test("rapport 1 har aldri fått ny status, så «Sist oppdatert» er registrerin
   await expectField(page, "Sist oppdatert 20. oktober kl. 10:15");
   await expectField(page, "Registrert 20. oktober kl. 10:15");
   await expectField(page, "3 har sett dette");
+  // Rapport 1 har ikke bilde, så siden har ingen <img>.
+  await expect(main(page).locator("img")).toHaveCount(0);
+});
+
+test("rapport 2 viser bildet mellom overskriften og beskrivelsen, fra en signert lenke", async ({
+  page,
+  request,
+}) => {
+  await page.goto(reportUrl(2));
+  const heading = page.getByRole("heading", { level: 1, name: "Slukkede gatelys på gangveien" });
+  const description = main(page).getByText(/^To gatelys langs gangveien/);
+  await expect(image(page)).toBeVisible();
+  await expect(main(page).locator("img")).toHaveCount(1);
+
+  // Bildet er lastet fra en signert lenke til bucketen, og lenken gir JPEG-en.
+  const src = (await image(page).getAttribute("src"))!;
+  expect(src).toMatch(/\/storage\/v1\/object\/sign\/report-images\/.+\?token=/);
+  expect(src).not.toContain("/_next/image");
+  await expect
+    .poll(() => image(page).evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth))
+    .toBeGreaterThan(0);
+  const file = await request.get(src);
+  expect(file.status()).toBe(200);
+  expect(file.headers()["content-type"]).toBe("image/jpeg");
+
+  // Rekkefølgen: overskriften, bildet og så beskrivelsen.
+  const headingBox = (await heading.boundingBox())!;
+  const imageBox = (await image(page).boundingBox())!;
+  const descriptionBox = (await description.boundingBox())!;
+  expect(imageBox.y).toBeGreaterThanOrEqual(headingBox.y + headingBox.height);
+  expect(descriptionBox.y).toBeGreaterThanOrEqual(imageBox.y + imageBox.height);
+
+  // Visningen: full bredde, høyst 480 px, hele bildet på bg-muted og
+  // hjørner på 12 px ({rounded.lg}).
+  const articleBox = (await main(page).locator("article").boundingBox())!;
+  expect(imageBox.width).toBeCloseTo(articleBox.width, 0);
+  expect(imageBox.height).toBeLessThanOrEqual(480);
+  await expect(image(page)).toHaveCSS("border-top-left-radius", "12px");
+  await expect(image(page)).toHaveCSS("object-fit", "contain");
+  await expect(image(page)).toHaveCSS("max-height", "480px");
+  await expect(image(page)).toHaveCSS("margin-top", "8px");
+  await expect(image(page)).toHaveCSS("margin-bottom", "12px");
+
+  for (const width of [360, 320]) {
+    await page.setViewportSize({ width, height: 800 });
+    await expect(image(page)).toBeVisible();
+    await expectNoHorizontalScroll(page);
+  }
+});
+
+test("rapport 2 med bilde: svaret caches ikke, har ingen bildesti og forfatteren bare inni den signerte lenken", async ({
+  request,
+}) => {
+  const { html, rsc } = await fetchHtmlAndRsc(request, reportUrl(2));
+  expect(html.status()).toBe(200);
+  expect(rsc.headers()["content-type"]).toContain("text/x-component");
+
+  for (const [name, response] of [
+    ["HTML-en", html],
+    ["RSC-nyttelasten", rsc],
+  ] as const) {
+    // Svar med signerte lenker caches bare privat og ikke lagret (AD-13).
+    const cacheControl = response.headers()["cache-control"];
+    expect(cacheControl, `Cache-Control for ${name}`).toContain("private");
+    expect(cacheControl, `Cache-Control for ${name}`).toContain("no-store");
+
+    const body = await response.text();
+    expect(body, `${name} har rapporten`).toContain("Slukkede gatelys på gangveien");
+    expect(body, `${name} har den alternative teksten`).toContain(IMAGE_ALT);
+    const links = body.match(SIGNED_URL) ?? [];
+    expect(links.length, `${name} har den signerte lenken`).toBeGreaterThan(0);
+
+    // Lenken har stien <author_id>/<uuid>.jpg (godtatt i AD-5). Utenfor
+    // lenken står verken forfatteren eller bildestien.
+    const rest = body.replace(SIGNED_URL, "");
+    for (const forbidden of [
+      ...AUTHOR_IDS,
+      "30000000-0000-4000-8000-000000000002",
+      "author_id",
+      "user_id",
+      "image_path",
+    ]) {
+      expect(rest, `${name} inneholder ${forbidden} utenfor den signerte lenken`).not.toContain(
+        forbidden,
+      );
+    }
+  }
+});
+
+test("skjult rapport 7 med bilde gir 404 uten signert lenke", async ({ request }) => {
+  const { html, rsc } = await fetchHtmlAndRsc(request, reportUrl(7));
+  expect(html.status()).toBe(404);
+  // Next svarer 200 på RSC-forespørselen. 404-tilstanden står i nyttelasten.
+  expect(await rsc.text()).toContain("Fant ikke rapporten.");
+  for (const [name, response] of [
+    ["HTML-en", html],
+    ["RSC-nyttelasten", rsc],
+  ] as const) {
+    const body = await response.text();
+    expect(body, `${name} har en signert lenke`).not.toMatch(/\/storage\/v1\/object\/sign\//);
+    expect(body, `${name} nevner bucketen`).not.toContain("report-images");
+    expect(body, `${name} røper innholdet`).not.toContain("Blinkende lys i trappa");
+  }
 });
 
 test("rapport 8 viser «Sist oppdatert» i vintertid", async ({ page }) => {
@@ -185,6 +303,7 @@ test("detaljsiden sender ikke forfatterne eller bildestien, caches ikke og har i
 }) => {
   const html = await request.get(reportUrl(1));
   expect(html.status()).toBe(200);
+  expect(html.headers()["cache-control"]).toContain("private");
   expect(html.headers()["cache-control"]).toContain("no-store");
   const htmlBody = await html.text();
   // Kontroll: svaret har faktisk rapporten.
@@ -193,6 +312,7 @@ test("detaljsiden sender ikke forfatterne eller bildestien, caches ikke og har i
   // RSC-nyttelasten, slik klientnavigasjonen henter den.
   const rsc = await request.get(reportUrl(1), { headers: { RSC: "1" } });
   expect(rsc.headers()["content-type"]).toContain("text/x-component");
+  expect(rsc.headers()["cache-control"]).toContain("private");
   expect(rsc.headers()["cache-control"]).toContain("no-store");
   const rscBody = await rsc.text();
   expect(rscBody).toContain("Full søppelkasse ved hovedinngangen");

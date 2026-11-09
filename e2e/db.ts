@@ -7,9 +7,12 @@ import { join } from "node:path";
 
 const FIXTURES = join(__dirname, "fixtures");
 
-// Under RESET_TIMEOUT i e2e/reset/liste.spec.ts, så en kommando som henger,
+// Under RESET_TIMEOUT, så en kommando som henger,
 // gir en feilmelding herfra og ikke bare en testtimeout.
 const COMMAND_TIMEOUT = 170_000;
+
+/** Testtiden for en test i prosjektet reset. `db reset` tar rundt et halvt minutt. */
+export const RESET_TIMEOUT = 180_000;
 
 function run(command: string) {
   try {

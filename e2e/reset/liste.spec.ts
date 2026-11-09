@@ -4,12 +4,10 @@
 // kjører sist. afterAll tilbakestiller databasen, så seed-dataene er der igjen.
 import { expect, test } from "@playwright/test";
 import { expectNoSeriousA11yViolations } from "../a11y";
-import { resetDb, runSqlFile } from "../db";
+import { RESET_TIMEOUT, resetDb, runSqlFile } from "../db";
 
 // Seed har 8 synlige rapporter (og én skjult).
 const SEED_VISIBLE = 8;
-// `db reset` tar rundt et halvt minutt.
-const RESET_TIMEOUT = 180_000;
 
 test.afterAll(() => {
   test.setTimeout(RESET_TIMEOUT);

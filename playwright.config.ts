@@ -41,7 +41,8 @@ export default defineConfig({
       use: { viewport: LARGE },
     },
     {
-      // Tester som kjører `db reset` selv. Tomt til en story trenger det.
+      // Tester som kjører `db reset` selv: lista med andre data enn seed
+      // (Story 1.4) og et bilde som mangler i bucketen (Story 1.7).
       name: "reset",
       testMatch: "e2e/reset/**/*.spec.ts",
       dependencies: ["endrer-360", "endrer-1280"],

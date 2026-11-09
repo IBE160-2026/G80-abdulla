@@ -1,4 +1,5 @@
-// Forsiden er rapportlista (Story 1.4). Testene leser seed-dataene i
+// Forsiden er rapportlista (Story 1.4), med bildeikonet på kortene til
+// rapportene som har bilde (Story 1.7). Testene leser seed-dataene i
 // supabase/seed.sql og endrer ingenting.
 import { expect, test, type Page } from "@playwright/test";
 import { expectNoSeriousA11yViolations } from "../a11y";
@@ -169,4 +170,43 @@ test("siden sender ikke forfatternes uuid og caches ikke", async ({ request }) =
     expect(htmlBody, `HTML-en inneholder forfatter-uuid ${id}`).not.toContain(id);
     expect(rscBody, `RSC-nyttelasten inneholder forfatter-uuid ${id}`).not.toContain(id);
   }
+  // Lista viser bare ikonet, så den sender verken bildestien eller lenker til
+  // bildene (Story 1.7).
+  for (const forbidden of ["image_path", "report-images", "/storage/v1/"]) {
+    expect(htmlBody, `HTML-en inneholder ${forbidden}`).not.toContain(forbidden);
+    expect(rscBody, `RSC-nyttelasten inneholder ${forbidden}`).not.toContain(forbidden);
+  }
+});
+
+// Seed-rapportene med bilde som en besøkende ser. Rapport 7 har også bilde,
+// men er skjult.
+const WITH_IMAGE = [2, 3];
+
+test("bildeikonet «Har bilde» står sist i metadatalinja på kortene for rapport 2 og 3, og ingen andre", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await expect(cardLinks(page)).toHaveCount(EXPECTED.length);
+
+  for (const { n } of EXPECTED) {
+    const card = page.locator(`a[href="/rapporter/${reportId(n)}"]`);
+    const icon = card.getByRole("img", { name: "Har bilde", exact: true });
+    if (!WITH_IMAGE.includes(n)) {
+      await expect(icon, `kortet for rapport ${n}`).toHaveCount(0);
+      continue;
+    }
+    await expect(icon, `kortet for rapport ${n}`).toBeVisible();
+    const meta = card.getByText(/har sett dette · /);
+    // Ikonet er siste element i metadatalinja, 16 px og uten selve bildet.
+    expect(
+      await meta.evaluate((p) => p.lastElementChild?.getAttribute("aria-label")),
+    ).toBe("Har bilde");
+    const box = (await icon.boundingBox())!;
+    expect(box.width).toBe(16);
+    expect(box.height).toBe(16);
+    await expect(card.locator("img")).toHaveCount(0);
+  }
+  await expect(page.getByRole("main").getByRole("img", { name: "Har bilde" })).toHaveCount(
+    WITH_IMAGE.length,
+  );
 });
