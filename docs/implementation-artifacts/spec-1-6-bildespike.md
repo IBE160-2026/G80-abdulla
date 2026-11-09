@@ -69,17 +69,17 @@ context:
 ## Tasks & Acceptance
 
 **Execution:**
-- [ ] `supabase/config.toml` -- `[storage.buckets.report-images]` etter Always. Egen commit (AD-11)
-- [ ] `supabase/seed-images/<forfatter-uuid>/<uuid>.<ext>` + `KILDER.md` -- tre CC0-bilder etter beslutningen om testbildene, med kilde og lisens
-- [ ] `supabase/migrations/<tid>_bilder.sql` -- `CHECK` og `UNIQUE` på `reports.image_path`, `reports_with_counts` laget på nytt og de tre policyene på `storage.objects`
-- [ ] `supabase/seed.sql` -- `image_path` for rapport 2, 3 og 7, med stier som peker på bildene
-- [ ] `lib/supabase/database.types.ts` -- generert på nytt med `npm run db:types`
-- [ ] `supabase/tests/bilder.sql` -- radene i matrisen som gjelder databasen: lesing for `anon`, bruker og moderator, opplasting i egen og annens mappe, overskriving og sletting, og `CHECK`/`UNIQUE`. I tillegg seed-bildene finnes som objekter i bucketen, bucketen er privat med riktig grense og riktige typer, og `anon` kan lese oppslaget uten feil når en skjult rapport finnes (AD-14)
-- [ ] `supabase/tests/vakter.sql` -- en vakt for at `storage.objects` har nøyaktig de tre policyene for `report-images`, og ingen for UPDATE eller DELETE
-- [ ] `lib/supabase/storage.db.test.ts` -- `createSignedUrl` (60 s) som besøkende, som bruker og som moderator, for et synlig og et skjult bilde. En GET på URL-en for det synlige bildet gir 200 og `image/*`
-- [ ] `docs/planning-artifacts/architecture/architecture-LocalFix-2026-10-28/ARCHITECTURE-SPINE.md` -- AD-6 og AD-9 settes til `[ADOPTED]`, det står hvilken rettighet `createSignedUrl` krever (SELECT-policy på objektet for den som spør), og Deferred-raden fjernes. Bare hvis alt består (stoppregelen)
-- [ ] `docs/beslutninger/arkitektur-beslutningslogg.md` -- én linje om resultatet av spiken
-- [ ] `README.md` -- status for Story 1.6, testbildene og hvor kilden står
+- [x] `supabase/config.toml` -- `[storage.buckets.report-images]` etter Always. Egen commit (AD-11)
+- [x] `supabase/seed-images/<forfatter-uuid>/<uuid>.<ext>` + `KILDER.md` -- tre CC0-bilder etter beslutningen om testbildene, med kilde og lisens
+- [x] `supabase/migrations/<tid>_bilder.sql` -- `CHECK` og `UNIQUE` på `reports.image_path`, `reports_with_counts` laget på nytt og de tre policyene på `storage.objects`
+- [x] `supabase/seed.sql` -- `image_path` for rapport 2, 3 og 7, med stier som peker på bildene
+- [x] `lib/supabase/database.types.ts` -- generert på nytt med `npm run db:types`
+- [x] `supabase/tests/bilder.sql` -- radene i matrisen som gjelder databasen: lesing for `anon`, bruker og moderator, opplasting i egen og annens mappe, overskriving og sletting, og `CHECK`/`UNIQUE`. I tillegg seed-bildene finnes som objekter i bucketen, bucketen er privat med riktig grense og riktige typer, og `anon` kan lese oppslaget uten feil når en skjult rapport finnes (AD-14)
+- [x] `supabase/tests/vakter.sql` -- en vakt for at `storage.objects` har nøyaktig de tre policyene for `report-images`, og ingen for UPDATE eller DELETE
+- [x] `lib/supabase/storage.db.test.ts` -- `createSignedUrl` (60 s) som besøkende, som bruker og som moderator, for et synlig og et skjult bilde. En GET på URL-en for det synlige bildet gir 200 og `image/*`
+- [x] `docs/planning-artifacts/architecture/architecture-LocalFix-2026-10-28/ARCHITECTURE-SPINE.md` -- AD-6 og AD-9 settes til `[ADOPTED]`, det står hvilken rettighet `createSignedUrl` krever (SELECT-policy på objektet for den som spør), og Deferred-raden fjernes. Bare hvis alt består (stoppregelen)
+- [x] `docs/beslutninger/arkitektur-beslutningslogg.md` -- én linje om resultatet av spiken
+- [x] `README.md` -- status for Story 1.6, testbildene og hvor kilden står
 
 **Acceptance Criteria:**
 - Given seed-dataene og Supabase i gang, when `npm test` kjøres, then består Vitest (`unit` og `db`), pgTAP med `bilder.sql` og de nye vaktene, og alle Playwright-prosjektene. axe gir 0 funn med `serious`/`critical`.
@@ -87,6 +87,13 @@ context:
 - Given detaljsiden og lista, when de vises, then er HTML-en og RSC-nyttelasten fortsatt uten `image_path` (testene fra Story 1.4 og 1.5 består uendret).
 
 ## Implementation Notes
+
+- **`KILDER.md` ligger ved siden av `seed-images/`, ikke i den** (avvik fra Always): Supabase CLI 2.122.1 laster opp alle filer i `objects_path`, også `.md` og skjulte filer. Bucketen godtar bare bilder, så `supabase/seed-images/KILDER.md` ga `415 invalid_mime_type` og fikk `supabase seed buckets` (og dermed `start`/`db reset`) til å feile. Fila heter derfor `supabase/KILDER-seed-images.md`. `objects_path` og bildestiene er som i spec-en. Prosjekteieren bør godkjenne plasseringen.
+- **Testbildene:** «Street lamps at the National Assembly of Quebec» (Wilfredor), «A pothole in Dilova Street in Kyiv» (Роман Рябенко) og «Wall light in stairwell - NÄL hospital 1» (W.carter), alle `{{self|cc-zero}}` i wikiteksten på originalsiden. Skalert med `sharp` fra et engangsskript i scratchpad til 1600 px, JPEG kvalitet 80 (47–215 KB), uten EXIF/GPS. Objektnavn: `<forfatter-uuid>/3000…000N.jpg`, der N er rapportnummeret.
+- **Policynavn:** Postgres kutter navn over 63 byte, så navnene er kortet til `report-images: anon leser synlige`, `report-images: authenticated leser synlige, moderator alle` og `report-images: authenticated laster opp i egen mappe`.
+- **DELETE i pgTAP:** Storage har triggeren `protect_objects_delete`, som avviser all direkte DELETE i `storage.objects` (42501) med mindre `storage.allow_delete_query = true`. `bilder.sql` setter den lokalt, slik Storage-tjenesten gjør, så testen viser at policyene gir 0 rader og ikke bare at triggeren stopper. Kontrollert: med en midlertidig DELETE- og UPDATE-policy endres 2 rader.
+- **`createSignedUrl`:** Kontrollert ved å fjerne SELECT-policyen for `anon` midlertidig: da fikk besøkende ingen lenke til det synlige bildet. Rettigheten er altså en SELECT-policy på objektet for den som spør. Både skjult og manglende objekt gir `Object not found`.
+- **`database.types.ts`:** `npm run db:types` ga ingen endring (CHECK og UNIQUE vises ikke i typene), så fila er ikke endret.
 
 ## Spec Change Log
 

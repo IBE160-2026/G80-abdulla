@@ -2,7 +2,7 @@
 scope: LocalFix v1: hele systemet
 purpose: Konsistenskontrakt for bygging av LocalFix (IBE160), bare spine
 altitude: initiative (hele systemet, greenfield)
-updated: 2026-11-06T14:33
+updated: 2026-11-09T15:30
 ---
 
 - (direction) (by user) Coaching-vei, bare spinen som leveranse (build substrate). Mål: konsistenskontrakt for LocalFix v1, IBE160-vurdering, solo-utvikler
@@ -54,3 +54,4 @@ updated: 2026-11-06T14:33
 - (decision) 2026-11-06 (by user) K-1: godta og dokumentere at author_id og confirmations.user_id er lesbare via REST og at bildemappen står i lenken. Appen sender aldri author_id, user_id eller image_path til nettleseren (REPORT_COLUMNS). Lukkes før drift (Deferred)
 - (decision) 2026-11-06 (by user) Ingen bilder i lista: bare et bildeikon (lucide Image, aria-label Har bilde) når rapporten har bilde. DESIGN.md, EXPERIENCE.md og liste.html er rettet. Bildet vises bare på detaljsiden med én signert lenke (createSignedUrl)
 - (event) 2026-11-06 spine finalized
+- (decision) 2026-11-09 (by user, regelen i spec-en for Story 1.6) Bildespiken bestod, og AD-6 og AD-9 er [ADOPTED]: pgTAP (supabase/tests/bilder.sql) viser at anon og brukere som ikke er moderator, også forfatteren, ikke ser objektet til skjult rapport 7, at moderatoren gjør det, at opplasting bare går i egen mappe (ellers 42501), at ingen kan overskrive eller slette (0 rader), og at CHECK og UNIQUE på image_path gir 23514 og 23505. Vitest mot lokal Storage (lib/supabase/storage.db.test.ts) viser at createSignedUrl krever en SELECT-policy på objektet for den som spør, ingen annen rettighet: besøkende, brukere og moderator får lenke til synlige bilder (GET gir 200 og image/jpeg), og bare moderatoren får lenke til det skjulte (de andre får «Object not found»). Reserven i AD-6 trengs ikke, og Deferred-raden er fjernet
