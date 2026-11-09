@@ -1,6 +1,6 @@
 ---
 topic: LocalFix UX
-updated: 2026-11-06T20:00
+updated: 2026-11-09T15:00
 ---
 
 - (event) Create startet; kilder: product-brief.md og prd.md (2026-10-11). Faglærer ba om skisser av registreringsskjema, liste og detaljside; mobile-first; designkriteriet teller 10 %
@@ -28,3 +28,12 @@ updated: 2026-11-06T20:00
 - (decision) (by user) 2026-11-06 Et eget kategorivalg låser opp «Send inn» mens KI-en jobber. Kategorivalget kan brukes i tilstanden «KI tenker», og et sent forslag endrer ikke kategorien
 - (decision) (by user) 2026-11-06 Fra 640 px ligger primærknappen «Registrer problem» i topplinja i stedet for den flytende knappen. [ASSUMPTION] fjernet
 - (change) 2026-11-06 DESIGN.md: kontrasten er regnet ut (all tekst ≥ 5,06:1, kantlinja 1,31:1 er greit fordi ingen komponent kjennes igjen bare på kantlinja), [ASSUMPTION] fjernet; moderatorpanelet beskriver nabostatusene for alle tre statuser; updated og sources rettet. registrer.html viser kategorivalget i «KI tenker»
+- (event) 2026-11-09 Story 1.5 (detaljsiden, PR #48): valgene under ble tatt i spec-en for storyen (docs/implementation-artifacts/spec-1-5-detaljsiden.md) og ført inn i EXPERIENCE.md
+- (decision) (by user) 2026-11-09 Overskriften på detaljsiden er oppsummeringen. Mangler den, er overskriften kategorinavnet, for eksempel «Skadeverk». Beskrivelsen står alltid som eget avsnitt under, så overskriften er alltid kort
+- (decision) (by user) 2026-11-09 «Registrert» på detaljsiden vises som dato og klokkeslett, i samme format som «Sist oppdatert» («Registrert 20. oktober kl. 10:15»), ikke som relativ tid slik detalj.html viser. Da ser brukeren at tidspunktene er like når statusen aldri er endret (FR-8)
+- (decision) (by user) 2026-11-09 Norsk feilside for alle sider (app/error.tsx): «Noe gikk galt. Prøv igjen.», knappen «Prøv igjen» og en lenke til lista. Knappen bruker retry, som henter siden på nytt fra serveren, i stedet for reset, som bare tegner den feilede siden på nytt (Next 16.4.5). Godtatt av prosjekteier etter gjennomgangen
+- (decision) (KI-forslag, godkjent av prosjekteier) 2026-11-09 Topplinja beholder «LocalFix · Campus Molde» på detaljsiden og 404-siden for en rapport, med «←» foran (aria-label «Tilbake til lista»). Mockupens «← Rapport» brukes ikke, fordi EXPERIENCE.md går foran skissene
+- (decision) (KI-forslag, godkjent av prosjekteier) 2026-11-09 «←» går ett steg tilbake i historikken når forrige side er i appen, så filtre og rulleposisjon i lista bevares. Etter en direkte lenke går den til lista, og uten JavaScript er den en vanlig lenke til lista
+- (decision) (KI-forslag, godkjent av prosjekteier) 2026-11-09 Telleren på detaljsiden er «N har sett dette», som ellers i EXPERIENCE.md, ikke «Har sett dette: N» fra detalj.html. «Sist oppdatert» vises uten årstall, som i akseptansekriteriet
+- (change) 2026-11-09 EXPERIENCE.md (begge kopier): ny rad «Rapportdetalj» i Component Patterns og «Feil ved lasting» i State Patterns, topplinja med «←» i Information Architecture og «←» presisert i Interaction Primitives. Skissen detalj.html er ikke oppdatert
+- (change) 2026-11-09 detalj.html (begge kopier) oppdatert så den stemmer med EXPERIENCE.md: «←» foran «LocalFix · Campus Molde» i topplinja, «Registrert 4. november kl. 21:05» i samme format som «Sist oppdatert», og «N har sett dette». Overskriften i skissen er oppsummeringen, som før

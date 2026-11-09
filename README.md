@@ -6,7 +6,7 @@ Gruppeprosjekt (G80) i **IBE160 Programmering med KI** ved Høgskolen i Molde, h
 
 ## Status
 
-🟡 **Implementeringen er i gang (Epic 1).** Startpakken og lokal Supabase er på plass (Story 1.1), og det samme er testkommandoen (Story 1.2). Den lokale databasen har datamodellen, lesereglene, testbrukere og testrapporter (Story 1.3). Forsiden viser lista over rapportene, nyeste først (Story 1.4). Detaljsiden kommer i neste story, og da utvides denne guiden.
+🟡 **Implementeringen er i gang (Epic 1).** Startpakken og lokal Supabase er på plass (Story 1.1), og det samme er testkommandoen (Story 1.2). Den lokale databasen har datamodellen, lesereglene, testbrukere og testrapporter (Story 1.3). Forsiden viser lista over rapportene, nyeste først (Story 1.4), og hvert kort åpner en detaljside med hele rapporten, når den sist ble oppdatert og hvor mange som har sett problemet (Story 1.5). Bilder kommer i de neste storyene, og da utvides denne guiden.
 
 ## Kom i gang
 

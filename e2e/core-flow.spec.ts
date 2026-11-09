@@ -10,9 +10,8 @@ import { expectNoHorizontalScroll } from "./layout";
 test("kjerneflyten med tastatur", async ({ page }) => {
   await page.goto("/");
 
-  await expect(
-    page.getByRole("heading", { level: 1, name: "Rapporter" }),
-  ).toBeVisible();
+  const listHeading = page.getByRole("heading", { level: 1, name: "Rapporter" });
+  await expect(listHeading).toBeVisible();
   const cards = page.getByRole("main").getByRole("listitem").getByRole("link");
   await expect(cards).toHaveCount(8);
   await expectNoSeriousA11yViolations(page);
@@ -28,6 +27,22 @@ test("kjerneflyten med tastatur", async ({ page }) => {
     await expect(card).toBeVisible();
     await expect(card).toBeInViewport();
   }
+
+  // Story 1.5: Enter på kort 8 (rapport 1) åpner detaljsiden.
+  await page.keyboard.press("Enter");
+  await expect(page).toHaveURL("/rapporter/20000000-0000-4000-8000-000000000001");
+  await expect(
+    page.getByRole("heading", { level: 1, name: "Full søppelkasse ved hovedinngangen" }),
+  ).toBeVisible();
+  await expectNoSeriousA11yViolations(page);
+  await expectNoHorizontalScroll(page);
+
+  // «←» i topplinja tar brukeren tilbake til lista.
+  await tabTo(page, "link", "Tilbake til lista", { max: 10 });
+  await page.keyboard.press("Enter");
+  await expect(page).toHaveURL("/");
+  await expect(listHeading).toBeVisible();
+  await expect(cards).toHaveCount(8);
 
   // I 360-prosjektet sjekkes også den smaleste bredden, 320 px (NFR-1).
   if (test.info().project.name === "endrer-360") {
