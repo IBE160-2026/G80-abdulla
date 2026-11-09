@@ -1,6 +1,6 @@
 ---
 topic: LocalFix UX
-updated: 2026-11-09T15:00
+updated: 2026-11-09T20:00
 ---
 
 - (event) Create startet; kilder: product-brief.md og prd.md (2026-10-11). Faglærer ba om skisser av registreringsskjema, liste og detaljside; mobile-first; designkriteriet teller 10 %
@@ -37,3 +37,7 @@ updated: 2026-11-09T15:00
 - (decision) (KI-forslag, godkjent av prosjekteier) 2026-11-09 Telleren på detaljsiden er «N har sett dette», som ellers i EXPERIENCE.md, ikke «Har sett dette: N» fra detalj.html. «Sist oppdatert» vises uten årstall, som i akseptansekriteriet
 - (change) 2026-11-09 EXPERIENCE.md (begge kopier): ny rad «Rapportdetalj» i Component Patterns og «Feil ved lasting» i State Patterns, topplinja med «←» i Information Architecture og «←» presisert i Interaction Primitives. Skissen detalj.html er ikke oppdatert
 - (change) 2026-11-09 detalj.html (begge kopier) oppdatert så den stemmer med EXPERIENCE.md: «←» foran «LocalFix · Campus Molde» i topplinja, «Registrert 4. november kl. 21:05» i samme format som «Sist oppdatert», og «N har sett dette». Overskriften i skissen er oppsummeringen, som før
+- (event) 2026-11-09 Story 1.7 (bilder på detaljsiden og i lista): valgene under ble tatt i spec-en for storyen (docs/implementation-artifacts/spec-1-7-bilder-pa-detaljsiden-og-i-lista.md) og ført inn i EXPERIENCE.md
+- (decision) (by user) 2026-11-09 Bildet på detaljsiden har alt="Bilde fra rapporten". Overskriften rett over sier hva rapporten gjelder, så skjermleseren gjentar den ikke, og teksten lover ikke mer enn vi vet om bildet
+- (decision) (by user) 2026-11-09 Bildet på detaljsiden har full bredde, og høyden følger bildet, men er høyst 480 px. Høye bilder vises hele med object-contain på bg-muted, så ingenting av problemet kuttes bort. Hjørnene er {rounded.lg} (12 px), og margen er 8 px over og 12 px under, som .photo i detalj.html
+- (change) 2026-11-09 EXPERIENCE.md (begge kopier): bildet og visningen i raden «Rapportdetalj», ny tilstand «Bildet mangler» i State Patterns og den alternative teksten og bildeikonet i Accessibility Floor

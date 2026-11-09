@@ -45,8 +45,33 @@ test("kjerneflyten med tastatur", async ({ page }) => {
   await expect(cards).toHaveCount(8);
 
   // I 360-prosjektet sjekkes også den smaleste bredden, 320 px (NFR-1).
-  if (test.info().project.name === "endrer-360") {
+  const narrow = test.info().project.name === "endrer-360";
+  if (narrow) {
     await page.setViewportSize({ width: 320, height: 800 });
+    await expectNoSeriousA11yViolations(page);
+    await expectNoHorizontalScroll(page);
+    await page.setViewportSize({ width: 360, height: 800 });
+  }
+
+  // Story 1.7: kortet for rapport 2 har bildeikonet. Tab dit og Enter åpner
+  // detaljsiden med bildet mellom overskriften og beskrivelsen.
+  const card2 = await tabTo(page, "link", /Slukkede gatelys på gangveien/, { max: 30 });
+  await expect(card2.getByRole("img", { name: "Har bilde", exact: true })).toBeVisible();
+  await page.keyboard.press("Enter");
+  await expect(page).toHaveURL("/rapporter/20000000-0000-4000-8000-000000000002");
+  await expect(
+    page.getByRole("heading", { level: 1, name: "Slukkede gatelys på gangveien" }),
+  ).toBeVisible();
+  const image = page.getByRole("main").getByRole("img", { name: "Bilde fra rapporten", exact: true });
+  await expect(image).toBeVisible();
+  await expect
+    .poll(() => image.evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth))
+    .toBeGreaterThan(0);
+  await expectNoSeriousA11yViolations(page);
+  await expectNoHorizontalScroll(page);
+  if (narrow) {
+    await page.setViewportSize({ width: 320, height: 800 });
+    await expect(image).toBeVisible();
     await expectNoSeriousA11yViolations(page);
     await expectNoHorizontalScroll(page);
   }

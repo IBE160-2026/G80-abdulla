@@ -6,7 +6,7 @@ Gruppeprosjekt (G80) i **IBE160 Programmering med KI** ved Høgskolen i Molde, h
 
 ## Status
 
-🟡 **Implementeringen er i gang (Epic 1).** Startpakken og lokal Supabase er på plass (Story 1.1), og det samme er testkommandoen (Story 1.2). Den lokale databasen har datamodellen, lesereglene, testbrukere og testrapporter (Story 1.3). Forsiden viser lista over rapportene, nyeste først (Story 1.4), og hvert kort åpner en detaljside med hele rapporten, når den sist ble oppdatert og hvor mange som har sett problemet (Story 1.5). Reglene for bilder er testet: den lokale bildelagringen har tre testbilder, og bare moderatoren kan lese bildet til en skjult rapport (Story 1.6). Appen viser bildene i neste story, og da utvides denne guiden.
+🟡 **Implementeringen er i gang (Epic 1).** Startpakken og lokal Supabase er på plass (Story 1.1), og det samme er testkommandoen (Story 1.2). Den lokale databasen har datamodellen, lesereglene, testbrukere og testrapporter (Story 1.3). Forsiden viser lista over rapportene, nyeste først (Story 1.4), og hvert kort åpner en detaljside med hele rapporten, når den sist ble oppdatert og hvor mange som har sett problemet (Story 1.5). Reglene for bilder er testet: den lokale bildelagringen har tre testbilder, og bare moderatoren kan lese bildet til en skjult rapport (Story 1.6). Detaljsiden viser bildet til rapporten, og i lista har kortene til rapportene med bilde et bildeikon (Story 1.7).
 
 ## Kom i gang
 
@@ -67,6 +67,8 @@ Stopper nedlastingen med `toomanyrequests: Rate exceeded`, kjører du bare `npx 
 ### Testbrukere
 
 `npx supabase start` og `npx supabase db reset` legger inn faste testdata fra `supabase/seed.sql`: fem kontoer og ni rapporter i alle kategorier og statuser, der én er skjult. Alle kontoene har samme passord. Tre av rapportene har bilde, også den skjulte. Bildene ligger i `supabase/seed-images/` og lastes opp til den private bucketen `report-images` i den lokale bildelagringen.
+
+I lista har kortene til de to synlige rapportene med bilde, «Slukkede gatelys på gangveien» og «Hull i asfalten ved P2», et lite bildeikon sist i linja med «har sett dette». Åpner du en av dem, vises bildet mellom overskriften og beskrivelsen. Bildet hentes fra en signert lenke som serveren lager for hver visning, og lenken virker i 60 sekunder. Last siden på nytt for å få en ny lenke. Den skjulte rapporten gir 404 for alle andre enn moderatoren, og da lages ingen lenke til bildet.
 
 | E-post | Passord | Rolle | Brukes til |
 |---|---|---|---|

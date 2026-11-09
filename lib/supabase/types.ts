@@ -38,16 +38,21 @@ export type ReportRow = Database["public"]["Views"]["reports_with_counts"]["Row"
 
 /**
  * Rapporten slik komponentene får den: kolonnene i REPORT_COLUMNS, uten
- * author_id og image_path, som aldri sendes til nettleseren (AD-5).
+ * author_id og image_path, som aldri sendes til nettleseren (AD-5), og
+ * `has_image`, som serveren regner ut fra image_path (Story 1.7).
  * Komponentene bruker bare denne typen.
  */
-export type Report = Omit<ReportRow, "author_id" | "image_path">;
+export type Report = Omit<ReportRow, "author_id" | "image_path"> & {
+  has_image: boolean;
+};
 
 /**
- * Kolonnene lista og detaljsiden leser fra reports_with_counts, altså
- * kolonnene i Report. Listen er eksplisitt og har verken author_id eller image_path, så de aldri sendes til
- * nettleseren (AD-5). Strengen er en literal, så supabase-js kan utlede
- * radtypen fra `.select(REPORT_COLUMNS)`.
+ * Kolonnene komponentene får fra reports_with_counts, altså kolonnene i
+ * Report utenom `has_image`. Listen er eksplisitt og har verken author_id
+ * eller image_path, så de aldri sendes til nettleseren (AD-5). image_path
+ * leses i tillegg bare i lib/supabase/reports.ts, som gjør den om til
+ * `has_image`. Strengen er en literal, så supabase-js kan utlede radtypen
+ * fra `.select(REPORT_COLUMNS)`.
  */
 export const REPORT_COLUMNS =
   "id, description, location, category, summary, status, hidden, created_at, status_changed_at, confirmation_count, seen_count, confirmed_by_me, authored_by_me" as const;
