@@ -2,7 +2,7 @@
 title: 'Story 1.5: Detaljsiden'
 type: 'feature'
 created: '2026-11-09'
-status: 'in-progress'
+status: 'in-review'
 route: 'dispatch'
 review_loop_iteration: 0
 baseline_commit: '2cfd75ff127ecbda8c433b31ae72eeba742ae53f'
@@ -81,20 +81,20 @@ context:
 ## Tasks & Acceptance
 
 **Execution:**
-- [ ] `app/(liste)/page.tsx`, `app/(liste)/loading.tsx`, `app/(liste)/loading.test.ts` -- flyttes med `git mv`, uten andre endringer -- Code Map
-- [ ] `lib/report-id.ts` + `lib/report-id.test.ts` -- `parseReportId(value): string | null` med `z.uuid()`. Testen dekker gyldig, `abc`, tom streng, for lang og store bokstaver -- AR, Server Actions i Story 3.3 bruker den også
-- [ ] `lib/format.ts` + `lib/format.test.ts` -- `formatDateTime(iso)`. Testen dekker vintertid (3.11. 12:00Z gir 13:00), sommertid (23.10. 09:00Z gir 11:00), døgnskifte i norsk tid (31.12. 23:30Z gir «1. januar kl. 00:30») og eksemplet «4. november kl. 14:20»
-- [ ] `lib/supabase/reports.ts` + test -- `getReport(id)`: spørringen, `null` når raden mangler, og bare feilkoden logges ved feil
-- [ ] `components/back-link.tsx`, `components/site-header.tsx` -- «←» etter beslutningen om topplinja. Trykkflaten er minst 44 px, med synlig fokus
-- [ ] `components/report-detail.tsx` -- overskriften, kategori og statusmerke, «Sist oppdatert», beskrivelsen, «Hvor», «Registrert» og «N har sett dette», etter beslutningene
-- [ ] `app/error.tsx` + `app/error.test.ts` -- klientkomponenten etter beslutningen om feilsiden. Testen sjekker teksten, knappen og lenken med `renderToStaticMarkup`
-- [ ] `app/rapporter/[id]/page.tsx` -- `force-dynamic`, `parseReportId`, `getReport`, `notFound()`, `metadata.title` «Rapport · LocalFix»
-- [ ] `app/rapporter/[id]/not-found.tsx` -- `h1` «Fant ikke rapporten.» og lenken «Tilbake til lista» til `/`
-- [ ] `lib/no-cache.test.ts` -- de nye stiene, og `force-dynamic` på begge sidene
-- [ ] `e2e/les/detalj.spec.ts` -- radene i matrisen, med status 404 for de tre 404-radene. Rapport 5: ingen `b`- eller `script`-element, beskrivelsen har `white-space: pre-line` og er høyere enn tre linjer, og på 360 og 320 px er `scrollWidth <= clientWidth` både på avsnittet og på siden (det åpne punktet fra Story 1.2). HTML og RSC har verken `author_id`, `user_id`, `image_path` eller forfatter-uuid-ene. `Cache-Control` har `no-store`. axe på detaljsiden og 404-siden. «←» etter trykk på et kort gir `/`, og `goForward()` gir detaljsiden igjen. «←» etter direkte `goto` gir `/`
-- [ ] `e2e/core-flow.spec.ts` -- Enter på kort 8 åpner rapport 1. Sjekk `h1`, axe og bredden. Så `tabTo` «Tilbake til lista» og Enter, og lista vises igjen
-- [ ] `README.md` -- status for Story 1.5
-- [ ] `docs/ux/EXPERIENCE.md` + kopien -- beslutningene om topplinja og detaljsiden
+- [x] `app/(liste)/page.tsx`, `app/(liste)/loading.tsx`, `app/(liste)/loading.test.ts` -- flyttes med `git mv`, uten andre endringer -- Code Map
+- [x] `lib/report-id.ts` + `lib/report-id.test.ts` -- `parseReportId(value): string | null` med `z.uuid()`. Testen dekker gyldig, `abc`, tom streng, for lang og store bokstaver -- AR, Server Actions i Story 3.3 bruker den også
+- [x] `lib/format.ts` + `lib/format.test.ts` -- `formatDateTime(iso)`. Testen dekker vintertid (3.11. 12:00Z gir 13:00), sommertid (23.10. 09:00Z gir 11:00), døgnskifte i norsk tid (31.12. 23:30Z gir «1. januar kl. 00:30») og eksemplet «4. november kl. 14:20»
+- [x] `lib/supabase/reports.ts` + test -- `getReport(id)`: spørringen, `null` når raden mangler, og bare feilkoden logges ved feil
+- [x] `components/back-link.tsx`, `components/site-header.tsx` -- «←» etter beslutningen om topplinja. Trykkflaten er minst 44 px, med synlig fokus
+- [x] `components/report-detail.tsx` -- overskriften, kategori og statusmerke, «Sist oppdatert», beskrivelsen, «Hvor», «Registrert» og «N har sett dette», etter beslutningene
+- [x] `app/error.tsx` + `app/error.test.ts` -- klientkomponenten etter beslutningen om feilsiden. Testen sjekker teksten, knappen og lenken med `renderToStaticMarkup`
+- [x] `app/rapporter/[id]/page.tsx` -- `force-dynamic`, `parseReportId`, `getReport`, `notFound()`, `metadata.title` «Rapport · LocalFix»
+- [x] `app/rapporter/[id]/not-found.tsx` -- `h1` «Fant ikke rapporten.» og lenken «Tilbake til lista» til `/`
+- [x] `lib/no-cache.test.ts` -- de nye stiene, og `force-dynamic` på begge sidene
+- [x] `e2e/les/detalj.spec.ts` -- radene i matrisen, med status 404 for de tre 404-radene. Rapport 5: ingen `b`- eller `script`-element, beskrivelsen har `white-space: pre-line` og er høyere enn tre linjer, og på 360 og 320 px er `scrollWidth <= clientWidth` både på avsnittet og på siden (det åpne punktet fra Story 1.2). HTML og RSC har verken `author_id`, `user_id`, `image_path` eller forfatter-uuid-ene. `Cache-Control` har `no-store`. axe på detaljsiden og 404-siden. «←» etter trykk på et kort gir `/`, og `goForward()` gir detaljsiden igjen. «←» etter direkte `goto` gir `/`
+- [x] `e2e/core-flow.spec.ts` -- Enter på kort 8 åpner rapport 1. Sjekk `h1`, axe og bredden. Så `tabTo` «Tilbake til lista» og Enter, og lista vises igjen
+- [x] `README.md` -- status for Story 1.5
+- [x] `docs/ux/EXPERIENCE.md` + kopien -- beslutningene om topplinja og detaljsiden
 
 **Acceptance Criteria:**
 - Given seed-dataene og Supabase i gang, when `npm test` kjøres, then består Vitest, pgTAP og alle Playwright-prosjektene, og axe gir 0 funn med `serious`/`critical`.
@@ -103,9 +103,39 @@ context:
 
 ## Implementation Notes
 
+- `app/error.tsx` bruker `retry`, ikke `reset`. I Next 16.3 og nyere henter `retry()` siden på nytt fra serveren, mens `reset()` bare tegner den feilede siden på nytt uten å hente den (`node_modules/next/dist/docs/.../error.md`). En databasefeil i en Server Component ville da kommet tilbake med en gang. Knappen og teksten er som i beslutningen.
+- `formatDateTime` har `hourCycle: "h23"` i tillegg til valgene i Code Map, så midnatt alltid blir «00» og aldri «24», uansett ICU-versjon.
+- `parseReportId` gir id-en med små bokstaver. `z.uuid()` godtar store bokstaver, og Postgres finner samme rad, så store bokstaver gir detaljsiden. Story 3.3 kan sammenligne id-ene direkte.
+- Rapport 5 ble sjekket på 360 px etter et bygg: siden følger `detalj.html`, med unntakene i beslutningene og uten bilde og bekreftknapp.
+- **Lagt til av koordinatoren etter matrisesjekken:** `app/rapporter/[id]/page.test.ts` dekker «uten databasekall» i raden «Ugyldig id». Den mocker `getReport` og `notFound` og sjekker at en ugyldig id aldri slår opp, at en id uten rad gir `notFound()` etter ett oppslag, og at store bokstaver slås opp med små. Raden «Databasefeil» er dekket av `reports.test.ts` (bare feilkoden logges, feilen kastes) og `app/error.test.ts` (den norske feilsiden). En e2e-test med en database som feiler er ikke laget.
+- **Verifisert av koordinatoren:** `test:unit` 149/149 uten typefeil, `tsc` og lint er rene. I agentens `npm test` besto alt unntatt ytelsestesten i `reset`, der `db reset` hang i Docker. Den besto ved ny kjøring av prosjektet `reset`.
+
 ## Spec Change Log
 
 ## Review Triage Log
+
+Gjennomgang 1 (2026-11-09). Kilder: B = blind-hunter, E = edge-case-hunter, V = verification-gap.
+
+| # | Funn | Vurdering | Begrunnelse | Rute |
+|---|------|-----------|-------------|------|
+| V3, B1, E1, E2, E9 | Telleren i `back-link.tsx` teller også tilbake og fram i nettleseren. Følger du en delt lenke, så logoen og så nettleserens tilbakeknapp, sender «←» deg ut av appen | medium | Bekreftet: effekten øker `pages` for hver `pathname`-endring, også ved `popstate`. Resultatet er 3 > 1, så `router.back()` går til siden før den direkte lenken. Det strider mot beslutningen om topplinja (direkte lenke gir `/`). Årsaken er telleren i Design Notes. Rettingen ligger i én fil uten nytt API: dybden lagres i `history.state`. Next tar vare på egne felt (`app-router.js` kopierer `__NA` og treet), så den ble rutet som patch og ikke som full tilbakeføring | patch |
+| V1, B4 | Ingen test sjekker at «Prøv igjen» kaller `retry` | medium | Fra V (forhåndsverifisert): `error.test.ts` lager statisk markup med en stub som aldri sjekkes. En manglende `onClick` eller `reset` ville bestått. B sitt delpunkt om «Next 16.3» i kommentaren er feil, for `retry` kom i 16.3 og 16.4.5 har den | patch |
+| V2 | Ctrl-, Cmd- og midtklikk på «←» er ikke testet | low | Fra V (forhåndsverifisert): ingen test bruker modifikatortaster. Rettingen er én Playwright-test | patch |
+| B14 | Hodekommentaren i `lib/format.ts` har en linje over 80 tegn og en setning om `now` som ikke gjelder `formatDateTime`. `lib/report-id.ts` har også en lang linje | low | Bekreftet. Direkte retting | patch |
+| E3 | «←» går tilbake også når forrige side i appen ikke er lista, for eksempel innloggingen | low | Kan ikke skje i dag, for bare kortene i lista lenker til `/rapporter/<id>`. Det kan skje når Story 2.2 (detaljsiden etter innsending) og Story 3.3 (innlogging og tilbake) kommer | defer |
+| B2, E8 | `/foo`, `/rapporter` og `/rapporter/<id>/x` gir fortsatt Nexts engelske 404, og på `/rapporter/…` står «←» i topplinja | low | Bekreftet, men problemet fantes før storyen for alle ukjente URL-er. Intensjonen gjelder rapportlenkene, og de gir den norske 404-siden. Rettingen er en ny `app/not-found.tsx` | defer |
+| B3, E7 | Ingen `app/global-error.tsx`, så en feil i `app/layout.tsx` gir Nexts engelske side | low | Layouten og topplinja leser ingen data og kaster ikke i dag. Lite sannsynlig, og rettingen er en ny fil. Avvist | avvist |
+| B5 | Den frosne beslutningen sier `reset`, mens koden bruker `retry`, og Spec Change Log er tom | low | Bekreftet avvik. `retry` er det som oppfyller «Prøv igjen» (henter siden på nytt, `error-boundary.js:43`). Begrunnelsen står i Implementation Notes. Rettingen ville vært å endre spec-en, og den frosne teksten kan bare mennesket endre. Legges fram ved presentasjonen | avvist |
+| B6 | `sprint-status.yaml` sier `in-progress` mens spec-en sier `in-review`, og spec-en er ikke med i diffen | false | Steg 5 setter storyen til `review`. Spec-en er utelatt med vilje, fordi den er påstandsfila til edge-case-laget | avvist |
+| B7, E5 | Datoene har ikke årstall | false | Den frosne beslutningen om «Sist oppdatert» sier uten årstall, som i akseptansekriteriet | avvist |
+| B8 | Tidspunktene står ikke i `<time dateTime>` | low | Ikke krav i UX eller spec, og ny markup. Det samme ble avvist i Story 1.4 (B11). Avvist | avvist |
+| B9 | En id med store bokstaver gir en ny URL til samme rapport | low | Siden virker, og appen lager bare lenker med små bokstaver. En omdirigering er en ny gren. Avvist | avvist |
+| B10 | Vakttesten for `force-dynamic` har en fast liste over sider | low | En ny side som leser visningen, legges i lista i samme story. Å utlede lista er mer kode. Avvist | avvist |
+| B11 | E2e-testen venter med `networkidle` | low | Testen kjører mot `next start` og besto. Next gir ikke noe tydelig signal for hydrering, så alternativet er mer kode. Avvist | avvist |
+| B12 | 404-fanen får tittelen «Rapport · LocalFix» | maybe-false | Avhenger av om Next bruker sidens statiske `metadata` når `notFound()` kastes. Det ville vært low uansett, så avvist | avvist |
+| B13 | De to kopiene av EXPERIENCE.md synkroniseres for hånd | false | Fantes før storyen, og valget av én kilde er et åpent punkt i `issues.md` | avvist |
+| E4 | Moderatoren ser en skjult rapport uten merkelappen «Skjult» | false | Never-lista (frosset) legger merkelappen i Story 4.2. RLS virker | avvist |
+| E6 | `z.uuid()` avviser uuid-er som Postgres godtar, men som ikke følger RFC | false | `reports.id` har `default gen_random_uuid()` (v4), og seed og fixturer bruker v4-id-er. Ingen rad kan få en id som ikke følger RFC | avvist |
 
 ## Design Notes
 

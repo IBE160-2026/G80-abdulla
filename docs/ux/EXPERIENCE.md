@@ -17,6 +17,8 @@ LocalFix er én responsiv webapp (PWA) laget mobile-first, med shadcn/ui på Nex
 
 **Oppdatert 2026-11-06:** tilpasset PRD-en etter vurderingen 2026-11-04 og arkitekturspinen. Lengdegrensene, kategori som krav før innsending, filteret «Mine rapporter», «sist oppdatert», telleren «1 har sett dette», påminnelsen om personopplysninger og kontrollen for NFR-8 er nye eller endret. Senere samme dag ble det presisert når KI-forslaget hentes, at et eget kategorivalg låser opp «Send inn» mens KI-en jobber, og at «Registrer problem» ligger i topplinja på bred skjerm.
 
+**Oppdatert 2026-11-09 (Story 1.5):** beslutningene om topplinja på detaljsiden, overskriften, «Registrert», telleren og den norske feilsiden er ført inn. Der de avviker fra `detalj.html`, gjelder denne filen.
+
 Skissene ligger i `mockups/`: `liste.html`, `registrer.html` og `detalj.html`. Hvis en skisse og denne spesifikasjonen sier noe ulikt, gjelder spesifikasjonen.
 
 ## Information Architecture
@@ -28,7 +30,7 @@ Skissene ligger i `mockups/`: `liste.html`, `registrer.html` og `detalj.html`. H
 | Ny rapport | Den flytende «+»-knappen på lista | Registrere et problem med KI-forslag | FR-3, FR-4 |
 | Logg inn / Registrer konto | Menyen i topplinja, eller automatisk når en besøkende prøver å registrere eller bekrefte | Konto og innlogging | FR-1 |
 
-Topplinja viser «LocalFix · Campus Molde» til venstre og en meny til høyre. Menyen inneholder «Logg inn» eller e-postadressen din og «Logg ut». Appen lagrer ingen navn i v1, og e-postadressen vises bare for brukeren selv. Moderatoren ser i tillegg «Moderator» som en merkelapp i menyen. Det finnes ingen bunnmeny, og navigasjonen er bare ett nivå dyp: fra lista går du til en detaljside eller til skjemaet, og «←» tar deg tilbake.
+Topplinja viser «LocalFix · Campus Molde» til venstre og en meny til høyre. På detaljsiden, og på 404-siden for en rapport, står «←» foran «LocalFix · Campus Molde», med `aria-label="Tilbake til lista"`. Mockupens «← Rapport» brukes ikke. Menyen inneholder «Logg inn» eller e-postadressen din og «Logg ut». Appen lagrer ingen navn i v1, og e-postadressen vises bare for brukeren selv. Moderatoren ser i tillegg «Moderator» som en merkelapp i menyen. Det finnes ingen bunnmeny, og navigasjonen er bare ett nivå dyp: fra lista går du til en detaljside eller til skjemaet, og «←» tar deg tilbake.
 
 Alle flatene har en reise som ender der: UJ-1 i Ny rapport, UJ-2 i Rapportdetalj og UJ-3 i moderatorpanelet.
 
@@ -65,6 +67,7 @@ Her står oppførselen. Utseendet er beskrevet i `DESIGN.md.Components`.
 | Lokasjonsfelt | Ny rapport | Obligatorisk fritekst, maks 200 tegn. Plassholderen er «F.eks. gangveien ved bygg A». |
 | Bildeopplasting | Ny rapport | Valgfritt. Knappen «Legg til bilde» åpner kamera eller bildebibliotek på mobil. Under knappen står påminnelsen om ansikter og bilskilt. Brukeren ser bildet før innsending og kan fjerne det. Bilder over 5 MB, eller i andre formater enn JPEG, PNG og WebP, avvises med en gang. |
 | Send inn | Ny rapport | Er deaktivert til beskrivelse, lokasjon og kategori er fylt inn (FR-3). Mens KI-en finner kategori, er knappen deaktivert, med mindre brukeren allerede har valgt kategori selv. Da er knappen aktiv med en gang, og et forslag som kommer senere, endrer ikke kategorien. Svarer ikke KI-en, må brukeren velge kategori selv. Viser «Sender …» mens rapporten sendes. Etter innsending går brukeren til rapportens detaljside og får en toast: «Rapporten er sendt inn». |
+| Rapportdetalj | Detalj | Øverst kategori til venstre og statusmerket til høyre, med «Sist oppdatert» rett under. Overskriften er oppsummeringen. Mangler den, er overskriften kategorinavnet, for eksempel «Skadeverk». Beskrivelsen står alltid som eget avsnitt under overskriften, som ren tekst, med linjeskiftene bevart og lange ord brutt. Under beskrivelsen står «Hvor:» med lokasjonen, «Registrert 20. oktober kl. 10:15» (registreringstidspunktet i samme format som «Sist oppdatert») og telleren «N har sett dette». Mockupens «Har sett dette: N» og relative registreringstid brukes ikke. |
 | «Sist oppdatert» | Detalj, under statusmerket | Viser tidspunktet for siste statusendring som dato og klokkeslett i norsk tid, for eksempel «Sist oppdatert 4. november kl. 14:20». Er statusen aldri endret, vises registreringstidspunktet (FR-8). Skjuling endrer ikke tidspunktet. |
 | Bekreftknapp | Detalj | Synlig for alle. Besøkende: sendes til innlogging og så tilbake. Rapportøren selv: deaktivert, med teksten «Din rapport». Allerede bekreftet: «Du har sett dette ✓», deaktivert. Skjult rapport (bare moderator ser den): deaktivert, med teksten «Skjult rapport». En bekreftelse kan ikke angres (FR-7). Ved trykk øker telleren med én med en gang (optimistisk), og tallet erstattes av serverens `seen_count` når svaret kommer. Feiler kallet, går telleren tilbake og en toast vises. Svarer serveren at brukeren allerede har bekreftet, vises «Du har sett dette ✓» uten feiltoast. |
 | Moderatorpanel | Detalj, bare for moderator | Viser nåværende status og knapper bare til nabostatusene. Ny gir «Under behandling →». Under behandling gir «← Ny» og «Løst →». Løst gir «← Under behandling». «Skjul rapport» spør om bekreftelse i en shadcn-`AlertDialog`, mens «Vis rapport» trenger ingen bekreftelse. |
@@ -84,12 +87,13 @@ Her står oppførselen. Utseendet er beskrevet i `DESIGN.md.Components`.
 | Innsending feiler | Ny rapport | En destructive-toast: «Kunne ikke sende inn. Prøv igjen.» Alt brukeren har fylt inn, beholdes. |
 | Skjult rapport (moderator) | Lista og detalj | Grå merkelapp «Skjult» og grå bakgrunn. «Vis rapport» står i panelet. |
 | Skjult rapport (alle andre enn moderator, også rapportøren) | Direkte lenke og «Mine rapporter» | Rapporten er borte fra lista og fra «Mine rapporter». En direkte lenke gir 404-siden: «Fant ikke rapporten.» og en lenke tilbake til lista. Rapportøren får ingen melding i v1 (FR-9). |
+| Feil ved lasting | Alle sider | «Noe gikk galt. Prøv igjen.», knappen «Prøv igjen», som henter siden på nytt, og en lenke «Tilbake til lista». Rapporttekst og feilmeldinger fra databasen vises aldri. |
 | Ikke tilgang (API 403) | Moderatorhandling | Skal ikke skje i grensesnittet. Skjer det likevel, vises en toast: «Du har ikke tilgang til dette.» |
 
 ## Interaction Primitives
 
 - Trykk og klikk er de eneste handlingene. Det er ingen sveip, ingen dra-og-slipp og ingen lange trykk.
-- «←» i topplinja og nettleserens tilbakeknapp gjør det samme.
+- «←» i topplinja og nettleserens tilbakeknapp gjør det samme: kommer du fra en side i appen, går «←» ett steg tilbake i historikken, så filtrene og rulleposisjonen i lista er bevart. Har du åpnet siden direkte, for eksempel fra en delt lenke, går «←» til lista. Uten JavaScript er «←» en vanlig lenke til lista.
 - Lista viser alle synlige rapporter. Det er ingen «Vis flere» og ingen uendelig rulling i v1 (arkitekturen, NFR-6).
 - Statusendringer vises når siden lastes på nytt (PRD FR-8). Det er ingen sanntidsoppdatering.
 - Det finnes ingen funksjoner som bare virker med mus eller hover.
