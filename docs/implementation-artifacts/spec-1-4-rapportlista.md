@@ -2,7 +2,7 @@
 title: 'Story 1.4: Rapportlista'
 type: 'feature'
 created: '2026-11-09'
-status: 'in-progress'
+status: 'done'
 route: 'dispatch'
 review_loop_iteration: 0
 baseline_commit: '48439ebd66469805912fcb0ac590626bd2301267'
@@ -80,19 +80,19 @@ context:
 ## Tasks & Acceptance
 
 **Execution:**
-- [ ] `supabase/seed.sql` -- `summary` `NULL` for rapport 5, og kommentaren oppdateres -- beslutningen
-- [ ] `app/globals.css`, `tailwind.config.ts` -- temaet fra DESIGN.md, bare lys modus -- UX-DR1, UX-DR2, UX-DR3
-- [ ] `lib/format.ts` + `lib/format.test.ts` -- `formatRelativeTime(iso, now)` etter beslutningen. Testen dekker alle grensene i matrisen, entall og flertall, og et tidspunkt fram i tid
-- [ ] `lib/supabase/reports.ts` -- `LIST_LIMIT = 500` og `listReports()`, som returnerer `{ reports: Report[], truncated }` (`truncated` når antallet er lik grensen) -- AR-11, AR-12
-- [ ] `components/site-header.tsx`, `components/status-badge.tsx`, `components/report-card.tsx`, `components/report-list.tsx` -- topplinja, statusmerket med tekst, kortet som én lenke til `/rapporter/<id>` og lista med antall, avkortingstekst og tomtilstand. Kortene står i en `ul` -- UX-DR4, UX-DR5, UX-DR6, UX-DR16
-- [ ] `components/ui/skeleton.tsx`, `app/loading.tsx` -- fire Skeleton-kort med samme form som kortene
-- [ ] `app/layout.tsx`, `app/page.tsx` -- topplinja i layouten. Siden er `force-dynamic` og viser `h1` «Rapporter» og lista
-- [ ] `lib/no-cache.test.ts` -- vakttest i Vitest som leser kildefilene i `app/` og `lib/` og feiler på `'use cache'` og `unstable_cache`, og hvis `app/page.tsx` mangler `dynamic = "force-dynamic"` -- AR-11
-- [ ] `e2e/les/forside.spec.ts` -- 8 kort i riktig rekkefølge, ingen skjult rapport, kategori og status med tekst, `seen_count`, lenkene, «8 rapporter», ingen avkortingstekst. Rapport 5 er ren tekst (ingen `b`- eller `script`-element), høyst to linjer høy og uten horisontal scrolling på 360 og 320 px. HTML-en og RSC-nyttelasten (`RSC: 1`) inneholder ingen av forfatter-uuid-ene. `Cache-Control` har `no-store`. axe uten `serious`/`critical`
-- [ ] `e2e/db.ts`, `e2e/fixtures/*.sql`, `e2e/reset/liste.spec.ts` -- `resetDb()` og `runSqlFile()` med `db query`. Ytelse: reset, 100 rapporter, tiden fra `goto` til alle kortene er synlige er under 2000 ms. Avkortet: 500 ekstra rapporter gir 500 kort og teksten. Tom: bekreftelser og rapporter slettes, og tomtilstanden vises og sjekkes med axe. `afterAll` kjører reset, så databasen har seed-dataene igjen -- NFR-6, AD-15
-- [ ] `e2e/core-flow.spec.ts` -- med tastaturet: Tab til topplinjelenken og så gjennom alle kortlenkene, og hvert kort har fokus og er synlig. Breddesjekken og axe som før -- AR-14
-- [ ] `README.md` -- status for Story 1.4, og at `npm run test:e2e` nå også kjører `db reset` i prosjektet `reset`
-- [ ] `docs/ux/EXPERIENCE.md` + kopien i `planning-artifacts` -- skalaen for relativ tid med «nå», ført inn under rapportkortet
+- [x] `supabase/seed.sql` -- `summary` `NULL` for rapport 5, og kommentaren oppdateres -- beslutningen
+- [x] `app/globals.css`, `tailwind.config.ts` -- temaet fra DESIGN.md, bare lys modus -- UX-DR1, UX-DR2, UX-DR3
+- [x] `lib/format.ts` + `lib/format.test.ts` -- `formatRelativeTime(iso, now)` etter beslutningen. Testen dekker alle grensene i matrisen, entall og flertall, og et tidspunkt fram i tid
+- [x] `lib/supabase/reports.ts` -- `LIST_LIMIT = 500` og `listReports()`, som returnerer `{ reports: Report[], truncated }` (`truncated` når antallet er lik grensen) -- AR-11, AR-12
+- [x] `components/site-header.tsx`, `components/status-badge.tsx`, `components/report-card.tsx`, `components/report-list.tsx` -- topplinja, statusmerket med tekst, kortet som én lenke til `/rapporter/<id>` og lista med antall, avkortingstekst og tomtilstand. Kortene står i en `ul` -- UX-DR4, UX-DR5, UX-DR6, UX-DR16
+- [x] `components/ui/skeleton.tsx`, `app/loading.tsx` -- fire Skeleton-kort med samme form som kortene
+- [x] `app/layout.tsx`, `app/page.tsx` -- topplinja i layouten. Siden er `force-dynamic` og viser `h1` «Rapporter» og lista
+- [x] `lib/no-cache.test.ts` -- vakttest i Vitest som leser kildefilene i `app/` og `lib/` og feiler på `'use cache'` og `unstable_cache`, og hvis `app/page.tsx` mangler `dynamic = "force-dynamic"` -- AR-11
+- [x] `e2e/les/forside.spec.ts` -- 8 kort i riktig rekkefølge, ingen skjult rapport, kategori og status med tekst, `seen_count`, lenkene, «8 rapporter», ingen avkortingstekst. Rapport 5 er ren tekst (ingen `b`- eller `script`-element), høyst to linjer høy og uten horisontal scrolling på 360 og 320 px. HTML-en og RSC-nyttelasten (`RSC: 1`) inneholder ingen av forfatter-uuid-ene. `Cache-Control` har `no-store`. axe uten `serious`/`critical`
+- [x] `e2e/db.ts`, `e2e/fixtures/*.sql`, `e2e/reset/liste.spec.ts` -- `resetDb()` og `runSqlFile()` med `db query`. Ytelse: reset, 100 rapporter, tiden fra `goto` til alle kortene er synlige er under 2000 ms. Avkortet: 500 ekstra rapporter gir 500 kort og teksten. Tom: bekreftelser og rapporter slettes, og tomtilstanden vises og sjekkes med axe. `afterAll` kjører reset, så databasen har seed-dataene igjen -- NFR-6, AD-15
+- [x] `e2e/core-flow.spec.ts` -- med tastaturet: Tab til topplinjelenken og så gjennom alle kortlenkene, og hvert kort har fokus og er synlig. Breddesjekken og axe som før -- AR-14
+- [x] `README.md` -- status for Story 1.4, og at `npm run test:e2e` nå også kjører `db reset` i prosjektet `reset`
+- [x] `docs/ux/EXPERIENCE.md` + kopien i `planning-artifacts` -- skalaen for relativ tid med «nå», ført inn under rapportkortet
 
 **Acceptance Criteria:**
 - Given seed-dataene og Supabase i gang, when `npm test` kjøres, then består Vitest, pgTAP og alle Playwright-prosjektene, også `reset`, og axe gir 0 funn med `serious`/`critical`.
@@ -101,9 +101,50 @@ context:
 
 ## Implementation Notes
 
+- **Utenfor Code Map, nødvendig for oppgavene:**
+  - `lib/supabase/server.ts`: `createServerClient<Database>`, så `.select(REPORT_COLUMNS)` gir radtypen `Report`.
+  - `lib/utils.ts` + `lib/utils.test.ts`: `cn()` kjenner fontstørrelsene `title`, `card-title`, `meta` og `badge`. Uten det trodde tailwind-merge at `text-badge` var en farge og fjernet enten størrelsen eller tekstfargen.
+  - `eslint.config.mjs`: ignorerer `playwright-report/**` og `test-results/**`. Etter en feilet test ga trace-bundelen 2955 lint-feil. Problemet fantes før denne storyen.
+- `npx supabase db query` godtar bare én SQL-setning, så `tom.sql` er én `truncate public.confirmations, public.reports`.
+- Next svarer `RSC: 1` med 307 til `/?_rsc`. Playwright følger den, og testen sjekker `text/x-component`, så uuid-sjekken ikke kan bestå på feil svar.
+- Tailwinds `shadow-none` gir gjennomsiktige skygger på 0 px i stedet for `none`. Testen godtar begge.
+- Ytelsestesten målte 454 ms for 108 rapporter.
+- README: forventet tid for `npm test` er nå omtrent fem minutter (4 min 28 s), fordi prosjektet `reset` kjører `db reset` tre ganger til.
+- **Lagt til av koordinatoren etter matrisesjekken:**
+  - `lib/supabase/reports.test.ts` dekker raden «Databasefeil» (bare feilkoden logges, feilen kastes) og spørringen og `truncated` ved 0, 8, 499 og 500 rader, med en falsk klient.
+  - `app/loading.test.ts` dekker AC 3 med `renderToStaticMarkup`: fire kort, `animate-pulse` og `role="status"`. `vitest.config.ts` tar derfor med `app/**/*.test.ts` i prosjektet `unit`.
+- **Etter gjennomgangen:** de ni patch-radene er rettet. Nytt: `components/report-card.test.ts` (tiden regnes fra `created_at` og `now`), fargene på statusmerkene i DESIGN-testen, `error.code || "ukjent"`, `timeout` og den opprinnelige feilmeldingen i `e2e/db.ts`, `components/` i vakttesten, at de nyeste beholdes i testen for avkortet liste, og `array_length` i fixturene. `vitest.config.ts` tar med `components/**/*.test.ts`.
+- **Verifisert av koordinatoren etter gjennomgangen:** lint og `tsc` er rene. `npm test` (exit 0) ga Vitest `unit` 109/109 uten typefeil, pgTAP 114/114, Vitest `db` 7/7 og Playwright 33/33. Ytelsestesten målte 448 ms for 108 rapporter.
+- Kjent: `app/loading.tsx` er lastegrensen for roten og kan blinke kort ved klientnavigasjon til `/auth/*`. Tomtilstanden har bare teksten, og knappen «Registrer problem» kommer i Story 2.2.
+
 ## Spec Change Log
 
 ## Review Triage Log
+
+Gjennomgang 1 (2026-11-09). Kilder: B = blind-hunter, E = edge-case-hunter, V = verification-gap.
+
+| # | Funn | Vurdering | Begrunnelse | Rute |
+|---|------|-----------|-------------|------|
+| V1, B10 | Den relative tiden på kortet er ikke testet gjennom `ReportCard` (feltet `created_at` og `now`) | medium | Fra V (forhåndsverifisert): e2e sjekker bare «N har sett dette · », og `format.test.ts` går ikke gjennom kortet. `status_changed_at` i stedet for `created_at` ville bestått | patch |
+| V2 | Fargene på statusmerkene er ikke testet | medium | Fra V (forhåndsverifisert): DESIGN-testen leser bare kortet, og axe fanger ikke byttede farger | patch |
+| B5, E2 | Feil uten kode gir tom logglinje og «()» i meldingen | medium | Bekreftet: postgrest-js setter `code: ""` når `fetch` feiler (`index.cjs:490`), så nettopp nede-tilfellet blir umulig å feilsøke | patch |
+| B7, E5 | `execSync` i `e2e/db.ts` har ingen timeout, så en hengende `db reset` stopper `npm test` for alltid | low | Bekreftet: den synkrone kallet blokkerer, så `test.setTimeout` slår ikke inn. Rettingen er én opsjon | patch |
+| E7 | `run()` i `e2e/db.ts` mister den opprinnelige feilmeldingen når selve starten feiler | low | Bekreftet: ved ENOENT er `stdout`/`stderr` tomme og `error.message` brukes ikke. Direkte retting, sammen med timeouten | patch |
+| B3, E4 | EXPERIENCE.md sier «litt fram i tid», men koden og beslutningen gir «nå» for all tid fram i tid | low | Bekreftet. Beslutningen i spec-en (fryst) sier «fram i tid», så teksten i EXPERIENCE.md rettes til å stemme | patch |
+| B4 | Vakttesten mot cache skanner ikke `components/` | low | Bekreftet. Direkte retting av mønsteret. `fetch`-cache og `revalidate` avvises: appen bruker ikke `fetch` direkte, og vakten ville blitt mer kode | patch |
+| B9 | Testen for avkortet liste sjekker ikke at det er de nyeste som beholdes | low | Bekreftet. To linjer i testen (første kort er rapport 9, `Testrapport nummer 492` med og `493` ute) | patch |
+| B16 | Fixturene antar fem kategorier (`n % 5`) | low | Bekreftet. Direkte retting med `array_length` | patch |
+| B1 | Spec-en er ikke med i diffen | false | Utelatt med vilje: spec-en er påstandsfila til edge-case-laget, ikke koden som gjennomgås | avvist |
+| B2 | Sprintstatus `in-progress` og spec `in-review` er ulike | false | Steg 5 i arbeidsflyten setter storyen til `review` | avvist |
+| B6, E3 | Ingen `app/error.tsx`, så en databasefeil gir Nexts engelske feilside | false | Matrisen (fryst) sier «Next sin feilside» for databasefeil. En norsk feilside er ny funksjonalitet utenfor intensjonen | avvist |
+| E1 | Moderator ser skjult rapport 7 uten merkelappen «Skjult» | false | Never-lista (fryst) legger merkelappen i Story 4.2 (epics l. 1033). RLS virker som den skal | avvist |
+| B8 | Testen for avkortet liste kjører en ekstra `db reset` (≈ 30 s) | low | Hver test i `reset` starter fra seed, så ingen avhenger av rekkefølgen (AD-15). Avvist | avvist |
+| B11 | Relativ tid mangler `<time dateTime>` | low | Ikke krav i UX eller spec, og det er ny markup. Avvist | avvist |
+| B12 | `main`-wrapperen og `h1` står både i `page.tsx` og `loading.tsx` | low | Rettingen er en ny delt komponent. Avvist | avvist |
+| B13 | Skeleton kopierer målene på kortet, og `/<li>/g` er skjør | low | Kosmetisk, og testen dekker AC 3. Avvist | avvist |
+| B14 | «500 rapporter» ser ut som totalen når lista er avkortet | low | Teksten følger beslutningen om sidens oppbygning (fryst), og avkortingsteksten står rett under. Avvist | avvist |
+| B15 | `--radius` er fjernet, `--status-hidden*` er ubrukt, og `--ring`/`--input` er shadcn-standard | false | Ingen komponent i `components/ui/` bruker `var(--radius)`. DESIGN.md sier at `ring` og `input` arver fra shadcn. `hidden` er DESIGN-token for Story 4.2 | avvist |
+| E6 | Fixtur-stien kan ødelegges av `$`, `` ` `` eller `%` i stien til klonen | low | Lite sannsynlig, og rettingen er mer enn en direkte endring. Avvist | avvist |
 
 ## Design Notes
 
