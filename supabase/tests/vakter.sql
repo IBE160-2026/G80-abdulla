@@ -3,7 +3,7 @@
 begin;
 \ir hjelpere.psql
 
-select plan(14);
+select plan(15);
 
 select is_empty(
   $$
@@ -181,6 +181,18 @@ select is_empty(
       and p.cmd in ('UPDATE', 'DELETE', 'ALL')
   $$,
   'ingen policy i storage gir UPDATE eller DELETE'
+);
+
+-- Bare storage.objects har policyer. En policy på storage.buckets ville for
+-- eksempel latt brukere lage eller endre bøtter.
+select is_empty(
+  $$
+    select p.tablename, p.policyname
+    from pg_policies p
+    where p.schemaname = 'storage'
+      and p.tablename <> 'objects'
+  $$,
+  'ingen policy i storage utenom storage.objects'
 );
 
 select * from finish();

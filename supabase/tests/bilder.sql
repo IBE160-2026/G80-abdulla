@@ -11,7 +11,7 @@
 begin;
 \ir hjelpere.psql
 
-select plan(36);
+select plan(40);
 
 -- Objektnavnene til seed-bildene (lik reports.image_path i seed.sql).
 -- Rapport 2 (bruker2) og 3 (bruker1) er synlige, rapport 7 (bruker1) er skjult.
@@ -118,6 +118,12 @@ select is_empty(
 select lives_ok(
   $$insert into storage.objects (bucket_id, name) values ('report-images', '10000000-0000-4000-8000-000000000002/40000000-0000-4000-8000-000000000003.jpg')$$,
   'bruker1: kan laste opp i egen mappe'
+);
+-- Ingen rapport peker på det nye bildet, så ingen kan lese det, heller ikke
+-- den som lastet det opp (AD-9).
+select is_empty(
+  $$select name from storage.objects where bucket_id = 'report-images' and name = '10000000-0000-4000-8000-000000000002/40000000-0000-4000-8000-000000000003.jpg'$$,
+  'bruker1: kan ikke lese sitt eget nye bilde før en rapport peker på det'
 );
 select throws_ok(
   $$insert into storage.objects (bucket_id, name) values ('report-images', '10000000-0000-4000-8000-000000000003/40000000-0000-4000-8000-000000000004.jpg')$$,
@@ -255,6 +261,31 @@ select lives_ok(
   format($$select pg_temp.ny_rapport(%L, null)$$, tests.bruker1()),
   'rapport uten bilde (image_path NULL) godtas'
 );
+
+-- Policyene på storage.objects sjekker hidden selv (AD-6). En løsere
+-- testpolicy på reports gjør rapport 7 lesbar for alle, men bildet skal
+-- fortsatt være skjult. Uten hidden-sjekken i policyene ville testene feilet.
+create policy "test: alle leser alle rapporter"
+  on public.reports
+  for select
+  to anon, authenticated
+  using (true);
+
+select tests.as_anon();
+select isnt_empty(
+  format($$select id from public.reports where id = %L$$, tests.skjult_rapport()),
+  'kontroll: testpolicyen gjør den skjulte rapporten lesbar for anon'
+);
+select is_empty(
+  format($$select name from storage.objects where bucket_id = 'report-images' and name = %L$$, tests.bilde(7)),
+  'anon: bildet til den skjulte rapporten er skjult også når reports er åpen'
+);
+select tests.as_user(tests.bruker1());
+select is_empty(
+  format($$select name from storage.objects where bucket_id = 'report-images' and name = %L$$, tests.bilde(7)),
+  'bruker1: bildet til den skjulte rapporten er skjult også når reports er åpen'
+);
+select tests.as_postgres();
 
 select * from finish();
 rollback;

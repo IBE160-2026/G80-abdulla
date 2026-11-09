@@ -2,7 +2,7 @@
 title: 'Story 1.6: Bildespike: reglene for bilder er testet'
 type: 'feature'
 created: '2026-11-09'
-status: 'in-progress'
+status: 'in-review'
 route: 'dispatch'
 review_loop_iteration: 0
 baseline_commit: 'dc5e09a18c75a432a29c90f6b1da25f5752e90dd'
@@ -95,9 +95,34 @@ context:
 - **`createSignedUrl`:** Kontrollert ved å fjerne SELECT-policyen for `anon` midlertidig: da fikk besøkende ingen lenke til det synlige bildet. Rettigheten er altså en SELECT-policy på objektet for den som spør. Både skjult og manglende objekt gir `Object not found`.
 - **`database.types.ts`:** `npm run db:types` ga ingen endring (CHECK og UNIQUE vises ikke i typene), så fila er ikke endret.
 
+- **Etter gjennomgangen (2026-11-09):** de elleve patch-radene er rettet. Opplasting gjennom Storage-API-et (`storage.upload`) virker i egen mappe før en rapport peker på bildet. En annens mappe gir 403, og `text/plain` gir 415, så stoppregelen slo ikke inn. `bilder.sql` har 40 tester, med en åpen testpolicy på `reports` som viser at `hidden`-sjekken i bildepolicyene virker alene. Agenten viste at testene feiler når sjekken fjernes. `vakter.sql` har 15 tester. Verifisert: lint, `tsc` og `test:unit` 151/151 er rene, pgTAP 157/157 og Vitest `storage.db.test.ts` 13/13 består. Hele `npm test` er ikke kjørt etter rettingene.
+
 ## Spec Change Log
 
 ## Review Triage Log
+
+Gjennomgang 1 (2026-11-09). Kilder: B = blind-hunter, E = edge-case-hunter, V = verification-gap.
+
+| # | Funn | Vurdering | Begrunnelse | Rute |
+|---|------|-----------|-------------|------|
+| B4, E3, E9 | Opplasting er bare testet med SQL rett mot `storage.objects`, ikke gjennom Storage-API-et. AD-9 er satt til `[ADOPTED]` og sier at appen laster opp med brukerens sesjon, før rapporten finnes | maybe-false | Hvis Storage leser raden tilbake etter INSERT, gir SELECT-policyen false (ingen rapport peker på bildet ennå), og opplastingen feiler. Det avgjøres av én Vitest-opplasting gjennom `storage.upload`. Feiler den på grunn av policyene, slår stoppregelen inn. Rettingen er en test og ikke ny kode, så den er rutet som patch | patch |
+| V1 | `hidden`-sjekken i policyene på `storage.objects` er ikke testet alene | medium | Fra V (forhåndsverifisert): RLS på `reports` skjuler rapport 7 allerede, så alle testene består også uten sjekken. AD-6 sier nå at sjekken er en ekstra sikring, men ingen test viser det | patch |
+| B10 | Setningen i AD-6 om hva `hidden`-sjekken beskytter mot, blander policyene på `reports` og pgTAP | low | Bekreftet. Retting av ordlyden, sammen med testen fra V1 | patch |
+| B1, E5 | AD-9 sier «5 MB», mens bucketen, README og pgTAP bruker 5 MiB (5 242 880 byte) | medium | Bekreftet. Story 2.4 bygger Server Action etter AD-9, og 5 000 000 byte ville gitt en annen grense enn bucketen. Direkte retting av teksten | patch |
+| E8 | AD-9 og loggen sier at `createSignedUrl` ikke krever «noen annen rettighet» enn SELECT-policyen | low | Bekreftet unøyaktig. Policyen leser `public.reports` og kaller `private.is_moderator()` med rollens egne grants og RLS, så de trengs også. Retting av ordlyden | patch |
+| B9 | Merkingen av `[ADOPTED]`-linjen i beslutningsloggen følger ikke formatet i `docs/beslutninger/README.md` | low | Bekreftet. Stoppregelen var et forslag i spec-en som prosjekteieren godkjente, og README-en har merket «(KI-forslag, godkjent av prosjekteier)» for det | patch |
+| B2 | Loggen sier «image/jpeg», men testen sjekker bare `image/*` | low | Bekreftet. Alle seed-bildene er JPEG, så testen kan sjekke `image/jpeg` | patch |
+| B13, E7 | Testen for «finnes ikke» sammenligner bare meldingen, og bare for `anon` | low | Bekreftet. Sammenlign hele feilobjektet (også status) for et skjult og et manglende objekt, for samme leser | patch |
+| B5 | Ingen test viser at brukeren selv ikke kan lese sitt eget bilde før en rapport peker på det | low | Bekreftet: bruker1 sin lesetest kjører før opplastingen. AD-9 sier at ingen kan lese en slik fil. Én `is_empty` | patch |
+| B3 | Grensene for type og størrelse i bucketen er bare lest tilbake, ikke prøvd med en opplasting | low | Bekreftet. Én opplasting av `text/plain` gjennom Storage-API-et, i samme test som B4, viser at bucketen avviser den | patch |
+| E6 | Vakten sjekker bare policyene på `storage.objects`. En policy på `storage.buckets` ville latt brukere lage bøtter uten at noen test feiler | low | Bekreftet. Én påstand om at `storage` ikke har policyer på andre tabeller | patch |
+| B6, E1, E2 | `CHECK` og INSERT-policyen godtar stier som `<forfatter>/` og `<forfatter>/a/b.jpg`, ikke bare `<forfatter>/<uuid>.<ext>` | low | Bekreftet, men begrensningen er ordrett som i AD-6 og den frosne spec-en. Formatet lages av Server Action (AD-9), og en egen opplasting kan bare gå i egen mappe, med bildetyper. Strengere regex er ny regel. Avvist | avvist |
+| E4 | Bucketen sjekker bare oppgitt MIME-type, ikke selve bytene | low | Sjekken av innholdet hører til Server Action i Story 2.4 (AD-9). Avvist | avvist |
+| B7 | Visningen lages på nytt uten endring | false | Regelen i AD-5 og Always i spec-en krever det når `reports` endres. Vakttesten sjekker kolonnene | avvist |
+| B8 | To like filer for beslutningsloggen | false | Fantes før storyen. `docs/beslutninger/README.md` sier at kopiene oppdateres sammen med originalene | avvist |
+| B11 | `Thumbs.db` eller `desktop.ini` i `seed-images/` kan få `supabase start` til å feile på Windows | low | Explorer lager ikke slike filer i vanlige mapper som standard, og `KILDER-seed-images.md` forklarer at bare bilder kan ligge der. Avvist | avvist |
+| B12 | README beskriver Story 1.6 som levert mens sprintstatusen er `in-progress` | false | Steg 5 setter storyen til `review` i samme PR | avvist |
+| E10 | Kildelista ligger i `supabase/KILDER-seed-images.md`, ikke i `seed-images/KILDER.md` | false | Nødvendig: CLI-en laster opp alle filer i `objects_path`, og bucketen avviser `.md` (415). Forklart i fila og i Implementation Notes, og lagt fram for prosjekteieren | avvist |
 
 ## Design Notes
 
