@@ -171,6 +171,8 @@ test("rapport 2 med bilde: svaret caches ikke, har ingen bildesti og forfatteren
 test("skjult rapport 7 med bilde gir 404 uten signert lenke", async ({ request }) => {
   const { html, rsc } = await fetchHtmlAndRsc(request, reportUrl(7));
   expect(html.status()).toBe(404);
+  // Next svarer 200 på RSC-forespørselen. 404-tilstanden står i nyttelasten.
+  expect(await rsc.text()).toContain("Fant ikke rapporten.");
   for (const [name, response] of [
     ["HTML-en", html],
     ["RSC-nyttelasten", rsc],

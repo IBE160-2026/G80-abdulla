@@ -205,6 +205,17 @@ describe("getReport", () => {
     });
   });
 
+  test("en skjult rapport som RLS gir moderatoren, får også bildelenke", async () => {
+    // Appen filtrerer aldri på hidden selv (AD-6). Får moderatoren raden, skal
+    // bildet vises, så moderatoren kan vurdere rapporten.
+    result = { data: { ...row(ID, IMAGE_PATH), hidden: true }, error: null };
+    signReportImage.mockResolvedValue(SIGNED_URL);
+    const found = await getReport(ID);
+    expect(signReportImage).toHaveBeenCalledExactlyOnceWith(IMAGE_PATH);
+    expect(found?.imageUrl).toBe(SIGNED_URL);
+    expect(found?.report.hidden).toBe(true);
+  });
+
   test("gir null og signerer ingenting når raden mangler eller RLS skjuler den", async () => {
     result = { data: null, error: null };
     await expect(getReport(ID)).resolves.toBeNull();

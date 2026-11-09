@@ -158,12 +158,13 @@ Skygger arves fra shadcn. Den eneste egne skyggen ligger på den flytende «+»-
 
 - `{rounded.sm}` (6 px) på inndatafelt
 - `{rounded.md}` (8 px) på knapper
-- `{rounded.lg}` (12 px) på rapportkort og bildeforhåndsvisning
+- `{rounded.lg}` (12 px) på rapportkort, bildeforhåndsvisning og bildet på detaljsiden
 - `{rounded.full}` bare på statusmerker, filterbrikker, merkelappen «Foreslått av KI» og den flytende knappen
 
 ## Components
 
 - **Rapportkort (`{components.report-card}`):** Øverste linje har kategori til venstre og statusmerke til høyre. Under kommer oppsummeringen (eller beskrivelsen, hvis KI ikke har laget oppsummering) i `{typography.card-title}`, maks to linjer. Nederst står metadata: «5 har sett dette · 2 dager siden». Har rapporten bilde, står et lite bildeikon (lucide `Image`, 16 px, `aria-label="Har bilde"`) sist i metadatalinja. Lista viser ikke selve bildet, for det vises bare på detaljsiden.
+- **Bildet på detaljsiden:** Står mellom overskriften og beskrivelsen, i full bredde. Høyden følger bildet, men er høyst 480 px. Høye bilder vises hele (ikke beskåret) på `{colors.muted}`. Hjørnene er `{rounded.lg}`, og margen er 8 px over og 12 px under. Den faste høyden på 170 px i `detalj.html` er bare en plassholder i skissen.
 - **Statusmerke:** Bruker `{components.status-badge-new}`, `-progress` og `-done`. Teksten skrives alltid ut, så fargen er aldri eneste bærer av status.
 - **Primærknapp (`{components.button-primary}`):** Brukes til «Send inn» og «Logg inn».
 - **Bekreftknapp (`{components.button-confirm}`):** «Jeg har også sett dette». Den har kantlinje i normaltilstand. Når brukeren har bekreftet, bytter den til `{components.button-confirm-done}` med teksten «Du har sett dette ✓» og blir deaktivert.

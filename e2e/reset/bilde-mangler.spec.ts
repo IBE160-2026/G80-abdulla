@@ -5,11 +5,9 @@
 // reset. afterAll tilbakestiller databasen, så seed-dataene er der igjen.
 import { expect, test } from "@playwright/test";
 import { expectNoSeriousA11yViolations } from "../a11y";
-import { resetDb, runSqlFile } from "../db";
+import { RESET_TIMEOUT, resetDb, runSqlFile } from "../db";
 
 const REPORT_URL = "/rapporter/20000000-0000-4000-8000-000000000004";
-// `db reset` tar rundt et halvt minutt.
-const RESET_TIMEOUT = 180_000;
 
 test.afterAll(() => {
   test.setTimeout(RESET_TIMEOUT);
