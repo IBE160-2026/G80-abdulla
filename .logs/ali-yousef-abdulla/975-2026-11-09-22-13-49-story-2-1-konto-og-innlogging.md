@@ -41,7 +41,8 @@ Brukeren kjørte `bmad-help`, som viste at Epic 1 er ferdig og at Story 2.1 er n
   - Lint og `tsc` gir 0 feil.
   - Hele `npm test` (exit 0): Vitest `unit` 251/251, pgTAP 157/157, Vitest `db` 20/20 og Playwright 116/116.
   - axe ga 0 alvorlige funn, og ytelsestesten målte 442 ms for 108 rapporter.
-- Spec-en er `done`, og sprintstatusen er `review`. Ingenting er pushet, og det finnes ingen PR ennå.
+- Spec-en er `done`, og sprintstatusen er `review`.
+- Brukeren ba om push. `story/2-1-konto-og-innlogging` er pushet, og PR #51 (https://github.com/IBE160-2026/G80-abdulla/pull/51) er laget med `Closes #29`, testsammendraget og funnene fra gjennomgangen. Den er ikke flettet. PR-en tar også med `done` for Story 1.7 og Epic 1 og loggen for flettingen av PR #50.
 - Lukket i `issues.md`: punktene om de engelske innloggingssidene og «Glemt passord» (Story 1.1), og om `logIn` i `detalj-innlogget.spec.ts` (Story 1.7).
 
 ### Åpne punkter
