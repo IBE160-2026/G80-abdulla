@@ -19,6 +19,8 @@ LocalFix er én responsiv webapp (PWA) laget mobile-first, med shadcn/ui på Nex
 
 **Oppdatert 2026-11-09 (Story 1.5):** beslutningene om topplinja på detaljsiden, overskriften, «Registrert», telleren og den norske feilsiden er ført inn. Der de avviker fra `detalj.html`, gjelder denne filen.
 
+**Oppdatert 2026-11-09 (Story 2.1):** menyen i topplinja, innloggings- og registreringssiden, tekstene og feilmeldingene er ført inn. Registreringen har ikke lenger «Gjenta passord», og startpakkens sider for glemt passord, nytt passord og e-postbekreftelse er fjernet.
+
 Skissene ligger i `mockups/`: `liste.html`, `registrer.html` og `detalj.html`. Hvis en skisse og denne spesifikasjonen sier noe ulikt, gjelder spesifikasjonen.
 
 ## Information Architecture
@@ -30,7 +32,7 @@ Skissene ligger i `mockups/`: `liste.html`, `registrer.html` og `detalj.html`. H
 | Ny rapport | Den flytende «+»-knappen på lista | Registrere et problem med KI-forslag | FR-3, FR-4 |
 | Logg inn / Registrer konto | Menyen i topplinja, eller automatisk når en besøkende prøver å registrere eller bekrefte | Konto og innlogging | FR-1 |
 
-Topplinja viser «LocalFix · Campus Molde» til venstre og en meny til høyre. På detaljsiden, og på 404-siden for en rapport, står «←» foran «LocalFix · Campus Molde», med `aria-label="Tilbake til lista"`. Mockupens «← Rapport» brukes ikke. Menyen inneholder «Logg inn» eller e-postadressen din og «Logg ut». Appen lagrer ingen navn i v1, og e-postadressen vises bare for brukeren selv. Moderatoren ser i tillegg «Moderator» som en merkelapp i menyen. Det finnes ingen bunnmeny, og navigasjonen er bare ett nivå dyp: fra lista går du til en detaljside eller til skjemaet, og «←» tar deg tilbake.
+Topplinja viser «LocalFix · Campus Molde» til venstre og en meny til høyre. På detaljsiden, og på 404-siden for en rapport, står «←» foran «LocalFix · Campus Molde», med `aria-label="Tilbake til lista"`. Mockupens «← Rapport» brukes ikke. Menyen åpnes med knappen ☰ (`aria-label="Meny"`, 44 × 44 px), som er lik for besøkende og innloggede. Den inneholder «Logg inn» eller e-postadressen din og «Logg ut». Appen lagrer ingen navn i v1, og e-postadressen vises bare for brukeren selv. Moderatoren ser i tillegg «Moderator» som en merkelapp i menyen. Det finnes ingen bunnmeny, og navigasjonen er bare ett nivå dyp: fra lista går du til en detaljside eller til skjemaet, og «←» tar deg tilbake.
 
 Alle flatene har en reise som ender der: UJ-1 i Ny rapport, UJ-2 i Rapportdetalj og UJ-3 i moderatorpanelet.
 
@@ -50,6 +52,7 @@ Tonen er kort, vennlig og saklig, med «du»-form. Det er ingen utropstegn og in
 | «Vi fikk ikke et forslag. Velg kategori selv.» | «KI-feil: timeout» |
 | «Ingen rapporter matcher filteret.» | «0 resultater» |
 | «Unngå ansikter og bilskilt på bildet.» | «Personvernregler gjelder for opplastede bilder.» |
+| «Feil e-post eller passord.» | «Invalid login credentials» |
 
 ## Component Patterns
 
@@ -57,6 +60,8 @@ Her står oppførselen. Utseendet er beskrevet i `DESIGN.md.Components`.
 
 | Komponent | Bruk | Regler for oppførsel |
 |---|---|---|
+| Meny | Topplinja, til høyre på alle sider | Knappen ☰ med `aria-label="Meny"` åpner en nedtrekksmeny. Besøkende: «Logg inn», som går til innloggingen med siden du står på som retur-adresse (`/auth/login?next=…`). På innloggings- og registreringssiden beholdes retur-adressen fra adressen. Innlogget: e-postadressen din, merkelappen «Moderator» for moderatoren og «Logg ut». «Logg ut» logger ut denne nettleseren og viser lista som for en besøkende. Menyen virker med tastatur: Enter eller mellomrom åpner den, piltastene flytter mellom valgene, og Escape lukker den og gir fokus tilbake til knappen. |
+| Innlogging og registrering | `/auth/login` og `/auth/sign-up` | Overskriften er «Logg inn» eller «Registrer konto». Begge har bare feltene «E-post» og «Passord». Registreringen har hjelpeteksten «Minst 6 tegn.» under passordet og ikke noe felt for å gjenta passordet. Knappene er «Logg inn» og «Registrer konto», og viser «Logger inn …» og «Registrerer …» mens kallet pågår. Under skjemaet står «Har du ikke konto? Registrer konto» eller «Har du allerede konto? Logg inn», og lenken tar med samme retur-adresse. En ny konto er innlogget med en gang, uten e-postbekreftelse. Etter innlogging eller registrering kommer du tilbake til siden du kom fra. En retur-adresse til et annet nettsted gir lista. Det finnes ingen «Glemt passord» og ingen sletting av konto i v1 (PRD §6.2). |
 | Rapportkort | Lista | Hele kortet er én lenke til detaljsiden. Ingen handlinger på selve kortet. Har rapporten bilde, står et lite bildeikon («Har bilde») sist i metadatalinja, og lista viser aldri selve bildet. Telleren viser «N har sett dette», der N er `seen_count` fra visningen: antall bekreftelser pluss rapportøren (PRD §3). Grensesnittet regner ikke selv, bortsett fra den optimistiske +1 på bekreftknappen. En ny rapport viser «1 har sett dette». Tiden i metadatalinja er relativ og regnes fra registreringen: under ett minutt, eller fram i tid (for eksempel ved klokkeforskjell), vises som «nå». Deretter «N minutter siden» (under en time), «N timer siden» (under et døgn), «N dager siden» (under 7 døgn), «N uker siden» (under 30 døgn), «N måneder siden» (under 365 døgn, 30 døgn per måned) og «N år siden» (365 døgn per år), med entall for 1 («1 minutt siden», «1 time siden», «1 dag siden», «1 uke siden», «1 måned siden») og tallene rundet ned. |
 | Filterbrikker | Lista, over kortene | Brikkerad: «Mine rapporter» (bare for innloggede), «Alle», de fem kategoriene og de tre statusene. «Mine rapporter», én kategori og én status kan være aktive samtidig. «Mine rapporter» viser bare rapporter brukeren selv har registrert, ikke de hen har bekreftet. «Alle» nullstiller kategori og status. Et nytt trykk på en aktiv brikke slår den av. Valget lagres i URL-en med kodeverdiene fra arkitekturen, for eksempel `?mine=true&category=lighting&status=new`, så det overlever en ny innlasting og kan deles. Ukjente verdier ignoreres. For en besøkende ignoreres `mine`. |
 | Sortering | Lista, til høyre over brikkene | En shadcn-`Select` med «Nyeste» (standard) og «Flest har sett». Valget lagres i URL-en som `sort=newest` eller `sort=confirmations`. |
@@ -84,6 +89,8 @@ Her står oppførselen. Utseendet er beskrevet i `DESIGN.md.Components`.
 | KI svarer ikke etter 5 sekunder, feiler eller er av | Ny rapport | «Vi fikk ikke et forslag. Velg kategori selv.» Kategorivalget står tomt og er obligatorisk. |
 | Mock-modus | Ny rapport | Oppfører seg som et vanlig forslag. Det er ingen synlig forskjell for brukeren. |
 | Valideringsfeil | Ny rapport | Feilmeldingen står under feltet, og fokus flyttes til første feil |
+| Feil i feltene | Innlogging og registrering | Skjemaet sjekker selv før det sender: «Skriv inn e-postadressen din.», «Skriv inn passordet ditt.», «Skriv inn en gyldig e-postadresse.» og, ved registrering, «Passordet må ha minst 6 tegn.». Svarer Supabase at e-postadressen er i bruk, står «Det finnes allerede en konto med denne e-postadressen.» ved e-postfeltet. Feilen står under feltet, og fokus flyttes til første feil. |
+| Innlogging eller registrering feiler | Innlogging og registrering | En melding over knappen: «Feil e-post eller passord.», «For mange forsøk. Vent litt og prøv igjen.» eller, ved alle andre feil, også nettverksfeil, «Noe gikk galt. Prøv igjen.». Fokus flyttes til meldingen. Tekst fra Supabase vises aldri, og det du har skrevet, beholdes. |
 | Innsending feiler | Ny rapport | En destructive-toast: «Kunne ikke sende inn. Prøv igjen.» Alt brukeren har fylt inn, beholdes. |
 | Skjult rapport (moderator) | Lista og detalj | Grå merkelapp «Skjult» og grå bakgrunn. «Vis rapport» står i panelet. |
 | Skjult rapport (alle andre enn moderator, også rapportøren) | Direkte lenke og «Mine rapporter» | Rapporten er borte fra lista og fra «Mine rapporter». En direkte lenke gir 404-siden: «Fant ikke rapporten.» og en lenke tilbake til lista. Rapportøren får ingen melding i v1 (FR-9). |
@@ -107,6 +114,7 @@ Her står kravene til oppførsel. Kontrast er beskrevet i `DESIGN.md`.
 - Status kommer alltid fram som tekst, ikke bare som farge.
 - Alle skjemafelt har en synlig `label`. Feilmeldinger kobles til feltet med `aria-describedby`.
 - Den flytende knappen har `aria-label="Registrer problem"`.
+- Menyknappen har `aria-label="Meny"`. I skjemaene for innlogging og registrering får et felt med feil `aria-invalid`, og en melding over knappen har `role="alert"`. Feilmeldingene har vanlig tekstfarge og et feilikon i `destructive`, fordi `destructive` har for lav kontrast til liten tekst.
 - Når KI-forslaget kommer, leser skjermleseren opp «Kategori foreslått: Belysning» via `aria-live="polite"`.
 - Endringer i telleren på bekreftknappen leses opp via `aria-live`.
 - Tab-rekkefølgen følger lesefølgen. Fokusringen arves fra shadcns `ring`.

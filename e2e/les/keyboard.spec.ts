@@ -40,3 +40,13 @@ test("tabTo feiler og navngir rolle og navn når elementet mangler", async ({
     "tabTo: button «Fjerde» fikk ikke fokus etter 5 trykk på Tab.",
   );
 });
+
+test("tabTo med reverse går bakover med Shift+Tab", async ({ page }) => {
+  await page.setContent(BUTTONS);
+  await page.getByRole("button", { name: "Tredje" }).focus();
+  await tabTo(page, "button", "Første", { reverse: true, max: 2 });
+  await expect(page.getByRole("button", { name: "Første" })).toBeFocused();
+  await expect(tabTo(page, "button", "Tredje", { reverse: true, max: 1 })).rejects.toThrow(
+    "tabTo: button «Tredje» fikk ikke fokus etter 1 trykk på Shift+Tab.",
+  );
+});
