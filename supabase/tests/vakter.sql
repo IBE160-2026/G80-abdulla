@@ -1,9 +1,9 @@
--- Vakttester (AD-5, AD-12, AD-14). De sjekker hele skjemaet, så de fanger
+-- Vakttester (AD-5, AD-9, AD-12, AD-14). De sjekker hele skjemaet, så de fanger
 -- også tabeller, visninger og funksjoner som senere migreringer legger til.
 begin;
 \ir hjelpere.psql
 
-select plan(12);
+select plan(14);
 
 select is_empty(
   $$
@@ -150,6 +150,37 @@ select is(
     'authored_by_me boolean'
   ],
   'reports_with_counts = kolonnene i reports + confirmation_count, seen_count, confirmed_by_me, authored_by_me'
+);
+
+-- Policyene på storage.objects er uttømmende (AD-9, AD-12): SELECT for anon
+-- og authenticated og INSERT for authenticated i bucketen report-images.
+-- En ny policy her, også for en annen bucket, må føres opp med begrunnelse.
+select is(
+  array(
+    select p.cmd || ' ' || array_to_string(p.roles, ',') || ' ' || p.policyname
+    from pg_policies p
+    where p.schemaname = 'storage'
+      and p.tablename = 'objects'
+    order by 1
+  ),
+  array[
+    'INSERT authenticated report-images: authenticated laster opp i egen mappe',
+    'SELECT anon report-images: anon leser synlige',
+    'SELECT authenticated report-images: authenticated leser synlige, moderator alle'
+  ],
+  'storage.objects har nøyaktig de tre policyene for report-images'
+);
+
+-- Et bilde kan aldri overskrives eller slettes via policyer (AD-9). ALL
+-- omfatter UPDATE og DELETE.
+select is_empty(
+  $$
+    select p.tablename, p.policyname, p.cmd
+    from pg_policies p
+    where p.schemaname = 'storage'
+      and p.cmd in ('UPDATE', 'DELETE', 'ALL')
+  $$,
+  'ingen policy i storage gir UPDATE eller DELETE'
 );
 
 select * from finish();
