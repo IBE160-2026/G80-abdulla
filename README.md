@@ -6,7 +6,7 @@ Gruppeprosjekt (G80) i **IBE160 Programmering med KI** ved Høgskolen i Molde, h
 
 ## Status
 
-🟡 **Implementeringen er i gang (Epic 1).** Startpakken og lokal Supabase er på plass (Story 1.1), og det samme er testkommandoen (Story 1.2). Den lokale databasen har datamodellen, lesereglene, testbrukere og testrapporter (Story 1.3). Forsiden viser lista over rapportene, nyeste først (Story 1.4), og hvert kort åpner en detaljside med hele rapporten, når den sist ble oppdatert og hvor mange som har sett problemet (Story 1.5). Bilder kommer i de neste storyene, og da utvides denne guiden.
+🟡 **Implementeringen er i gang (Epic 1).** Startpakken og lokal Supabase er på plass (Story 1.1), og det samme er testkommandoen (Story 1.2). Den lokale databasen har datamodellen, lesereglene, testbrukere og testrapporter (Story 1.3). Forsiden viser lista over rapportene, nyeste først (Story 1.4), og hvert kort åpner en detaljside med hele rapporten, når den sist ble oppdatert og hvor mange som har sett problemet (Story 1.5). Reglene for bilder er testet: den lokale bildelagringen har tre testbilder, og bare moderatoren kan lese bildet til en skjult rapport (Story 1.6). Appen viser bildene i neste story, og da utvides denne guiden.
 
 ## Kom i gang
 
@@ -66,7 +66,7 @@ Stopper nedlastingen med `toomanyrequests: Rate exceeded`, kjører du bare `npx 
 
 ### Testbrukere
 
-`npx supabase start` og `npx supabase db reset` legger inn faste testdata fra `supabase/seed.sql`: fem kontoer og ni rapporter i alle kategorier og statuser, der én er skjult. Alle kontoene har samme passord.
+`npx supabase start` og `npx supabase db reset` legger inn faste testdata fra `supabase/seed.sql`: fem kontoer og ni rapporter i alle kategorier og statuser, der én er skjult. Alle kontoene har samme passord. Tre av rapportene har bilde, også den skjulte. Bildene ligger i `supabase/seed-images/` og lastes opp til den private bucketen `report-images` i den lokale bildelagringen.
 
 | E-post | Passord | Rolle | Brukes til |
 |---|---|---|---|
@@ -76,7 +76,7 @@ Stopper nedlastingen med `toomanyrequests: Rate exceeded`, kjører du bare `npx 
 | `kjerneflyt360@localfix.test` | `localfix-test` | user | Satt av til kjerneflyttesten på 360 px |
 | `kjerneflyt1280@localfix.test` | `localfix-test` | user | Satt av til kjerneflyttesten på 1280 px |
 
-v1 bruker bare oppdiktede testdata og behandler ingen personopplysninger. Kontoene, e-postadressene og rapporttekstene er oppdiktet, og domenet `localfix.test` finnes ikke.
+v1 bruker bare oppdiktede testdata og behandler ingen personopplysninger. Kontoene, e-postadressene og rapporttekstene er oppdiktet, og domenet `localfix.test` finnes ikke. Testbildene er CC0-bilder fra Wikimedia Commons uten ansikter, lesbare bilskilt eller metadata. Kilde og lisens for hvert bilde står i [`supabase/KILDER-seed-images.md`](supabase/KILDER-seed-images.md).
 
 En ny konto får alltid rollen `user`. Rollen kan bare endres med SQL som `postgres`, for eksempel i Supabase Studio:
 
@@ -104,7 +104,7 @@ npx playwright install chromium
 npm test
 ```
 
-`npm test` kjører alt med én kommando: først Vitest (ren logikk i `lib/` og en sjekk av Playwright-oppsettet i `playwright.config.test.ts`), så databasetestene og til slutt Playwright (`e2e/`). Databasetestene tilbakestiller den lokale databasen (`npx supabase db reset`), tester lesereglene med pgTAP (`npx supabase test db`, filene i `supabase/tests/`) og logger inn med hver testbruker i tabellen over. Playwright tilbakestiller den lokale databasen (`npx supabase db reset`), bygger appen (`next build`) og starter den med `next start` på port 3100, så en åpen `npm run dev` på port 3000 ikke blir testet. KI-en går alltid i mock-modus i testene, også om `.env` har `AI_PROVIDER=openai`. Testene kjører i to skjermbredder, 360 og 1280 px, og sjekker tilgjengelighet med axe. Til slutt kjører prosjektet `reset` testene som trenger andre data enn seed (lista med 100 og 500 ekstra rapporter og en tom database). De legger inn data med `npx supabase db query --local` og kjører `npx supabase db reset` selv, også etter siste test, så databasen har seed-dataene igjen når `npm test` er ferdig.
+`npm test` kjører alt med én kommando: først Vitest (ren logikk i `lib/` og en sjekk av Playwright-oppsettet i `playwright.config.test.ts`), så databasetestene og til slutt Playwright (`e2e/`). Databasetestene tilbakestiller den lokale databasen (`npx supabase db reset`), tester lesereglene og bildereglene med pgTAP (`npx supabase test db`, filene i `supabase/tests/`), logger inn med hver testbruker i tabellen over og lager signerte lenker til testbildene. Playwright tilbakestiller den lokale databasen (`npx supabase db reset`), bygger appen (`next build`) og starter den med `next start` på port 3100, så en åpen `npm run dev` på port 3000 ikke blir testet. KI-en går alltid i mock-modus i testene, også om `.env` har `AI_PROVIDER=openai`. Testene kjører i to skjermbredder, 360 og 1280 px, og sjekker tilgjengelighet med axe. Til slutt kjører prosjektet `reset` testene som trenger andre data enn seed (lista med 100 og 500 ekstra rapporter og en tom database). De legger inn data med `npx supabase db query --local` og kjører `npx supabase db reset` selv, også etter siste test, så databasen har seed-dataene igjen når `npm test` er ferdig.
 
 | Kommando | Hva den kjører |
 |---|---|
@@ -135,7 +135,7 @@ Alle variablene står i `.env.example`, og `lib/env.ts` validerer dem når appen
 
 ### Lokal Supabase
 
-`supabase/config.toml` slår av Realtime, Edge Functions, Analytics og e-posttesting, som appen ikke bruker. Da laster første oppstart ned mindre, og Docker-daemonen trenger ikke eksponeres på Windows. E-postbekreftelse er slått av (`enable_confirmations = false`), så nye brukere kan logge inn med en gang.
+`supabase/config.toml` slår av Realtime, Edge Functions, Analytics og e-posttesting, som appen ikke bruker. Da laster første oppstart ned mindre, og Docker-daemonen trenger ikke eksponeres på Windows. E-postbekreftelse er slått av (`enable_confirmations = false`), så nye brukere kan logge inn med en gang. Bucketen `report-images` for bildene er privat og godtar JPEG, PNG og WebP på høyst 5 MiB. Testbildene i `supabase/seed-images/` lastes opp ved `npx supabase start` og `npx supabase db reset`.
 
 Supabase Studio, et grensesnitt for den lokale databasen, ligger på <http://127.0.0.1:54323> mens Supabase kjører.
 
