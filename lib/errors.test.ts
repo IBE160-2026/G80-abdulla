@@ -17,6 +17,7 @@ describe("ERROR_MESSAGES", () => {
         "stale_state",
         "validation_failed",
         "upload_failed",
+        "invalid_image",
         "ai_unavailable",
         "unknown",
       ].sort(),

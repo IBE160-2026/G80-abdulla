@@ -4,6 +4,11 @@
 // sjekkes, feilkodene, revalidatePath og at ingen rapporttekst eller e-post
 // logges. Tester også suggestReport (Story 2.3): innloggingen, låsen per bruker,
 // 2000 tegn og at ingen tekst eller forslag logges. lib/ai er stubbet.
+// Tester også bildet (Story 2.4): stien i brukerens mappe, rekkefølgen
+// (behandling, opplasting, INSERT), at en ugyldig fil ikke gir noe Storage-kall,
+// at feilet INSERT etter opplasting ikke sletter fila, og at ingen sti eller
+// filinnhold logges. Behandlingen er den ekte `prepareImage` med `sharp`.
+import sharp from "sharp";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 const { REDIRECT } = vi.hoisted(() => ({ REDIRECT: new Error("NEXT_REDIRECT") }));
@@ -15,6 +20,15 @@ let result: {
   error: { code: string; message: string } | null;
 };
 let throwOnCreate = false;
+type Upload = {
+  path: string;
+  bytes: Buffer;
+  options: { contentType?: string; upsert?: boolean };
+  bucket: string;
+};
+let uploads: Upload[] = [];
+let uploadError: { message: string; statusCode?: string } | null = null;
+let removeCalls = 0;
 let signedIn = true;
 let viewerUser: { id: string; email: string } | null = { id: "u1", email: "bruker1@localfix.test" };
 
@@ -33,6 +47,19 @@ vi.mock("@/lib/supabase/server", () => ({
   createClient: async () => {
     if (throwOnCreate) throw new Error("nettverk: hemmelig tekst");
     return {
+      storage: {
+        from: (bucket: string) => ({
+          upload: async (path: string, bytes: Buffer, options: Upload["options"]) => {
+            order.push("upload");
+            uploads.push({ path, bytes, options, bucket });
+            return uploadError ? { data: null, error: uploadError } : { data: { path }, error: null };
+          },
+          remove: async () => {
+            removeCalls += 1;
+            return { data: [], error: null };
+          },
+        }),
+      },
       from: (table: string) => {
         order.push(`from ${table}`);
         return {
@@ -64,6 +91,9 @@ let plainLog: ReturnType<typeof vi.spyOn>;
 beforeEach(() => {
   order.length = 0;
   inserted = [];
+  uploads = [];
+  uploadError = null;
+  removeCalls = 0;
   result = { data: [{ id: ID }], error: null };
   throwOnCreate = false;
   signedIn = true;
@@ -265,6 +295,129 @@ describe("createReport", () => {
 
     const text = loggedText();
     expect(text).not.toMatch(/Hemmelig|12345|67890|24680|localfix\.test/);
+  });
+});
+
+describe("createReport med bilde", () => {
+  const jpeg = () =>
+    sharp({ create: { width: 40, height: 20, channels: 3, background: "#cc0000" } })
+      .jpeg()
+      .withMetadata({ orientation: 6 })
+      .withExif({ IFD3: { GPSLatitudeRef: "N", GPSLatitude: "59/1 30/1 0/1" } })
+      .toBuffer();
+  const file = async (name = "bilde.png", type = "image/png") =>
+    new File([new Uint8Array(await jpeg())], name, { type });
+  const UUID = /^u1\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.jpg$/;
+  const invalid = {
+    ok: false,
+    error: { code: "invalid_image", message: expect.stringContaining("Bildet kan ikke brukes") },
+  };
+
+  test("laster opp i brukerens mappe med ny uuid, endelse fra innholdet og uten upsert", async () => {
+    const answer = await createReport({ ...valid, image: await file() });
+    expect(answer).toEqual({ ok: true, data: { id: ID } });
+    expect(uploads).toHaveLength(1);
+    const [upload] = uploads;
+    // Filnavnet bilde.png og typen image/png er ikke med i stien: innholdet er JPEG.
+    expect(upload.path).toMatch(UUID);
+    expect(upload.bucket).toBe("report-images");
+    expect(upload.options).toEqual({ contentType: "image/jpeg", upsert: false });
+  });
+
+  test("stien lagres i image_path, og opplastingen kommer før INSERT", async () => {
+    await createReport({ ...valid, image: await file() });
+    expect(order).toEqual([
+      "requireUser /rapporter/ny",
+      "upload",
+      "from reports",
+      "revalidatePath /",
+      `revalidatePath /rapporter/${ID}`,
+    ]);
+    expect(inserted).toEqual([{ ...valid, image_path: uploads[0].path }]);
+  });
+
+  test("fila som lastes opp er renset: ingen EXIF, og bildet står riktig vei", async () => {
+    await createReport({ ...valid, image: await file() });
+    const metadata = await sharp(uploads[0].bytes).metadata();
+    expect(metadata.exif).toBeUndefined();
+    expect([metadata.width, metadata.height]).toEqual([20, 40]);
+  });
+
+  test("hver innsending får en ny uuid", async () => {
+    await createReport({ ...valid, image: await file() });
+    await createReport({ ...valid, image: await file() });
+    expect(uploads[0].path).not.toBe(uploads[1].path);
+  });
+
+  test("uten bilde gir ingen Storage-kall og ingen image_path", async () => {
+    await createReport(valid);
+    await createReport({ ...valid, image: undefined });
+    await createReport({ ...valid, image: null });
+    expect(uploads).toEqual([]);
+    expect(inserted).toEqual([valid, valid, valid]);
+  });
+
+  test("image_path fra klienten ignoreres, også sammen med et bilde", async () => {
+    await createReport({ ...valid, image_path: "u2/fremmed.jpg", image: await file() });
+    expect(inserted).toEqual([{ ...valid, image_path: uploads[0].path }]);
+    expect(uploads[0].path).not.toContain("fremmed");
+  });
+
+  test.each([
+    ["tom fil", () => new File([], "tom.jpg", { type: "image/jpeg" })],
+    ["tekst omdøpt til .jpg", () => new File(["ikke et bilde"], "a.jpg", { type: "image/jpeg" })],
+    ["en streng", () => "u1/fremmed.jpg"],
+    ["et objekt", () => ({ size: 10 })],
+    [
+      "5 MiB + 1 byte",
+      () => new File([new Uint8Array(5 * 1024 * 1024 + 1)], "stor.jpg", { type: "image/jpeg" }),
+    ],
+  ])("%s gir invalid_image uten Storage-kall og uten INSERT", async (_name, make) => {
+    expect(await createReport({ ...valid, image: make() })).toEqual(invalid);
+    expect(uploads).toEqual([]);
+    expect(inserted).toEqual([]);
+    expect(revalidatePath).not.toHaveBeenCalled();
+  });
+
+  test("tekstfeil går foran bildet: ingen behandling og ingen opplasting", async () => {
+    const answer = await createReport({ ...valid, description: "", image: await file() });
+    expect(answer.ok).toBe(false);
+    if (!answer.ok) expect(answer.error.code).toBe("validation_failed");
+    expect(uploads).toEqual([]);
+  });
+
+  test("feiler opplastingen, gir det upload_failed uten INSERT", async () => {
+    uploadError = {
+      message: "u1/hemmelig.jpg: The object exceeded the maximum allowed size",
+      statusCode: "413",
+    };
+    const answer = await createReport({ ...valid, image: await file() });
+    expect(answer).toEqual({
+      ok: false,
+      error: { code: "upload_failed", message: "Kunne ikke laste opp bildet. Prøv igjen." },
+    });
+    expect(inserted).toEqual([]);
+    expect(revalidatePath).not.toHaveBeenCalled();
+    expect(errorLog).toHaveBeenCalledWith("createReport", "opplasting_413");
+    expect(loggedText()).not.toMatch(/hemmelig|exceeded|u1\//);
+  });
+
+  test("feiler INSERT etter opplastingen, går feilen tilbake og fila slettes ikke", async () => {
+    result = { data: null, error: { code: "42501", message: "row-level security" } };
+    const answer = await createReport({ ...valid, image: await file() });
+    expect(answer.ok).toBe(false);
+    if (!answer.ok) expect(answer.error.code).toBe("forbidden");
+    expect(uploads).toHaveLength(1);
+    expect(removeCalls).toBe(0);
+    expect(revalidatePath).not.toHaveBeenCalled();
+  });
+
+  test("ingen sti, filnavn eller bildeinnhold logges", async () => {
+    await createReport({ ...valid, image: await file("hemmelig-navn.png") });
+    await createReport({ ...valid, image: new File(["hemmelig innhold"], "hemmelig-navn.jpg") });
+    uploadError = { message: "hemmelig sti", statusCode: "500" };
+    await createReport({ ...valid, image: await file("hemmelig-navn.png") });
+    expect(loggedText()).not.toMatch(/hemmelig|u1\/|\.jpg|\.png/);
   });
 });
 

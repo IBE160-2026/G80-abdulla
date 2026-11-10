@@ -4,7 +4,10 @@
 // når SELECT-policyen gir den som spør tilgang til objektet, så et bilde fra
 // en skjult rapport får bare moderatoren lenke til. pgTAP-testene i
 // supabase/tests/bilder.sql tester selve policyene. Til slutt lastes det opp
-// gjennom Storage med brukerens sesjon, slik appen skal gjøre (AD-9).
+// gjennom Storage med brukerens sesjon, slik appen skal gjøre (AD-9): grensen på
+// 5 MiB (Story 2.4), typene og mappen. Testene som lykkes med en opplasting,
+// rydder selv med service-role (retro F3, `test-admin.ts`), siden AD-9 ikke gir
+// noen DELETE-policy, så `db reset` ikke trengs først.
 //
 // Krever lokal Supabase med seed-dataene og seed-bildene: kjøres av
 // `npm run test:db` etter `npx supabase db reset`.
@@ -13,7 +16,8 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { loadEnvConfig } from "@next/env";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
-import { describe, expect, test } from "vitest";
+import { afterAll, describe, expect, test } from "vitest";
+import { listObjects, removeObjects } from "./test-admin";
 import type { Database } from "./types";
 
 const ROOT = fileURLToPath(new URL("../../", import.meta.url));
@@ -144,46 +148,104 @@ describe.each([viewers[0], viewers[2]])(
 );
 
 // Opplasting gjennom Storage-API-et med brukerens sesjon, slik appen gjør
-// (AD-9). Ingen rapport peker på filen ennå. Objektene blir liggende til neste
-// `db reset`, som `npm run test:db` kjører først.
+// (AD-9). Ingen rapport peker på filene. Objektene som blir lagt inn, fjernes
+// i afterAll med service-role.
 describe("upload som bruker1", () => {
   const BRUKER1 = "10000000-0000-4000-8000-000000000002";
   const BRUKER2 = "10000000-0000-4000-8000-000000000003";
+  const MIB = 1024 * 1024;
   const jpeg = readFileSync(`${ROOT}supabase/seed-images/${HIDDEN_IMAGE}`);
   const bruker1 = viewers[1];
+  const uploaded: string[] = [];
 
-  test("laster opp en JPEG i egen mappe", async () => {
+  afterAll(async () => {
+    await removeObjects(BUCKET, uploaded);
+    // Etter oppryddingen er bucketen tilbake til seed-bildene i begge mappene.
+    // Slutter oppryddingen å virke, for eksempel fordi en ny test ikke
+    // registrerer stien sin i uploaded, feiler denne sjekken, og `npx supabase
+    // test db` (bilder.sql) ville feilet på resten uten `db reset`.
+    expect(await listObjects(BUCKET, BRUKER1)).toEqual([BRUKER1 + "/30000000-0000-4000-8000-000000000003.jpg", HIDDEN_IMAGE]);
+    expect(await listObjects(BUCKET, BRUKER2)).toEqual([VISIBLE_IMAGE]);
+  });
+
+  /** Laster opp som bruker1 og husker stien hvis den lykkes, så den ryddes. */
+  async function upload(
+    body: Buffer | string,
+    contentType: string,
+    { folder = BRUKER1, ext = "jpg" }: { folder?: string; ext?: string } = {},
+  ) {
     const supabase = await clientFor(bruker1);
+    const path = `${folder}/${randomUUID()}.${ext}`;
     const { data, error } = await supabase.storage
       .from(BUCKET)
-      .upload(`${BRUKER1}/${randomUUID()}.jpg`, jpeg, { contentType: "image/jpeg" });
+      .upload(path, body, { contentType, upsert: false });
+    if (!error) uploaded.push(path);
+    await supabase.auth.signOut();
+    return { data, error, path };
+  }
+
+  test("laster opp en JPEG i egen mappe", async () => {
+    const { data, error } = await upload(jpeg, "image/jpeg");
     expect(error).toBeNull();
     expect(data?.path).toMatch(new RegExp(`^${BRUKER1}/`));
-    await supabase.auth.signOut();
+  });
+
+  test.each([
+    { type: "image/png", ext: "png" },
+    { type: "image/webp", ext: "webp" },
+  ])("laster opp $type", async ({ type, ext }) => {
+    const { error } = await upload(jpeg, type, { ext });
+    expect(error).toBeNull();
   });
 
   test("kan ikke laste opp i en annens mappe", async () => {
-    const supabase = await clientFor(bruker1);
-    const { data, error } = await supabase.storage
-      .from(BUCKET)
-      .upload(`${BRUKER2}/${randomUUID()}.jpg`, jpeg, { contentType: "image/jpeg" });
+    const { data, error } = await upload(jpeg, "image/jpeg", { folder: BRUKER2 });
     expect(data).toBeNull();
     // INSERT-policyen avviser raden (42501 i databasen, 403 fra Storage).
     expect(error).toMatchObject({
       message: "new row violates row-level security policy",
       statusCode: "403",
     });
-    await supabase.auth.signOut();
   });
 
   test("bucketen avviser en tekstfil, også i egen mappe", async () => {
-    const supabase = await clientFor(bruker1);
-    const { data, error } = await supabase.storage
-      .from(BUCKET)
-      .upload(`${BRUKER1}/${randomUUID()}.txt`, "ikke et bilde", { contentType: "text/plain" });
+    const { data, error } = await upload("ikke et bilde", "text/plain", { ext: "txt" });
     expect(data).toBeNull();
     // Bucketen godtar bare JPEG, PNG og WebP (allowed_mime_types i config.toml).
     expect(error).toMatchObject({ statusCode: "415", code: "InvalidMimeType" });
+  });
+
+  test.each(["image/gif", "image/svg+xml", "image/heic"])("bucketen avviser %s", async (type) => {
+    const { data, error } = await upload(jpeg, type);
+    expect(data).toBeNull();
+    expect(error).toMatchObject({ statusCode: "415", code: "InvalidMimeType" });
+  });
+
+  // Grensen er 5 × 1024 × 1024 byte i bucketen, i Server Action og i skjemaet.
+  // Bucketen sjekker bare størrelsen og den oppgitte typen, ikke innholdet.
+  test("en fil på nøyaktig 5 MiB godtas", async () => {
+    const { error } = await upload(Buffer.concat([jpeg, Buffer.alloc(5 * MIB - jpeg.length)]), "image/jpeg");
+    expect(error).toBeNull();
+  });
+
+  test("en fil på 5 MiB + 1 byte avvises", async () => {
+    const { data, error } = await upload(
+      Buffer.concat([jpeg, Buffer.alloc(5 * MIB + 1 - jpeg.length)]),
+      "image/jpeg",
+    );
+    expect(data).toBeNull();
+    expect(error).toMatchObject({ statusCode: "413", code: "EntityTooLarge" });
+  });
+
+  test("uten upsert avvises en sti som finnes fra før", async () => {
+    const first = await upload(jpeg, "image/jpeg");
+    expect(first.error).toBeNull();
+    const supabase = await clientFor(bruker1);
+    const again = await supabase.storage
+      .from(BUCKET)
+      .upload(first.path, jpeg, { contentType: "image/jpeg", upsert: false });
+    expect(again.data).toBeNull();
+    expect(again.error).toMatchObject({ statusCode: "409" });
     await supabase.auth.signOut();
   });
 });

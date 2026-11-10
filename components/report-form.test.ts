@@ -46,3 +46,22 @@ test("skjemaet kaller KI-en bare via Server Action", () => {
   expect(form).not.toMatch(/lib\/ai/);
   expect(form).not.toMatch(/lib\/env/);
 });
+
+// Story 2.4: bildebehandlingen ligger på serveren. `sharp` er en native pakke og
+// skal aldri inn i klientkoden, og skjemaet sender bare filen med Server Action.
+test("ingen komponent importerer lib/image-process eller sharp", () => {
+  const breaches = sources("components/**/*.{ts,tsx,js,jsx}").filter((file) =>
+    /from\s+["'](sharp|@\/lib\/image-process|\.{1,2}\/(\.\.\/)*lib\/image-process)["']/.test(
+      read(file),
+    ),
+  );
+  expect(breaches, "komponenter som importerer sharp eller lib/image-process").toEqual([]);
+});
+
+test("bildefeltet bruker bare lib/image-input, og skjemaet bruker ImageField", () => {
+  const field = read("components/image-field.tsx");
+  expect(field).toMatch(/from "@\/lib\/image-input"/);
+  expect(field).not.toMatch(/image-process|sharp/);
+  expect(field).not.toMatch(/\bcapture\s*=/);
+  expect(read("components/report-form.tsx")).toMatch(/from "@\/components\/image-field"/);
+});
