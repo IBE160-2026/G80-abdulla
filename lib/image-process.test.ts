@@ -103,23 +103,46 @@ describe("avvisninger", () => {
       bytes: async () => Buffer.from('<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10"/>'),
     },
   ])("$name avvises som feil type, også med typen image/jpeg", async ({ bytes }) => {
-    const result = await prepareImage(blob(await bytes(), "image/jpeg"));
-    expect(result.ok).toBe(false);
-    if (!result.ok) expect(["type", "unreadable"]).toContain(result.reason);
-  });
-
-  test("tekst omdøpt til JPEG er ikke et gyldig bilde", async () => {
-    expect(await prepareImage(blob("dette er ikke et bilde"))).toEqual({
+    // Signaturen i de første byte avvises før sharp leser noe.
+    expect(await prepareImage(blob(await bytes(), "image/jpeg"))).toEqual({
       ok: false,
-      reason: "unreadable",
+      reason: "type",
     });
   });
 
-  test("tilfeldige byte er ikke et gyldig bilde", async () => {
+  test("tekst omdøpt til JPEG har ingen bildesignatur", async () => {
+    expect(await prepareImage(blob("dette er ikke et bilde"))).toEqual({
+      ok: false,
+      reason: "type",
+    });
+  });
+
+  test("tilfeldige byte har ingen bildesignatur", async () => {
     const noise = Buffer.alloc(2000);
     for (let i = 0; i < noise.length; i++) noise[i] = (i * 131 + 7) % 256;
-    const result = await prepareImage(blob(noise));
-    expect(result).toEqual({ ok: false, reason: "unreadable" });
+    expect(await prepareImage(blob(noise))).toEqual({ ok: false, reason: "type" });
+  });
+
+  test("en RIFF-fil som ikke er WebP (WAV) avvises som feil type", async () => {
+    const wav = Buffer.concat([
+      Buffer.from("RIFF", "latin1"),
+      Buffer.from([0x24, 0, 0, 0]),
+      Buffer.from("WAVEfmt ", "latin1"),
+      Buffer.alloc(32),
+    ]);
+    expect(await prepareImage(blob(wav))).toEqual({ ok: false, reason: "type" });
+  });
+
+  test.each([
+    { name: "JPEG", head: Buffer.from([0xff, 0xd8, 0xff, 0xe0]) },
+    { name: "PNG", head: Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]) },
+    {
+      name: "WebP",
+      head: Buffer.concat([Buffer.from("RIFF"), Buffer.from([0x20, 0, 0, 0]), Buffer.from("WEBP")]),
+    },
+  ])("riktig $name-signatur med søppel etter er ikke et gyldig bilde", async ({ head }) => {
+    const junk = Buffer.concat([head, Buffer.alloc(200, 0x41)]);
+    expect(await prepareImage(blob(junk))).toEqual({ ok: false, reason: "unreadable" });
   });
 
   test("en avkortet JPEG er ikke et gyldig bilde", async () => {

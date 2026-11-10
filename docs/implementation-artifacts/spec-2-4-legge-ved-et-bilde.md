@@ -100,6 +100,7 @@ context:
 - Bucketen sjekker bare størrelse og oppgitt type, så tom fil og feil innhold stoppes bare av serveren (Design Notes og beslutningsloggen).
 - Verifisering: lint 0 feil, `npm run test:unit` 678 bestått, `npm run build`, `db-types --check`, og hele `npm test` med exit 0 på 505 s (Vitest unit 678, Vitest db 36, pgTAP, Playwright 192). Etter review-patchene er lint, unit, build og `storage.db.test.ts` kjørt på nytt.
 - Matriserevisjonen fant at alle 13 rader har minst én test som kjørte og besto.
+- Etter advanced elicitation på feilhåndteringen (walkthrough, brukerens valg): `prepareImage` sjekker filsignaturen før `sharp` leser noe (bare JPEG, PNG og WebP slippes til sharp), og `sharp` lastes først når et bilde skal behandles. Kan den ikke lastes, gir `prepareImage` `unavailable`, og `createReport` svarer `upload_failed` og logger `bilde_unavailable`, mens rapporter uten bilde virker. Nye tester: `lib/image-process.unavailable.test.ts`, signaturtester i `lib/image-process.test.ts` og en test i `actions.test.ts`. Forslaget om en egen toast ved `upload_failed` ble ikke tatt med, siden den generelle toasten er frosset i spec-en.
 
 ## Spec Change Log
 
@@ -126,6 +127,9 @@ Gjennomgang 1 (Blind Hunter 12 funn, Edge Case Hunter 12 og Verification Gap 1 m
 | E4 | Nettleseren dekoder et svært bilde for å lese `naturalWidth`, og fanen kan fryse | low | Chrome leser målene fra hodet uten full dekoding (e2e med 9000 × 9000 gikk på sekunder). Rammer bare brukerens egen fane med en bevisst laget fil. Å lese hodet selv er ny kode. | avvist |
 | E5 | `ImageField` er ikke deaktivert mens innsendingen pågår | low | Verifisert: knappene virker under «Sender …». `createReport` får bildet fra lukkingen, så innsendingen er uendret, og vinduet er ett nettverkskall. | avvist |
 | E10 | Vakten mot `sharp` i komponenter ser ikke `app/` eller dynamiske import | low | `sharp` i klientkode stopper bygget med en tydelig feil. En bredere skanning er ny funksjon. | avvist |
+| H1 | Elicitation: `sharp` importeres øverst, så en maskin der pakken ikke lar seg laste, mister også `createReport` og `suggestReport` | medium | Verifisert: `actions.ts` importerer `prepareImage`, som importerte `sharp` øverst, så modulen ville kastet ved lasting. Story 4.3 og README-sjekken ber sensor kjøre appen på en annen maskin. | patch |
+| H2 | Elicitation: `sharp.metadata()` kjører SVG-, TIFF-, HEIF- og AVIF-parserne på upålitelige byte før formatet avvises | low | Verifisert i `prepareImage` og i den gamle testen («type» eller «unreadable»). Rettelsen er en signaturkontroll på noen få linjer. | patch |
+| H3 | Elicitation: `upload_failed` gir den generelle toasten og ingen hint om å sende uten bilde | low | Frosset i spec-en («alle andre feil gir toasten»). Krever at spec-en åpnes. | avvist |
 | E12 | «uten å lese hele bildet inn i minnet først» stemmer ikke, siden `arrayBuffer()` leser opp til 5 MiB | false | Pikselbomben dekodes aldri, og lesingen er begrenset til 5 MiB etter størrelsessjekken. Rettelsen er å endre spec-ordlyden. | avvist |
 
 ## Design Notes

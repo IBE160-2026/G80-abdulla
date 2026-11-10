@@ -92,7 +92,10 @@ export async function createReport(
     }
     if (!prepared.ok) {
       console.error("createReport", `bilde_${prepared.reason}`);
-      return actionError("invalid_image");
+      // `unavailable` er en feil på serveren (sharp kan ikke lastes), ikke i
+      // fila. Brukeren får «kunne ikke laste opp», og rapporter uten bilde
+      // virker som før.
+      return actionError(prepared.reason === "unavailable" ? "upload_failed" : "invalid_image");
     }
   }
 

@@ -40,6 +40,20 @@ const requireUser = vi.fn(async (returnTo: string) => {
 const getViewer = vi.fn(async () => ({ user: viewerUser, isModerator: false }));
 vi.mock("@/lib/supabase/auth", () => ({ requireUser, getViewer }));
 
+// Bildebehandlingen er den ekte `prepareImage`, med mindre en test slår på
+// sharpUnavailable, som etterligner at sharp ikke lar seg laste på serveren.
+const imageProcess = vi.hoisted(() => ({ sharpUnavailable: false }));
+vi.mock("@/lib/image-process", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/image-process")>();
+  return {
+    ...actual,
+    prepareImage: (file: Blob) =>
+      imageProcess.sharpUnavailable
+        ? Promise.resolve({ ok: false as const, reason: "unavailable" as const })
+        : actual.prepareImage(file),
+  };
+});
+
 const suggest = vi.fn<(text: string) => Promise<unknown>>();
 vi.mock("@/lib/ai", () => ({ suggest }));
 
@@ -94,6 +108,7 @@ beforeEach(() => {
   uploads = [];
   uploadError = null;
   removeCalls = 0;
+  imageProcess.sharpUnavailable = false;
   result = { data: [{ id: ID }], error: null };
   throwOnCreate = false;
   signedIn = true;
@@ -410,6 +425,22 @@ describe("createReport med bilde", () => {
     expect(uploads).toHaveLength(1);
     expect(removeCalls).toBe(0);
     expect(revalidatePath).not.toHaveBeenCalled();
+  });
+
+  test("når sharp ikke kan lastes, gir bildet upload_failed og en rapport uten bilde virker", async () => {
+    imageProcess.sharpUnavailable = true;
+    const withImage = await createReport({ ...valid, image: await file() });
+    expect(withImage).toEqual({
+      ok: false,
+      error: { code: "upload_failed", message: "Kunne ikke laste opp bildet. Prøv igjen." },
+    });
+    expect(uploads).toEqual([]);
+    expect(inserted).toEqual([]);
+    expect(errorLog).toHaveBeenCalledWith("createReport", "bilde_unavailable");
+
+    // Uten bilde er serveren upåvirket.
+    expect(await createReport(valid)).toEqual({ ok: true, data: { id: ID } });
+    expect(inserted).toEqual([valid]);
   });
 
   test("ingen sti, filnavn eller bildeinnhold logges", async () => {
