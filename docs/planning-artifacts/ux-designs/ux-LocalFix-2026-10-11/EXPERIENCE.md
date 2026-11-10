@@ -2,7 +2,7 @@
 name: LocalFix
 status: final
 created: 2026-10-11
-updated: 2026-11-09
+updated: 2026-11-10
 sources:
   - docs/product-brief.md
   - docs/prd.md
@@ -18,6 +18,8 @@ LocalFix er én responsiv webapp (PWA) laget mobile-first, med shadcn/ui på Nex
 **Oppdatert 2026-11-06:** tilpasset PRD-en etter vurderingen 2026-11-04 og arkitekturspinen. Lengdegrensene, kategori som krav før innsending, filteret «Mine rapporter», «sist oppdatert», telleren «1 har sett dette», påminnelsen om personopplysninger og kontrollen for NFR-8 er nye eller endret. Senere samme dag ble det presisert når KI-forslaget hentes, at et eget kategorivalg låser opp «Send inn» mens KI-en jobber, og at «Registrer problem» ligger i topplinja på bred skjerm.
 
 **Oppdatert 2026-11-09 (Story 1.5):** beslutningene om topplinja på detaljsiden, overskriften, «Registrert», telleren og den norske feilsiden er ført inn. Der de avviker fra `detalj.html`, gjelder denne filen.
+
+**Oppdatert 2026-11-10 (Story 2.2):** skjemaet for en ny rapport er bygget uten KI-forslag, oppsummering og bilde (Story 2.3 og 2.4). Påminnelsen under beskrivelsen har bare første setning, «Ikke skriv navn eller andre personopplysninger.», for setningen om KI-tjenesten er ikke sann før Story 2.3 sender teksten dit. «Registrer problem» i topplinja har lyst omriss, fordi en Fjordblå primærknapp ville forsvunnet mot den blå topplinja, og den er skjult på innloggingssidene og på selve skjemaet. Kategorivalget er shadcn `Select`.
 
 **Oppdatert 2026-11-09 (Story 2.1):** menyen i topplinja, innloggings- og registreringssiden, tekstene og feilmeldingene er ført inn. Registreringen har ikke lenger «Gjenta passord», og startpakkens sider for glemt passord, nytt passord og e-postbekreftelse er fjernet.
 
@@ -65,9 +67,9 @@ Her står oppførselen. Utseendet er beskrevet i `DESIGN.md.Components`.
 | Rapportkort | Lista | Hele kortet er én lenke til detaljsiden. Ingen handlinger på selve kortet. Har rapporten bilde, står et lite bildeikon («Har bilde») sist i metadatalinja, og lista viser aldri selve bildet. Telleren viser «N har sett dette», der N er `seen_count` fra visningen: antall bekreftelser pluss rapportøren (PRD §3). Grensesnittet regner ikke selv, bortsett fra den optimistiske +1 på bekreftknappen. En ny rapport viser «1 har sett dette». Tiden i metadatalinja er relativ og regnes fra registreringen: under ett minutt, eller fram i tid (for eksempel ved klokkeforskjell), vises som «nå». Deretter «N minutter siden» (under en time), «N timer siden» (under et døgn), «N dager siden» (under 7 døgn), «N uker siden» (under 30 døgn), «N måneder siden» (under 365 døgn, 30 døgn per måned) og «N år siden» (365 døgn per år), med entall for 1 («1 minutt siden», «1 time siden», «1 dag siden», «1 uke siden», «1 måned siden») og tallene rundet ned. |
 | Filterbrikker | Lista, over kortene | Brikkerad: «Mine rapporter» (bare for innloggede), «Alle», de fem kategoriene og de tre statusene. «Mine rapporter», én kategori og én status kan være aktive samtidig. «Mine rapporter» viser bare rapporter brukeren selv har registrert, ikke de hen har bekreftet. «Alle» nullstiller kategori og status. Et nytt trykk på en aktiv brikke slår den av. Valget lagres i URL-en med kodeverdiene fra arkitekturen, for eksempel `?mine=true&category=lighting&status=new`, så det overlever en ny innlasting og kan deles. Ukjente verdier ignoreres. For en besøkende ignoreres `mine`. |
 | Sortering | Lista, til høyre over brikkene | En shadcn-`Select` med «Nyeste» (standard) og «Flest har sett». Valget lagres i URL-en som `sort=newest` eller `sort=confirmations`. |
-| Flytende «+»-knapp | Lista | Går til Ny rapport. Ikke innlogget: sendes til innlogging og så tilbake til skjemaet. |
-| Beskrivelsesfelt | Ny rapport | Obligatorisk, kan ikke være tomt eller bare mellomrom, og har maks 1000 tegn (FR-3). En teller «N/1000» vises under feltet. Tekst over grensen gir en feilmelding ved feltet. Under feltet står påminnelsen «Ikke skriv navn eller andre personopplysninger. Teksten sendes til en KI-tjeneste for å foreslå kategori.» KI-forslaget hentes bare når brukeren går ut av feltet, og bare når teksten har minst 10 tegn og er endret siden forrige forslag. Det hentes ikke mens brukeren skriver, så det blir færre kall mot gratisnivået, og halvferdig tekst sendes ikke til KI-tjenesten. |
-| Kategorivalg | Ny rapport | Obligatorisk velger med de fem kategoriene. Når KI-forslaget kommer, blir kategorien valgt automatisk med merkelappen «Foreslått av KI». Velger brukeren selv, forsvinner merkelappen, og KI overskriver ikke valget senere. |
+| Flytende «+»-knapp | Lista | Går til Ny rapport. Vises bare under 640 px. Fra 640 px har topplinja «Registrer problem» i stedet. Ikke innlogget: sendes til innlogging og så tilbake til skjemaet. |
+| Beskrivelsesfelt | Ny rapport | Obligatorisk, kan ikke være tomt eller bare mellomrom, og har maks 1000 tegn (FR-3). En teller «N/1000» vises under feltet. Tekst over grensen gir en feilmelding ved feltet. Under feltet står påminnelsen «Ikke skriv navn eller andre personopplysninger. Teksten sendes til en KI-tjeneste for å foreslå kategori.» (Story 2.2 har bare første setning. Den andre kommer med Story 2.3.) Telleren er ren tekst og leses ikke opp for hvert tegn. Grensen kommer via feilmeldingen «Beskrivelsen kan ha høyst 1000 tegn.», som står under feltet, og fokus går til første feil. KI-forslaget hentes bare når brukeren går ut av feltet, og bare når teksten har minst 10 tegn og er endret siden forrige forslag. Det hentes ikke mens brukeren skriver, så det blir færre kall mot gratisnivået, og halvferdig tekst sendes ikke til KI-tjenesten. |
+| Kategorivalg | Ny rapport | Obligatorisk velger (shadcn `Select`, 44 px høy, 16 px tekst, valgt med Enter eller mellomrom, piltaster og Enter) med de fem kategoriene. Uten valg står «Velg kategori», og feilen «Velg en kategori.» står under feltet. Når KI-forslaget kommer, blir kategorien valgt automatisk med merkelappen «Foreslått av KI». Velger brukeren selv, forsvinner merkelappen, og KI overskriver ikke valget senere. |
 | KI-oppsummering | Ny rapport | Vises som lesetekst under kategorien, med «Endre» for å redigere. Maks 300 tegn, også når brukeren skriver den selv. Uten forslag sendes rapporten uten oppsummering. |
 | Lokasjonsfelt | Ny rapport | Obligatorisk fritekst, maks 200 tegn. Plassholderen er «F.eks. gangveien ved bygg A». |
 | Bildeopplasting | Ny rapport | Valgfritt. Knappen «Legg til bilde» åpner kamera eller bildebibliotek på mobil. Under knappen står påminnelsen om ansikter og bilskilt. Brukeren ser bildet før innsending og kan fjerne det. Bilder over 5 MB, eller i andre formater enn JPEG, PNG og WebP, avvises med en gang. |
@@ -133,7 +135,7 @@ Her står kravene til oppførsel. Kontrast er beskrevet i `DESIGN.md`.
 | Bredde | Oppførsel |
 |---|---|
 | < 640 px (mobil, testes på 360 px) | Full bredde med 16 px marg. Den flytende knappen ligger nede til høyre. |
-| ≥ 640 px (nettbrett, desktop) | Innholdet er sentrert med maks 640 px bredde. Den flytende knappen er erstattet av en primærknapp «Registrer problem» i topplinja, fordi en flytende knapp i hjørnet havner langt fra innholdet på en bred skjerm. Knappen går til samme sted og følger samme regel for innlogging. |
+| ≥ 640 px (nettbrett, desktop) | Innholdet er sentrert med maks 640 px bredde. Den flytende knappen er erstattet av knappen «Registrer problem» i topplinja, fordi en flytende knapp i hjørnet havner langt fra innholdet på en bred skjerm. Knappen er en lenke med lyst omriss på den blå topplinja (en Fjordblå primærknapp ville ikke vært synlig der) og er 44 px høy. Den går til samme sted og følger samme regel for innlogging, og er skjult på `/auth/*` og på `/rapporter/ny`, der den enten er til ingen nytte eller peker på siden brukeren står på. |
 
 PWA-manifestet gjør at appen kan legges på hjemskjermen (NFR-5). Det er ingen offline-støtte i v1.
 

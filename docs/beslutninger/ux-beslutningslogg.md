@@ -1,6 +1,6 @@
 ---
 topic: LocalFix UX
-updated: 2026-11-09T22:00
+updated: 2026-11-10T12:00
 ---
 
 - (event) Create startet; kilder: product-brief.md og prd.md (2026-10-11). Faglærer ba om skisser av registreringsskjema, liste og detaljside; mobile-first; designkriteriet teller 10 %
@@ -50,3 +50,11 @@ updated: 2026-11-09T22:00
 - (decision) (KI-forslag) 2026-11-09 Skjemaene sjekker også formen på e-postadressen med samme regel som nettleseren bruker for type="email", fordi Supabase svarer med den generelle koden validation_failed på «abc», og matrisen i spec-en krever «Skriv inn en gyldig e-postadresse.». Passordlengden sjekkes bare ved registrering
 - (decision) (KI-forslag) 2026-11-09 Menyen er ikke modal (modal={false}). En modal meny gir resten av siden aria-hidden mens lenkene der fortsatt kan få fokus, som axe melder som aria-hidden-focus (serious). Fokus går fortsatt inn i menyen, og Escape lukker den og gir fokus tilbake til knappen
 - (change) 2026-11-09 EXPERIENCE.md (begge kopier): menyknappen i Information Architecture, radene «Meny» og «Innlogging og registrering» i Component Patterns, «Feil i feltene» og «Innlogging eller registrering feiler» i State Patterns, en linje i Voice and Tone og menyknappen og skjemafeilene i Accessibility Floor
+- (event) 2026-11-10 Story 2.2 (registrere en rapport): valgene under ble tatt i spec-en for storyen (docs/implementation-artifacts/spec-2-2-registrere-en-rapport.md) og ført inn i EXPERIENCE.md og DESIGN.md
+- (decision) (by user) 2026-11-10 Påminnelsen under beskrivelsen er bare «Ikke skriv navn eller andre personopplysninger.» i Story 2.2. Setningen om KI-tjenesten legges inn i Story 2.3, for den er ikke sann før teksten faktisk sendes dit. EXPERIENCE.md (begge kopier) har en merknad om det
+- (decision) (by user) 2026-11-10 «Registrer problem» i topplinja fra 640 px er en lenke med lyst omriss (primary-foreground) på den blå topplinja, 44 px høy, ikke en Fjordblå primærknapp, som ikke ville vært synlig mot bakgrunnen. Den er skjult på /auth/* og /rapporter/ny
+- (decision) (by user) 2026-11-10 Etter innsending brukes router.replace til detaljsiden, så lista ligger rett før den i historikken og «←» går til lista og ikke til skjemaet. BackLink er uendret. Den utsatte rettingen for andre forrige sider hører til Story 3.3
+- (decision) (by user) 2026-11-10 Telleren «N/1000» er ren tekst, ikke aria-live, og står utenfor aria-describedby, så den ikke leses opp for hvert tegn. Grensen kommer via feilmeldingen under feltet
+- (decision) (by user) 2026-11-10 Tekst over grensen holder «Send inn» aktiv, så et forsøk gir feilen under feltet og fokus til første feil. Knappen er bare deaktivert når et felt er tomt (bare mellomrom regnes som tomt) og mens innsendingen pågår
+- (decision) (by user) 2026-11-10 Toaster er bare lys modus og bruker ikke next-themes. Pakkene sonner 2.0.8 og @radix-ui/react-select 2.4.1 er ført i Stack-tabellen i arkitekturen
+- (change) 2026-11-10 EXPERIENCE.md (begge kopier): ny merknad for Story 2.2, påminnelsen, telleren og feilen i raden «Beskrivelsesfelt», `Select` og feilen i «Kategorivalg» og topplinjeknappen fra 640 px. DESIGN.md (begge kopier): «Registrer problem» i topplinja og Toast (Sonner). Skissen registrer.html er ikke oppdatert og har fortsatt påminnelsen med to setninger

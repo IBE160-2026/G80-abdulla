@@ -3,7 +3,7 @@ name: LocalFix
 description: Rolig og saklig app for å melde og følge opp problemer på campus Molde. Bygget med shadcn/ui på Next.js og Tailwind. Denne filen beskriver bare merkevarelaget, altså det som avviker fra standardoppsettet i shadcn.
 status: final
 created: 2026-10-11
-updated: 2026-11-06
+updated: 2026-11-10
 sources:
   - docs/product-brief.md
   - docs/prd.md
@@ -168,7 +168,9 @@ Skygger arves fra shadcn. Den eneste egne skyggen ligger på den flytende «+»-
 - **Statusmerke:** Bruker `{components.status-badge-new}`, `-progress` og `-done`. Teksten skrives alltid ut, så fargen er aldri eneste bærer av status.
 - **Primærknapp (`{components.button-primary}`):** Brukes til «Send inn» og «Logg inn».
 - **Bekreftknapp (`{components.button-confirm}`):** «Jeg har også sett dette». Den har kantlinje i normaltilstand. Når brukeren har bekreftet, bytter den til `{components.button-confirm-done}` med teksten «Du har sett dette ✓» og blir deaktivert.
-- **Flytende «+»-knapp (`{components.fab-register}`):** Rund knapp på 56 px nede til høyre på rapportlista. Ikonet er «+» og tilgjengelig navn er «Registrer problem».
+- **Flytende «+»-knapp (`{components.fab-register}`):** Rund knapp på 56 px nede til høyre på rapportlista, bare under 640 px. Ikonet er «+» og tilgjengelig navn er «Registrer problem».
+- **«Registrer problem» i topplinja:** Fra 640 px erstatter en lenke i topplinja den flytende knappen. Den har lyst omriss (`{colors.primary-foreground}`) på `{colors.primary}`, 44 px høyde og 16 px tekst, fordi en Fjordblå primærknapp ikke ville vært synlig mot den blå topplinja. Den er skjult på innloggingssidene og på skjemaet for en ny rapport.
+- **Toast (Sonner):** Kun lys modus, så `Toaster` har fast tema og bruker ikke `next-themes`. Suksess er «Rapporten er sendt inn». Feil er destructive-toasten «Kunne ikke sende inn. Prøv igjen.»
 - **Merkelappen «Foreslått av KI» (`{components.ai-tag}`):** En liten pille ved siden av kategorivalget. Den forsvinner når brukeren endrer kategori selv.
 - **Filterbrikker:** Vannrett rad som kan rulles sideveis. Aktiv brikke bruker `{components.filter-chip-active}`, inaktiv har kantlinje på hvit bakgrunn.
 - **Moderatorpanel:** Et shadcn-`Card` nederst på detaljsiden, synlig bare for moderator. Det har én eller to knapper for status, merket med nabostatusene: «Under behandling →» når statusen er Ny, «← Ny» og «Løst →» når den er Under behandling, og «← Under behandling» når den er Løst. I tillegg har det en skjul-knapp i `outline`-variant, som blir «Vis rapport» når rapporten er skjult. Oppførselen står i `EXPERIENCE.md`.
