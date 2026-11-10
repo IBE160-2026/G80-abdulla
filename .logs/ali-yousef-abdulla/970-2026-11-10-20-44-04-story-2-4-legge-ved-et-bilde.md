@@ -48,3 +48,22 @@ Brukeren ba om PR for Story 2.4, så om `bmad-walkthrough` og flett, og ba under
 ### Åpne punkter
 - Tidligere punkter står i `issues.md`. Full `npm test` er ikke kjørt etter review-patchene og elicitation-endringen (bare de berørte testene og e2e `endrer-360`).
 - Valgfritt, krever at spec-en åpnes: `upload_failed` kunne gitt en toast som foreslår å sende uten bilde.
+
+## 2026-11-10 kl. 21:12 — Ali Yousef Abdulla
+
+### Oppgave
+Brukeren ba under walkthroughen om flere elicitation-metoder på feilhåndteringen i Story 2.4, og om å gjøre forslagene fra dem, committe, pushe og oppdatere loggen.
+
+### Plan
+- Fem metoder til: Pre-mortem Analysis, Red Team vs Blue Team, Second-Order Thinking, Inversion Analysis og Stakeholder Lens Rotation. Forslagene var bare dokumentasjon og åpne punkter, ingen kodeendring.
+
+### Resultat
+- **README:** nytt avsnitt «Bilder feiler» som forklarer `bilde_unavailable` og `opplasting_<kode>` i serverloggen.
+- **AD-9 og arkitekturloggen:** godtatt restrisiko ført uttrykkelig: EXIF fjernes bare i Server Action, og en bruker som laster opp direkte mot Storage beholder EXIF i sin egen fil. Lukkes før drift.
+- **`issues.md`:** to nye punkter (telefonbilder over 5 MB, og plattformens grense for forespørselsstørrelse før drift).
+- Ingen kode eller tester er endret siden commit `2d3ab74`.
+
+### Åpne punkter
+- Telefonbilder over 5 MB avvises uten hjelp: avgjør nedskalering i nettleseren eller høyere grense, og i så fall som egen story eller endring av kravet.
+- Før drift: plattformens grense for forespørselsstørrelse (for eksempel Vercel 4,5 MB, ikke verifisert) må være minst 5 MiB pluss overhead.
+- Full `npm test` er ikke kjørt etter review-patchene og elicitation-endringene i koden.
