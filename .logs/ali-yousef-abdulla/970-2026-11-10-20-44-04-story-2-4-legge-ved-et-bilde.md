@@ -28,3 +28,23 @@ Brukeren ba om å gjøre `bmad-build` for Story 2.4 (issue #32): skjemaet for ny
 - Et bilde som blir større enn 5 MiB etter gjenkoding avvises, og den grenen har ingen test. Animerte WebP og PNG flates stille ut til første bilde, og en tom `File.type` for et gyldig bilde gir avvisning i skjemaet.
 - `.impeccable/config.json` er ny og ikke committet: Impeccable-kroken ble dempet for `broken-image` på `components/image-field.tsx`. Avgjør om fila skal committes eller gitignores.
 - PR for Story 2.4 er ikke laget, og full `npm test` er ikke kjørt etter review-patchene (bare de berørte filene).
+
+## 2026-11-10 kl. 21:03 — Ali Yousef Abdulla
+
+### Oppgave
+Brukeren ba om PR for Story 2.4, så om `bmad-walkthrough` og flett, og ba under walkthroughen om advanced elicitation på feilhåndteringen.
+
+### Plan
+- PR #55 mot `main` etter malen fra PR #54, deretter walkthrough (orientering og gjennomgang levert), og flett først når brukeren avslutter walkthroughen med «godkjent».
+- Elicitation med seks metoder valgt av brukeren (Failure Mode Analysis, Architecture Decision Records, Cascading Failure Simulation, Chain-of-Thought Scaffolding, Security Audit Personas og Challenge from Critical Perspective). Brukeren valgte A og B av tre forslag (A: last `sharp` ved behov, B: sjekk filsignaturen, C: egen toast ved `upload_failed`).
+
+### Resultat
+- **PR #55** er åpen: https://github.com/IBE160-2026/G80-abdulla/pull/55 (`Closes #32`, testsammendrag med kjøretid 8,4 min). Ikke flettet ennå.
+- **Commit `2d3ab74`:** `prepareImage` sjekker filsignaturen (JPEG, PNG, WebP) før `sharp` leser noe, så parserne for SVG, TIFF, HEIF og AVIF aldri får upålitelige byte, og `sharp` lastes først når et bilde skal behandles. Kan den ikke lastes, gir `createReport` `upload_failed` og logger `bilde_unavailable`, og rapporter uten bilde virker. Et hull review-lagene ikke fant: `sharp` øverst i filen ville tatt ned både `createReport` og `suggestReport`.
+- **Tester:** ny `lib/image-process.unavailable.test.ts`, signaturtester i `image-process.test.ts` og en test i `actions.test.ts`. `test:unit` 694 bestått, lint 0 feil, `build` bygger, og e2e `endrer-360` (bilde og kjerneflyt) 15 bestått.
+- **Dokumentasjon:** AD-9, arkitekturloggen og spec-en (rader H1–H3 i triageloggen).
+- **Ikke gjort (C):** egen toast ved `upload_failed`, siden den generelle toasten er frosset i spec-en.
+
+### Åpne punkter
+- Tidligere punkter står i `issues.md`. Full `npm test` er ikke kjørt etter review-patchene og elicitation-endringen (bare de berørte testene og e2e `endrer-360`).
+- Valgfritt, krever at spec-en åpnes: `upload_failed` kunne gitt en toast som foreslår å sende uten bilde.
