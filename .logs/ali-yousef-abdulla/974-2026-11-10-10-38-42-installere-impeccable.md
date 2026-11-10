@@ -19,6 +19,7 @@ Brukeren spurte om designskillen «Impeccable» var installert. Det var den ikke
 - Commit `67aba5e` på `chore/installer-impeccable`, pushet, og PR #52 er åpnet: https://github.com/IBE160-2026/G80-abdulla/pull/52
 
 - PR #52 er flettet (merge-commit `49e0150`), og `origin/main` er hentet inn i `story/2-2-registrere-en-rapport` (merge-commit `cae612a`). Den ucommittede endringen i `docs/implementation-artifacts/epic-2-context.md` ble ikke berørt. Skillen `impeccable` vises i Claude Code, og `engine-probe` svarer `impeccable-engine 0.1.21` i hovedmappa.
+- Ryddet etter flettingen: worktreen `../G80-abdulla-impeccable` er fjernet, og branchen `chore/installer-impeccable` er slettet lokalt og på GitHub.
 
 ### Åpne punkter
 - Kjør `/impeccable init` etter omstart av Claude Code. Init lager `PRODUCT.md` og `DESIGN.md`, men prosjektet har allerede `docs/ux/DESIGN.md`. Avklar at init bygger på den og ikke lager en konkurrerende kopi i roten.
