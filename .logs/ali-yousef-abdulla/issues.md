@@ -91,3 +91,5 @@
 - [ ] 2026-11-09 [story-2-1-konto-og-innlogging](975-2026-11-09-22-13-49-story-2-1-konto-og-innlogging.md) — «Logg ut» viser ingen feil når `signOut` feiler, og brukeren blir stående innlogget (B2)
 - [ ] 2026-11-09 [story-2-1-konto-og-innlogging](975-2026-11-09-22-13-49-story-2-1-konto-og-innlogging.md) — menyen kan lukke seg rett etter innlogging eller utlogging når `router.refresh()` blir ferdig (B4); rotårsaken er ikke funnet
 - [ ] 2026-11-09 [story-2-1-konto-og-innlogging](975-2026-11-09-22-13-49-story-2-1-konto-og-innlogging.md) — godkjenn eller endre de fire KI-forslagene i `ux-beslutningslogg.md` (feilfargen, sjekken av e-postformatet, passordlengden bare ved registrering, ikke-modal meny)
+- [ ] 2026-11-10 [installere-impeccable](974-2026-11-10-10-38-42-installere-impeccable.md) — kjør `/impeccable init`, og sørg for at den bygger på `docs/ux/DESIGN.md` i stedet for å lage en konkurrerende `DESIGN.md` i roten
+- [ ] 2026-11-10 [installere-impeccable](974-2026-11-10-10-38-42-installere-impeccable.md) — sjekk at Impeccable-kroken (POSIX-kommando) kjører uten feil i Claude Code på Windows etter fletting og omstart
