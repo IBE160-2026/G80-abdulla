@@ -86,3 +86,6 @@ Thumbs.db
 **/.impeccable/live/deferred-svelte-component-accepts.json
 **/.impeccable/live/*.png
 # impeccable-ignore-end
+
+# Impeccable-kroken: lokal konfig og hurtigbuffer (demper bare funn på denne maskinen)
+.impeccable/
