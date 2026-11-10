@@ -2,7 +2,7 @@
 title: 'Story 2.2: Registrere en rapport'
 type: 'feature'
 created: '2026-11-10'
-status: 'in-review'
+status: 'done'
 route: 'dispatch'
 review_loop_iteration: 0
 baseline_commit: 'cf201e72c55e48c11e10fc719c1fff741b3098e3'
