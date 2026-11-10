@@ -13,6 +13,8 @@ export const ERROR_MESSAGES = {
   stale_state: "Rapporten er endret. Last siden på nytt og prøv igjen.",
   validation_failed: "Sjekk feltene og prøv igjen.",
   upload_failed: "Kunne ikke laste opp bildet. Prøv igjen.",
+  invalid_image:
+    "Bildet kan ikke brukes. Velg et JPEG-, PNG- eller WebP-bilde på høyst 5 MB.",
   ai_unavailable: "Fikk ikke et forslag. Velg kategori selv.",
   unknown: "Noe gikk galt. Prøv igjen.",
 } as const;

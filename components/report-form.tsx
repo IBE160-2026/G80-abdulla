@@ -7,6 +7,7 @@ import { flushSync } from "react-dom";
 import { toast } from "sonner";
 import { createReport, suggestReport } from "@/app/rapporter/ny/actions";
 import { AiTag } from "@/components/ai-tag";
+import { ImageField } from "@/components/image-field";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -61,6 +62,11 @@ const FIELD =
  * forslag. Velg kategori selv.», og rapporten kan sendes uten oppsummering.
  * Alt fra KI-en vises som ren tekst.
  *
+ * Bilde (Story 2.4, FR-3, UX-DR10): `ImageField` er valgfritt og avviser feil
+ * fil med en gang. Bildet sendes med `createReport`, og serveren sjekker og
+ * renser det på nytt. Avvises det likevel (`invalid_image`), står meldingen ved
+ * bildefeltet. Alle andre feil gir toasten, og skjemaet beholder alt, også bildet.
+ *
  * Etter innsending går brukeren til detaljsiden med `router.replace`, så
  * lista ligger rett før den i historikken og «←» havner der. Feiler
  * innsendingen, vises en toast og feltene står som de var.
@@ -78,6 +84,8 @@ export function ReportForm() {
   const [announcement, setAnnouncement] = useState("");
   const [summary, setSummary] = useState("");
   const [editingSummary, setEditingSummary] = useState(false);
+  const [image, setImage] = useState<File | null>(null);
+  const [imageError, setImageError] = useState<string | undefined>();
   const submitting = useRef(false);
   // Siste verdier og låser som kallet etter forslaget leser, når tilstanden
   // i closuren er utdatert.
@@ -233,9 +241,11 @@ export function ReportForm() {
     setErrors({});
     setPending(true);
     let id: string | null = null;
+    let invalidImage: string | null = null;
     try {
-      const result = await createReport(parsed.data);
+      const result = await createReport(image ? { ...parsed.data, image } : parsed.data);
       if (result.ok) id = result.data.id;
+      else if (result.error.code === "invalid_image") invalidImage = result.error.message;
     } catch {
       id = null;
     }
@@ -243,6 +253,14 @@ export function ReportForm() {
     if (id === null) {
       submitting.current = false;
       setPending(false);
+      if (invalidImage !== null) {
+        // Skjemaet avviste ikke bildet, men serveren gjorde det. Meldingen står
+        // ved bildefeltet, og bildet fjernes så brukeren kan velge et annet.
+        // ImageField gir fokus til «Legg til bilde» når meldingen vises.
+        setImage(null);
+        setImageError(invalidImage);
+        return;
+      }
       toast.error("Kunne ikke sende inn. Prøv igjen.");
       return;
     }
@@ -448,6 +466,13 @@ export function ReportForm() {
           <FieldError id="location-error">{errors.location}</FieldError>
         )}
       </div>
+
+      <ImageField
+        image={image}
+        error={imageError}
+        onImage={setImage}
+        onError={setImageError}
+      />
 
       <Button
         type="submit"

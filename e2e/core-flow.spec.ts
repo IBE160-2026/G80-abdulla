@@ -4,12 +4,16 @@
 // fordi den skal endre data fra Story 2.2. Fra Story 2.1 logger den inn til
 // slutt med kjerneflytbrukeren for prosjektet (360 eller 1280). Fra Story 2.2
 // registrerer den en rapport, bare med tastatur. Fra Story 2.3 bruker den
-// mock-forslaget for kategori og oppsummering. endrer-360 og endrer-1280
+// mock-forslaget for kategori og oppsummering. Fra Story 2.4 legger den ved et
+// bilde: knappen nås med tastatur, men valget av fil er unntatt kravet om bare
+// tastatur (filvelgeren er nettleserens egen), og bildet vises på detaljsiden
+// og som ikon i lista. endrer-360 og endrer-1280
 // deler databasen, så lista har flere rapporter enn seed når den andre kjører.
 // Stegene som åpner seed-kort, finner dem på innhold og ikke på plassering.
 import { randomUUID } from "node:crypto";
 import { expect, test } from "@playwright/test";
 import { expectNoSeriousA11yViolations } from "./a11y";
+import { plainJpeg } from "../lib/test-images";
 import { tabTo } from "./keyboard";
 import { expectNoHorizontalScroll } from "./layout";
 
@@ -185,6 +189,33 @@ test("kjerneflyten med tastatur", async ({ page }) => {
   await expectNoSeriousA11yViolations(page);
   await expectNoHorizontalScroll(page);
 
+  // Story 2.4: Tab til «Legg til bilde», og Enter åpner filvelgeren. Selve valget
+  // av fil er unntatt kravet om bare tastatur. Etterpå står fokus på «Fjern bilde».
+  await page.keyboard.press("Tab");
+  const addImage = page.getByRole("button", { name: "Legg til bilde", exact: true });
+  await expect(addImage).toBeFocused();
+  const [chooser] = await Promise.all([
+    page.waitForEvent("filechooser"),
+    page.keyboard.press("Enter"),
+  ]);
+  await chooser.setFiles({
+    name: "kjerneflyt.jpg",
+    mimeType: "image/jpeg",
+    buffer: await plainJpeg(300, 200),
+  });
+  await expect(
+    page.getByRole("img", { name: "Forhåndsvisning av valgt bilde", exact: true }),
+  ).toBeVisible();
+  await expect(page.getByRole("button", { name: "Fjern bilde", exact: true })).toBeFocused();
+  await expectNoSeriousA11yViolations(page);
+  await expectNoHorizontalScroll(page);
+  if (narrow) {
+    await page.setViewportSize({ width: 320, height: 800 });
+    await expectNoSeriousA11yViolations(page);
+    await expectNoHorizontalScroll(page);
+    await page.setViewportSize({ width: 360, height: 800 });
+  }
+
   await page.keyboard.press("Tab");
   const send = page.getByRole("button", { name: "Send inn", exact: true });
   await expect(send).toBeFocused();
@@ -200,6 +231,12 @@ test("kjerneflyten med tastatur", async ({ page }) => {
   await expect(main.getByRole("heading", { level: 1, name: summary, exact: true })).toBeVisible();
   await expect(main.getByText(text, { exact: true })).toBeVisible();
   await expect(main.getByText("1 har sett dette", { exact: true })).toBeVisible();
+  // Bildet står på detaljsiden (SM-1).
+  const detailImage = main.getByRole("img", { name: "Bilde fra rapporten", exact: true });
+  await expect(detailImage).toBeVisible();
+  await expect
+    .poll(() => detailImage.evaluate((img: HTMLImageElement) => img.naturalWidth))
+    .toBe(300);
   await expectNoSeriousA11yViolations(page);
   await expectNoHorizontalScroll(page);
   if (narrow) {
@@ -216,4 +253,7 @@ test("kjerneflyten med tastatur", async ({ page }) => {
   await expect(listHeading).toBeVisible();
   await expect(cards.first()).toContainText(summary);
   await expect(cards.first()).toContainText("Ny");
+  // Og lista viser bildeikonet, aldri selve bildet.
+  await expect(cards.first().getByRole("img", { name: "Har bilde", exact: true })).toBeVisible();
+  await expect(cards.first().locator("img")).toHaveCount(0);
 });
