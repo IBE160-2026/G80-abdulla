@@ -6,7 +6,7 @@ Gruppeprosjekt (G80) i **IBE160 Programmering med KI** ved Høgskolen i Molde, h
 
 ## Status
 
-🟡 **Implementeringen er i gang (Epic 2).** Epic 1 er ferdig: startpakken og lokal Supabase er på plass (Story 1.1), og det samme er testkommandoen (Story 1.2). Den lokale databasen har datamodellen, lesereglene, testbrukere og testrapporter (Story 1.3). Forsiden viser lista over rapportene, nyeste først (Story 1.4), og hvert kort åpner en detaljside med hele rapporten, når den sist ble oppdatert og hvor mange som har sett problemet (Story 1.5). Reglene for bilder er testet: den lokale bildelagringen har tre testbilder, og bare moderatoren kan lese bildet til en skjult rapport (Story 1.6). Detaljsiden viser bildet til rapporten, og i lista har kortene til rapportene med bilde et bildeikon (Story 1.7). I Epic 2 kan du opprette konto og logge inn med e-post og passord fra menyen i topplinja, og du kommer tilbake til siden du kom fra (Story 2.1). Når du er innlogget, kan du registrere en rapport med beskrivelse, kategori og sted fra «+»-knappen på lista (under 640 px) eller «Registrer problem» i topplinja (fra 640 px), og du kommer til rapporten med toasten «Rapporten er sendt inn» (Story 2.2). Når du forlater beskrivelsen, foreslår KI kategori og en kort oppsummering du kan endre, og hvis den ikke får til det, velger du kategori selv (Story 2.3). Du kan legge ved et bilde (JPEG, PNG eller WebP, maks 5 MB): serveren fjerner posisjon og andre metadata fra bildet og retter det, og bildet vises på rapporten og som ikon i lista (Story 2.4).
+🟡 **Implementeringen er i gang (Epic 2).** Epic 1 er ferdig: startpakken og lokal Supabase er på plass (Story 1.1), og det samme er testkommandoen (Story 1.2). Den lokale databasen har datamodellen, lesereglene, testbrukere og testrapporter (Story 1.3). Forsiden viser lista over rapportene, nyeste først (Story 1.4), og hvert kort åpner en detaljside med hele rapporten, når den sist ble oppdatert og hvor mange som har sett problemet (Story 1.5). Reglene for bilder er testet: den lokale bildelagringen har tre testbilder, og bare moderatoren kan lese bildet til en skjult rapport (Story 1.6). Detaljsiden viser bildet til rapporten, og i lista har kortene til rapportene med bilde et bildeikon (Story 1.7). I Epic 2 kan du opprette konto og logge inn med e-post og passord fra menyen i topplinja, og du kommer tilbake til siden du kom fra (Story 2.1). Når du er innlogget, kan du registrere en rapport med beskrivelse, kategori og sted fra «+»-knappen på lista (under 640 px) eller «Registrer problem» i topplinja (fra 640 px), og du kommer til rapporten med toasten «Rapporten er sendt inn» (Story 2.2). Når du forlater beskrivelsen, foreslår KI kategori og en kort oppsummering du kan endre, og hvis den ikke får til det, velger du kategori selv (Story 2.3). Du kan legge ved et bilde (JPEG, PNG eller WebP, maks 5 MB): serveren fjerner posisjon og andre metadata fra bildet og retter det, og bildet vises på rapporten og som ikon i lista (Story 2.4). Testsettet og skriptet som skal velge KI-leverandør er på plass (Story 2.5), men valget er ikke tatt før skriptet er kjørt mot leverandørene, så appen bruker fortsatt mock.
 
 ## Kom i gang
 
@@ -138,6 +138,21 @@ Alle variablene står i `.env.example`, og `lib/env.ts` validerer dem når appen
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | lokal standardnøkkel | Den offentlige nøkkelen fra `npx supabase status` |
 | `AI_PROVIDER` | `mock` | `mock` trenger ingen nøkkel og gjør ingen nettverkskall: den svarer etter nøkkelord (for eksempel «gatelys» gir Belysning, «søppel» gir Søppel, «hull» gir Vei og fortau, «hærverk» gir Skadeverk, ellers Annet), og testordet `ingenforslag` i teksten gir ingen forslag. `openai` bruker et OpenAI-kompatibelt API (`POST {AI_BASE_URL}/chat/completions`). Svaret valideres alltid, og feil, ugyldig svar eller mer enn 5 sekunder gir «ingen forslag». Høyst 2000 tegn av beskrivelsen sendes |
 | `AI_BASE_URL`, `AI_MODEL`, `AI_API_KEY` | tomme | Påkrevd bare når `AI_PROVIDER=openai` |
+
+### Velge KI-leverandør (SM-5)
+
+`evals/sm5/` har 20 oppdiktede norske beskrivelser med fasit, fire per kategori, og et skript som sender dem gjennom `lib/ai`, den samme modulen som appen bruker. `npm run eval:sm5` leser `.env` og viser for hvert kall fasit, svar, status, svartid og oppsummering, og til slutt antall riktige av 20, om alle svarene var gyldige, svartidene og en avgjørelse mot kravene (minst 16 riktige, alle gyldige, alle under 5 sekunder, og norsk bokmål i oppsummeringene, som du leser selv; kravene står i PRD §11 og FR-4). Med `AI_PROVIDER=mock` sier skriptet først og sist at resultatet ikke sier noe om kvalitet. Bare de 20 testtekstene sendes ut.
+
+For å teste en leverandør legger du verdiene i en egen fil som git ignorerer, for eksempel `.env.groq`:
+
+```
+AI_PROVIDER=openai
+AI_BASE_URL=<adressen til OpenAI-kompatibelt API, uten /chat/completions>
+AI_MODEL=<modellnavnet fra leverandørens konsoll>
+AI_API_KEY=<nøkkelen din>
+```
+
+og kjører `npm run eval:sm5 -- --mode groq`. Skriptet leser `.env` først og så `.env.groq` (bare `AI_*` og `NEXT_PUBLIC_*`), og variabler du har satt i skallet vinner over filene. Finnes ikke `.env.groq`, eller gir den ikke en leverandør, stopper kjøringen med en melding i stedet for å måle mock. Det er 2 sekunders pause mellom kallene mot en leverandør, så gratisgrenser ikke gir 429, og pausen teller ikke i svartiden. Av adressen skrives bare verten ut, og nøkkelen skrives aldri ut. Kjør det mot hver leverandør på kortlista (Cloudflare Workers AI, Groq og Mistral), og kjør alt om igjen hvis prompten, adapteren eller testsettet endres. Resultatet og valget føres i `docs/beslutninger/arkitektur-beslutningslogg.md`.
 
 ### Lokal Supabase
 
