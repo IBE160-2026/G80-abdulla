@@ -100,4 +100,4 @@
 - [ ] 2026-11-10 [epic-1-retrospektiv](973-2026-11-10-11-26-17-epic-1-retrospektiv.md) — velg hvordan bucketen ryddes mellom testkjøringer (service-role-opprydding eller krav om `db reset` først) før Story 2.4
 - [ ] 2026-11-10 [epic-1-retrospektiv](973-2026-11-10-11-26-17-epic-1-retrospektiv.md) — legg `.claude/**` i `globalIgnores` i `eslint.config.mjs` (93 lint-advarsler fra Impeccable)
 - [ ] 2026-11-10 [epic-1-retrospektiv](973-2026-11-10-11-26-17-epic-1-retrospektiv.md) — prosessregel for tester: enkeltprosjekter under arbeidet, full `npm test` én gang per story, kjøretiden i PR-beskrivelsen
-- [ ] 2026-11-10 [epic-1-retrospektiv](973-2026-11-10-11-26-17-epic-1-retrospektiv.md) — Docker Desktop svarer «unable to start»; finn årsaken, siden Story 2.2 og klonekjøringen trenger det
+- [x] 2026-11-10 [epic-1-retrospektiv](973-2026-11-10-11-26-17-epic-1-retrospektiv.md) — Docker Desktop svarer «unable to start»; finn årsaken, siden Story 2.2 og klonekjøringen trenger det (løst 2026-11-10: WSL ble oppdatert til 3.0.5.0 under Docker Desktop; Docker Desktop startet på nytt og virker, se samme logg)
