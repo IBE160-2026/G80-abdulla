@@ -85,7 +85,7 @@ action_items:
     action: "Velg hvordan bucketen ryddes mellom testkjøringer (service-role-opprydding
       i Vitest db, eller dokumentert krav om db reset først) før Story 2.4."
     owner: "Ali Yousef Abdulla"
-    status: open
+    status: done
     ref: "docs/implementation-artifacts/epic-1-retro-2026-11-10.md"
   - id: "epic-1-retro-item-4-legg-claude-i-globalignores-i-eslint-con"
     epic: 1
