@@ -18,6 +18,7 @@ Starte `bmad-build` for Story 2.5 (issue #33): et fast testsett på 20 norske be
 - README (avsnitt «Velge KI-leverandør (SM-5)» og status) og to linjer i arkitekturens beslutningslogg.
 - Verifisert: `npm run lint` 0 funn, `npm run test:unit` 814 bestått uten typefeil, `npm run build` ok. `npm run eval:sm5` mot mock (17 av 20 med mock-nøkkelord, advarselen står først og sist), og mot en lokal falsk OpenAI-server (vert og modell vises, nøkkelen ikke). `--mode` med manglende fil og med fil uten leverandør stopper tydelig.
 - Gjennomgang: 11 funn rettet (testing av kjøringen, miljølasting, `--mode`, 429-pause, styretegn, språkord, to ikke-bokmål-tekster), 9 avvist (nye funksjoner eller i strid med spec-en). Ingenting utsatt til `deferred-work.md`.
+- `bmad-walkthrough` kjørt og endringen godkjent av Ali (2026-11-10), uten flere rettelser. Godkjenningen gjelder verktøyet, ikke valget av leverandør.
 - Sprint-status: 2-5 satt til `review`. Spec står som `in-review`, ikke `done`, siden resultat og valg mangler.
 
 ### Åpne punkter
