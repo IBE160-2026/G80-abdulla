@@ -10,7 +10,7 @@ import { fileURLToPath } from "node:url";
 import { loadEnvConfig } from "@next/env";
 import { createClient } from "@supabase/supabase-js";
 import { beforeAll, expect, test } from "vitest";
-import { charCount, DESCRIPTION_MAX, LOCATION_MAX } from "@/lib/limits";
+import { charCount, DESCRIPTION_MAX, LOCATION_MAX, SUMMARY_MAX } from "@/lib/limits";
 import type { Database } from "./types";
 
 const ROOT = fileURLToPath(new URL("../../", import.meta.url));
@@ -81,6 +81,47 @@ test("ett tegn for mye avvises med 23514: 201 tegn lokasjon", async () => {
 
   const { error } = await insert("Hull i veien", location);
   expect(error?.code).toBe("23514");
+});
+
+async function insertWithSummary(summary: string) {
+  return supabase
+    .from("reports")
+    .insert({ description: "Hull i veien", location: "Gangveien", category: "other", summary })
+    .select("id, summary")
+    .single();
+}
+
+test("oppsummeringen (Story 2.3): nøyaktig 300 tegn godtas, også med emoji og æøå", async () => {
+  const summary = text(SUMMARY_MAX, randomUUID());
+  expect(charCount(summary)).toBe(SUMMARY_MAX);
+  // Teksten har emoji, så UTF-16-lengden er større enn antall tegn.
+  expect(summary.length).toBeGreaterThan(SUMMARY_MAX);
+
+  const { data, error } = await insertWithSummary(summary);
+  expect(error).toBeNull();
+  expect(data?.summary).toBe(summary);
+
+  const emoji = "😀".repeat(SUMMARY_MAX);
+  expect((await insertWithSummary(emoji)).error).toBeNull();
+});
+
+test("oppsummeringen (Story 2.3): ett tegn for mye avvises med 23514, også med emoji", async () => {
+  const summary = text(SUMMARY_MAX + 1, randomUUID());
+  expect(charCount(summary)).toBe(SUMMARY_MAX + 1);
+  expect((await insertWithSummary(summary)).error?.code).toBe("23514");
+  expect((await insertWithSummary("😀".repeat(SUMMARY_MAX + 1))).error?.code).toBe("23514");
+});
+
+test("oppsummeringen (Story 2.3): uten oppsummering lagres NULL, og bare mellomrom avvises", async () => {
+  const { data, error } = await supabase
+    .from("reports")
+    .insert({ description: "Hull i veien", location: "Gangveien", category: "other" })
+    .select("id, summary")
+    .single();
+  expect(error).toBeNull();
+  expect(data?.summary).toBeNull();
+
+  expect((await insertWithSummary("   ")).error?.code).toBe("23514");
 });
 
 test("bare mellomrom avvises med 23514", async () => {

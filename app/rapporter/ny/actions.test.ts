@@ -1,7 +1,9 @@
 // Tester createReport (Story 2.2) uten Supabase: at innlogging sjekkes først,
 // trimming, grenser, kategori og tom tekst før databasen, at bare de tre
-// feltene sendes, at både error og antall rader sjekkes, feilkodene,
-// revalidatePath og at ingen rapporttekst eller e-post logges.
+// feltene og en valgfri oppsummering sendes, at både error og antall rader
+// sjekkes, feilkodene, revalidatePath og at ingen rapporttekst eller e-post
+// logges. Tester også suggestReport (Story 2.3): innloggingen, låsen per bruker,
+// 2000 tegn og at ingen tekst eller forslag logges. lib/ai er stubbet.
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 const { REDIRECT } = vi.hoisted(() => ({ REDIRECT: new Error("NEXT_REDIRECT") }));
@@ -14,13 +16,18 @@ let result: {
 };
 let throwOnCreate = false;
 let signedIn = true;
+let viewerUser: { id: string; email: string } | null = { id: "u1", email: "bruker1@localfix.test" };
 
 const requireUser = vi.fn(async (returnTo: string) => {
   order.push(`requireUser ${returnTo}`);
   if (!signedIn) throw REDIRECT;
   return { id: "u1", email: "bruker1@localfix.test" };
 });
-vi.mock("@/lib/supabase/auth", () => ({ requireUser }));
+const getViewer = vi.fn(async () => ({ user: viewerUser, isModerator: false }));
+vi.mock("@/lib/supabase/auth", () => ({ requireUser, getViewer }));
+
+const suggest = vi.fn<(text: string) => Promise<unknown>>();
+vi.mock("@/lib/ai", () => ({ suggest }));
 
 vi.mock("@/lib/supabase/server", () => ({
   createClient: async () => {
@@ -44,7 +51,7 @@ const revalidatePath = vi.fn((path: string) => {
 });
 vi.mock("next/cache", () => ({ revalidatePath }));
 
-const { createReport } = await import("./actions");
+const { createReport, suggestReport } = await import("./actions");
 
 const ID = "20000000-0000-4000-8000-0000000000aa";
 const valid = { description: "Hull i veien", location: "Gangveien", category: "roads_sidewalks" };
@@ -60,6 +67,10 @@ beforeEach(() => {
   result = { data: [{ id: ID }], error: null };
   throwOnCreate = false;
   signedIn = true;
+  viewerUser = { id: "u1", email: "bruker1@localfix.test" };
+  getViewer.mockClear();
+  suggest.mockReset();
+  suggest.mockResolvedValue({ category: "lighting", summary: "Gatelyset er ødelagt" });
   requireUser.mockClear();
   revalidatePath.mockClear();
   errorLog = vi.spyOn(console, "error").mockImplementation(() => {});
@@ -97,7 +108,7 @@ describe("createReport", () => {
     expect(inserted).toEqual([valid]);
   });
 
-  test("bare description, location og category sendes til databasen", async () => {
+  test("bare description, location, category og summary sendes til databasen", async () => {
     await createReport({
       ...valid,
       author_id: "10000000-0000-4000-8000-000000000003",
@@ -108,8 +119,49 @@ describe("createReport", () => {
       summary: "x",
       image_path: "y",
     });
-    expect(inserted).toEqual([valid]);
-    expect(Object.keys(inserted[0] as object).sort()).toEqual(["category", "description", "location"]);
+    expect(inserted).toEqual([{ ...valid, summary: "x" }]);
+    expect(Object.keys(inserted[0] as object).sort()).toEqual([
+      "category",
+      "description",
+      "location",
+      "summary",
+    ]);
+  });
+
+  test("uten oppsummering sendes ingen summary-nøkkel, så den lagres som NULL", async () => {
+    await createReport(valid);
+    await createReport({ ...valid, summary: "   " });
+    await createReport({ ...valid, summary: "" });
+    await createReport({ ...valid, summary: undefined });
+    expect(inserted).toEqual([valid, valid, valid, valid]);
+    for (const row of inserted) expect("summary" in (row as object)).toBe(false);
+  });
+
+  test("oppsummeringen trimmes, og nøyaktig 300 tegn godtas", async () => {
+    await createReport({ ...valid, summary: "  Hull i veien \n" });
+    await createReport({ ...valid, summary: "😀".repeat(300) });
+    expect(inserted).toEqual([
+      { ...valid, summary: "Hull i veien" },
+      { ...valid, summary: "😀".repeat(300) },
+    ]);
+  });
+
+  test("301 tegn i oppsummeringen gir validation_failed uten databasekall", async () => {
+    for (const summary of ["a".repeat(301), "😀".repeat(301)]) {
+      expect(await createReport({ ...valid, summary })).toEqual({
+        ok: false,
+        error: { code: "validation_failed", message: "Sjekk feltene og prøv igjen." },
+      });
+    }
+    expect(inserted).toEqual([]);
+    expect(revalidatePath).not.toHaveBeenCalled();
+  });
+
+  test("databasens 23514 for oppsummeringen gir validation_failed", async () => {
+    result = { data: null, error: { code: "23514", message: "check constraint reports_summary_check" } };
+    const answer = await createReport({ ...valid, summary: "x" });
+    expect(answer.ok).toBe(false);
+    if (!answer.ok) expect(answer.error.code).toBe("validation_failed");
   });
 
   test("kaller revalidatePath for lista og detaljsiden etter innsettingen", async () => {
@@ -202,6 +254,7 @@ describe("createReport", () => {
       description: "Hemmelig beskrivelse 12345",
       location: "Hemmelig sted 67890",
       category: "other",
+      summary: "Hemmelig oppsummering 24680",
     };
     await createReport(secret);
     result = { data: null, error: { code: "42501", message: "Hemmelig beskrivelse 12345" } };
@@ -211,6 +264,120 @@ describe("createReport", () => {
     await createReport(secret);
 
     const text = loggedText();
-    expect(text).not.toMatch(/Hemmelig|12345|67890|localfix\.test/);
+    expect(text).not.toMatch(/Hemmelig|12345|67890|24680|localfix\.test/);
+  });
+});
+
+describe("suggestReport", () => {
+  test("gir forslaget til en innlogget bruker", async () => {
+    const answer = await suggestReport("Gatelyset ved gangveien er ødelagt");
+    expect(answer).toEqual({
+      ok: true,
+      data: { category: "lighting", summary: "Gatelyset er ødelagt" },
+    });
+    expect(suggest).toHaveBeenCalledTimes(1);
+    expect(suggest).toHaveBeenCalledWith("Gatelyset ved gangveien er ødelagt");
+  });
+
+  test("en besøkende får unauthenticated, og adapteren kalles ikke", async () => {
+    viewerUser = null;
+    expect(await suggestReport("Gatelyset er ødelagt")).toEqual({
+      ok: false,
+      error: { code: "unauthenticated", message: "Du må logge inn først." },
+    });
+    expect(suggest).not.toHaveBeenCalled();
+  });
+
+  test("ingen forslag fra KI-en gir data: null, ikke en feil", async () => {
+    suggest.mockResolvedValue(null);
+    expect(await suggestReport("ingenforslag")).toEqual({ ok: true, data: null });
+  });
+
+  test("en feil fra KI-en gir data: null, og låsen frigjøres", async () => {
+    suggest.mockRejectedValueOnce(new Error("Hemmelig beskrivelse 12345"));
+    expect(await suggestReport("Hull i veien")).toEqual({ ok: true, data: null });
+    expect(errorLog).toHaveBeenCalledWith("suggestReport", "ukjent");
+    expect(loggedText()).not.toMatch(/Hemmelig|12345/);
+
+    // Neste kall fra samme bruker kommer gjennom.
+    expect(await suggestReport("Hull i veien")).toEqual({
+      ok: true,
+      data: { category: "lighting", summary: "Gatelyset er ødelagt" },
+    });
+  });
+
+  test.each([
+    ["tom tekst", ""],
+    ["bare mellomrom", "   \n"],
+    ["ikke en streng", 42],
+    ["null", null],
+    ["undefined", undefined],
+    ["et objekt", { text: "x" }],
+  ])("%s gir data: null uten at adapteren kalles", async (_name, input) => {
+    expect(await suggestReport(input)).toEqual({ ok: true, data: null });
+    expect(suggest).not.toHaveBeenCalled();
+  });
+
+  test("høyst 2000 tegn sendes videre", async () => {
+    await suggestReport("a".repeat(2500));
+    await suggestReport("😀".repeat(2500));
+    expect(suggest.mock.calls[0][0]).toHaveLength(2000);
+    expect([...suggest.mock.calls[1][0]]).toHaveLength(2000);
+  });
+
+  test("et samtidig kall fra samme bruker gir data: null, og det første påvirkes ikke", async () => {
+    let finish: (value: unknown) => void = () => {};
+    suggest.mockImplementationOnce(
+      () =>
+        new Promise((resolve) => {
+          finish = resolve;
+        }),
+    );
+
+    const first = suggestReport("Første tekst");
+    await vi.waitFor(() => expect(suggest).toHaveBeenCalledTimes(1));
+
+    expect(await suggestReport("Andre tekst")).toEqual({ ok: true, data: null });
+    expect(suggest).toHaveBeenCalledTimes(1);
+
+    finish({ category: "waste", summary: "Boss" });
+    expect(await first).toEqual({ ok: true, data: { category: "waste", summary: "Boss" } });
+
+    // Låsen er frigjort.
+    expect((await suggestReport("Tredje tekst")).ok).toBe(true);
+    expect(suggest).toHaveBeenCalledTimes(2);
+  });
+
+  test("låsen er per bruker: en annen bruker kommer gjennom mens den første venter", async () => {
+    let finish: (value: unknown) => void = () => {};
+    suggest.mockImplementationOnce(
+      () =>
+        new Promise((resolve) => {
+          finish = resolve;
+        }),
+    );
+    const first = suggestReport("Første tekst");
+    await vi.waitFor(() => expect(suggest).toHaveBeenCalledTimes(1));
+
+    viewerUser = { id: "u2", email: "bruker2@localfix.test" };
+    expect(await suggestReport("Annen bruker")).toEqual({
+      ok: true,
+      data: { category: "lighting", summary: "Gatelyset er ødelagt" },
+    });
+    expect(suggest).toHaveBeenCalledTimes(2);
+
+    finish(null);
+    expect(await first).toEqual({ ok: true, data: null });
+  });
+
+  test("ingen rapporttekst, forslag eller e-post logges", async () => {
+    suggest.mockResolvedValueOnce({ category: "other", summary: "Hemmelig oppsummering 24680" });
+    await suggestReport("Hemmelig beskrivelse 12345");
+    suggest.mockRejectedValueOnce(new Error("Hemmelig beskrivelse 12345"));
+    await suggestReport("Hemmelig beskrivelse 12345");
+    viewerUser = null;
+    await suggestReport("Hemmelig beskrivelse 12345");
+
+    expect(loggedText()).not.toMatch(/Hemmelig|12345|24680|localfix\.test/);
   });
 });

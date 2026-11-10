@@ -29,7 +29,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 # - Retrospective appends its action items to action_items; the status view surfaces open ones
 generated: 11-06-2026 20:57
-last_updated: 11-10-2026 13:21
+last_updated: 11-10-2026 19:37
 project: LocalFix
 project_key: NOKEY
 tracking_system: file-system
@@ -47,8 +47,8 @@ development_status:
 
   epic-2: in-progress
   2-1-konto-og-innlogging: done
-  2-2-registrere-en-rapport: review
-  2-3-ki-forslag-for-kategori-og-oppsummering: backlog
+  2-2-registrere-en-rapport: done
+  2-3-ki-forslag-for-kategori-og-oppsummering: done
   2-4-legge-ved-et-bilde: backlog
   2-5-velge-ki-leverandør-med-sm-5-testen: backlog
   epic-2-retrospective: optional
@@ -85,7 +85,7 @@ action_items:
     action: "Velg hvordan bucketen ryddes mellom testkjøringer (service-role-opprydding
       i Vitest db, eller dokumentert krav om db reset først) før Story 2.4."
     owner: "Ali Yousef Abdulla"
-    status: open
+    status: done
     ref: "docs/implementation-artifacts/epic-1-retro-2026-11-10.md"
   - id: "epic-1-retro-item-4-legg-claude-i-globalignores-i-eslint-con"
     epic: 1

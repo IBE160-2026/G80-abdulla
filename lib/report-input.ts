@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { Constants } from "@/lib/supabase/database.types";
-import { charCount, DESCRIPTION_MAX, LOCATION_MAX } from "./limits";
+import { charCount, DESCRIPTION_MAX, LOCATION_MAX, SUMMARY_MAX } from "./limits";
 import type { ReportCategory } from "./supabase/types";
 
 // Den ene definisjonen av valideringen av en ny rapport (Story 2.2). Skjemaet
@@ -22,7 +22,27 @@ export const REPORT_MESSAGES = {
   locationRequired: "Skriv inn et sted.",
   locationTooLong: `Stedet kan ha høyst ${LOCATION_MAX} tegn.`,
   categoryRequired: "Velg en kategori.",
+  summaryTooLong: `Oppsummeringen kan ha høyst ${SUMMARY_MAX} tegn.`,
 } as const;
+
+/**
+ * Oppsummeringen er valgfri (Story 2.3): tekst som ikke er en streng, eller som
+ * er tom etter trimming, utelates og lagres som NULL. Mer enn `SUMMARY_MAX`
+ * tegn (kodepunkter) er en feil, som `char_length` i CHECK-uttrykket.
+ */
+const summarySchema = z.preprocess(
+  (value) => {
+    if (typeof value !== "string") return undefined;
+    const trimmed = value.trim();
+    return trimmed === "" ? undefined : trimmed;
+  },
+  z
+    .string()
+    .refine((s) => charCount(s) <= SUMMARY_MAX, {
+      error: REPORT_MESSAGES.summaryTooLong,
+    })
+    .optional(),
+);
 
 /**
  * Grensene gjelder trimmet tekst og telles med `charCount` (kodepunkter), som
@@ -46,40 +66,49 @@ const reportInputSchema = z.object({
     .refine((s) => charCount(s) <= LOCATION_MAX, {
       error: REPORT_MESSAGES.locationTooLong,
     }),
+  summary: summarySchema,
 });
 
-/** En gyldig rapport slik den settes inn: trimmet tekst og en kategorikode. */
+/**
+ * En gyldig rapport slik den settes inn: trimmet tekst og en kategorikode.
+ * `summary` er med bare når den har innhold.
+ */
 export type ReportInput = {
   description: string;
   category: ReportCategory;
   location: string;
+  summary?: string;
 };
 
-export type ReportFieldErrors = Partial<Record<ReportField, string>>;
+export type ReportFieldErrors = Partial<Record<ReportField | "summary", string>>;
 
 export type ReportInputResult =
   | { ok: true; data: ReportInput }
   | { ok: false; errors: ReportFieldErrors };
 
 /**
- * Trimmer og validerer en ny rapport. Felt utenom de tre (for eksempel
- * `author_id` eller `status`) fjernes og sendes aldri videre. Ved feil gir
+ * Trimmer og validerer en ny rapport. Felt utenom de tre og den valgfrie
+ * oppsummeringen (for eksempel `author_id` eller `status`) fjernes og sendes
+ * aldri videre. Ved feil gir
  * den første feilmeldingen for hvert felt.
  */
 export function parseReportInput(raw: unknown): ReportInputResult {
   const input = raw !== null && typeof raw === "object" ? raw : {};
   const result = reportInputSchema.safeParse(input);
-  if (result.success) return { ok: true, data: result.data };
+  if (result.success) {
+    const { summary, ...required } = result.data;
+    return { ok: true, data: summary === undefined ? required : { ...required, summary } };
+  }
 
   const errors: ReportFieldErrors = {};
   for (const issue of result.error.issues) {
     const field = issue.path[0];
     if (
       typeof field === "string" &&
-      (REPORT_FIELDS as readonly string[]).includes(field) &&
-      !errors[field as ReportField]
+      ([...REPORT_FIELDS, "summary"] as string[]).includes(field) &&
+      !errors[field as ReportField | "summary"]
     ) {
-      errors[field as ReportField] = issue.message;
+      errors[field as ReportField | "summary"] = issue.message;
     }
   }
   return { ok: false, errors };
