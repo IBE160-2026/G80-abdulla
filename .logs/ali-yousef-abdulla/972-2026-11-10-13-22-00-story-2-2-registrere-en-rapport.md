@@ -18,6 +18,7 @@ Brukeren ba om å kjøre `bmad-build` for Story 2.2 (issue #30): en innlogget br
 - **Gjennomgangen:** 23 funn. Fire rettelser (live feil og `aria-required`, destructive toast, «under 640 px» i `EXPERIENCE.md`, handlingens navn i feilloggen), ett utsatt («←» etter innsending når skjemaet var første side i fanen, verifisert og lagt i `deferred-work.md`) og 17 avvist med begrunnelse i triagetabellen i spec-en.
 - **Verifisert:** hele `npm test` exit 0 (Vitest `unit` 341/341 uten typefeil, pgTAP 180/180, Vitest `db` 25/25, Playwright 136 bestått på 4,8 min). Lint 0 feil, `next build` bygger, og `db-types --check` er uten avvik. En første kjøring feilet på ett axe-funn i toasten mens den tonet inn. `e2e/a11y.ts` venter nå til toasten er ferdig animert.
 - Underagenten sendte den samme rapporten mange ganger etter at den var ferdig, så jeg stoppet den.
+- PR #53 er flettet (merge-commit `719d288`), og issue #30 er lukket. Story 2.2 er satt til `done` i `sprint-status.yaml` på den lokale branchen `logg/story-2-2-flettet`.
 
 ### Åpne punkter
 - «←» etter innsending forlater appen når `/rapporter/ny` var første side i fanen (utsatt til Story 3.3, som må løse «←» generelt).
