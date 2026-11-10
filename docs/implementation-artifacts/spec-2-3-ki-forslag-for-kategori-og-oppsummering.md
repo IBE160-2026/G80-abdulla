@@ -2,7 +2,7 @@
 title: 'Story 2.3: KI-forslag for kategori og oppsummering'
 type: 'feature'
 created: '2026-11-10'
-status: 'in-review'
+status: 'done'
 route: 'dispatch'
 review_loop_iteration: 0
 baseline_commit: '551de14fe563e690a21237fab390de9ad13363c4'
