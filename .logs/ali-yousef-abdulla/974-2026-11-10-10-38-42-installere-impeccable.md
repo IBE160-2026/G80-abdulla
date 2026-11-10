@@ -3,7 +3,7 @@
 ## 2026-11-10 kl. 10:38 — Ali Yousef Abdulla
 
 ### Oppgave
-Brukeren spurte om designskillen «Impeccable» var installert. Det var den ikke, og brukeren ba om å få den installert i prosjektet (ikke globalt), med designkroken som sjekker UI-filer. Etterpå ba brukeren om å flette PR #52, hente `main` inn i story-branchen, rydde bort worktreen og kjøre `/impeccable init`.
+Brukeren spurte om designskillen «Impeccable» var installert. Det var den ikke, og brukeren ba om å få den installert i prosjektet (ikke globalt), med designkroken som sjekker UI-filer. Etterpå ba brukeren om å flette PR #52, hente `main` inn i story-branchen, rydde bort worktreen og kjøre `/impeccable init`. Til slutt ba brukeren om å flytte `DESIGN.md` til roten.
 
 ### Plan
 - Sjekket kilden: `pbakaus/impeccable` på GitHub (Apache-2.0), npm-pakken `impeccable` 4.8.2, og leste installasjonsdelen i README og CLI-shimmen (nedlasting med sjekksumkontroll).
@@ -21,8 +21,8 @@ Brukeren spurte om designskillen «Impeccable» var installert. Det var den ikke
 - PR #52 er flettet (merge-commit `49e0150`), og `origin/main` er hentet inn i `story/2-2-registrere-en-rapport` (merge-commit `cae612a`). Den ucommittede endringen i `docs/implementation-artifacts/epic-2-context.md` ble ikke berørt. Skillen `impeccable` vises i Claude Code, og `engine-probe` svarer `impeccable-engine 0.1.21` i hovedmappa.
 - Ryddet etter flettingen: worktreen `../G80-abdulla-impeccable` er fjernet, og branchen `chore/installer-impeccable` er slettet lokalt og på GitHub.
 - `/impeccable init`: `PRODUCT.md` er skrevet i roten (plattform `web`, brukere med sensor som egen målgruppe for v1, formål, posisjon, rammer, stemme, fem prinsipper og WCAG 2.2 AA). Faktaene er hentet fra `docs/prd.md` (final), `docs/product-brief.md` og `docs/ux/EXPERIENCE.md`. Brukeren svarte ja til å ta med sensor, men svarte ikke eksplisitt på om sammendraget stemmer. Bildegenerering finnes ikke, så `buildPath` er ikke lagret, og live-modus er ikke satt opp. `PRODUCT.md` er committet i `story/2-2-registrere-en-rapport` (`300415f`) og følger PR-en for Story 2.2.
+- `docs/ux/DESIGN.md` er flyttet til roten med `git mv`, og innholdet er uendret. Stiene i `app/globals.css`, `tailwind.config.ts`, `PRODUCT.md` og README er oppdatert (`4aa14b6`). README-tabellen har nå egne rader for `DESIGN.md` og `PRODUCT.md`. `impeccable context` finner nå både `PRODUCT.md` og `DESIGN.md`. Spec-filene for ferdige stories og beslutningsloggene peker fortsatt på `docs/ux/DESIGN.md` og er latt være som historikk. Kopien i `docs/planning-artifacts/ux-designs/` er ikke rørt.
 
 ### Åpne punkter
-- Impeccable leser bare `DESIGN.md` i roten og finner derfor ikke `docs/ux/DESIGN.md` (`designPath` er null). Avgjør om fila skal flyttes til roten, eller om `/impeccable document` skal lage en ny ut fra koden.
 - Les gjennom `PRODUCT.md` og rett det som ikke stemmer. Sammendraget ble ikke eksplisitt godkjent.
 - Designkroken bruker en POSIX-kommando (`[ ! -f … ] || …`) og er ikke prøvd i en ekte Claude Code-økt på Windows. Sjekk at den kjører uten feil etter fletting og omstart.
