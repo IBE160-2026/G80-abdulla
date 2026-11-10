@@ -49,7 +49,7 @@ FixMyStreet, SeeClickFix, FiksGataMi og kommunale «Meld feil»-portaler går fr
 - Språket er norsk bokmål i hele appen.
 - Stemmen er kort, vennlig og saklig, med du-form. Ingen utropstegn og ingen emoji, bortsett fra ✓ i bekreftet-tilstanden.
 - LocalFix skal føles som et pålitelig verktøy, ikke en sosial app. Poeng, merker og «toppbidragsytere» er avvist.
-- Det visuelle uttrykket står i `docs/ux/DESIGN.md` og hører ikke hjemme her.
+- Det visuelle uttrykket står i `DESIGN.md` i roten og hører ikke hjemme her.
 
 ## Evidence on Hand
 

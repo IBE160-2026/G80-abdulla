@@ -161,7 +161,9 @@ De eksakte versjonene står i `package.json` og Stack-tabellen i [arkitekturen](
 | [docs/addendum.md](docs/addendum.md) | Konkurrentresearch og parkerte idéer |
 | [docs/prd.md](docs/prd.md) | Krav (FR-1 til FR-9), brukerreiser og suksessmetrikker |
 | [docs/prd-addendum.md](docs/prd-addendum.md) | Teknisk retning, tilgangskontroll og KI-testsett |
-| [docs/ux/](docs/ux/) | `DESIGN.md` (utseende), `EXPERIENCE.md` (oppførsel) og skisser i `mockups/` |
+| [DESIGN.md](DESIGN.md) | Utseendet: fargetokens, typografi og komponenter. Ligger i roten, der designskillen Impeccable leser den |
+| [PRODUCT.md](PRODUCT.md) | Kort produktsammendrag for Impeccable, hentet fra PRD-en |
+| [docs/ux/](docs/ux/) | `EXPERIENCE.md` (oppførsel) og skisser i `mockups/` |
 | [Arkitektur](docs/planning-artifacts/architecture/architecture-LocalFix-2026-10-28/ARCHITECTURE-SPINE.md) | Arkitekturbeslutninger (AD-1 til AD-15), datamodell, stack og mappestruktur. Vurderingene ligger i `reviews/` ved siden av |
 | [Research: KI-leverandør](docs/planning-artifacts/research/technical-ki-leverandor-gratisniva-norsk-klassifis-2026-10-28/research.md) | Språkmodeller med gratisnivå og norsk kvalitet |
 | [Research: brukerstemmer og konkurrenter](docs/planning-artifacts/research/user-voice-brukerstemmer-og-konkurrenter-for-lokal-2026-10-29/research.md) | Hva brukere sier om lignende løsninger, og hvordan LocalFix skiller seg ut |
@@ -172,7 +174,7 @@ De eksakte versjonene står i `package.json` og Stack-tabellen i [arkitekturen](
 | [docs/beslutninger/](docs/beslutninger/) | Fortløpende beslutningslogger fra hver planleggingsfase |
 | [docs/tilbakemeldinger/](docs/tilbakemeldinger/) | Tilbakemeldinger fra faglærer |
 
-`docs/planning-artifacts/` er BMAD-ens arbeidsmappe for brief, PRD, UX og research. Brief, PRD og UX i `docs/` er kopier derfra, og kopiene oppdateres når en fase oppdateres. Arkitektur og research lenkes direkte til BMAD-mappen.
+`docs/planning-artifacts/` er BMAD-ens arbeidsmappe for brief, PRD, UX og research. Brief, PRD og UX i `docs/` er kopier derfra, og kopiene oppdateres når en fase oppdateres. Unntaket er at kopien av `DESIGN.md` ligger i roten. Arkitektur og research lenkes direkte til BMAD-mappen.
 
 ## Arbeidsflyt
 

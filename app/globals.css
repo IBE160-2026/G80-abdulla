@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 /*
- * Temaet fra docs/ux/DESIGN.md (UX-DR1–3). Fargene står som HSL, fordi
+ * Temaet fra DESIGN.md i roten (UX-DR1–3). Fargene står som HSL, fordi
  * shadcn-komponentene bruker hsl(var(--…)). Hver verdi gir nøyaktig hex-verdien
  * i DESIGN.md. Tokens som DESIGN.md ikke nevner (popover, input, ring,
  * destructive, muted, secondary, accent), har shadcn-standardverdiene.

@@ -1,7 +1,7 @@
 import type { Config } from "tailwindcss";
 import tailwindcssAnimate from "tailwindcss-animate";
 
-// Temaet fra docs/ux/DESIGN.md (UX-DR1–3). Fargene er variabler i
+// Temaet fra DESIGN.md i roten (UX-DR1–3). Fargene er variabler i
 // app/globals.css. Radiusene og fontstørrelsene står eksplisitt her.
 export default {
   content: [
