@@ -4,6 +4,9 @@
 // toast og «1 har sett dette», «+»-knappen under 640 px og topplinjelenka fra
 // 640 px, og axe og breddesjekk. Testene lager rapporter, så de ligger i
 // endrer-prosjektene. Rapportene blir liggende til neste `db reset`.
+// Fra Story 2.3 henter blur på beskrivelsen et KI-forslag. Testene som velger
+// kategori selv, bruker derfor testordet «ingenforslag» i beskrivelsen (mock
+// gir da ikke noe forslag), så et mock-forslag ikke endrer valget.
 import { randomUUID } from "node:crypto";
 import { expect, test, type Page } from "@playwright/test";
 import { expectNoSeriousA11yViolations } from "../a11y";
@@ -11,6 +14,10 @@ import { logIn, PASSWORD } from "../auth";
 import { expectNoHorizontalScroll } from "../layout";
 
 const NEW_REPORT = "/rapporter/ny";
+// Testordet som gir «ingen forslag» fra mock-adapteren.
+const NO_AI = "ingenforslag";
+const REMINDER =
+  "Ikke skriv navn eller andre personopplysninger. Teksten sendes til en KI-tjeneste for å foreslå kategori.";
 const LOGIN_FOR_FORM = "/auth/login?next=%2Frapporter%2Fny";
 
 const description = (page: Page) => page.getByLabel("Beskrivelse", { exact: true });
@@ -25,6 +32,13 @@ const isSmall = (page: Page) => (page.viewportSize()?.width ?? 0) < 640;
 
 // Kategoriene i den rekkefølgen lista viser dem.
 const CATEGORY_ORDER = ["Søppel", "Belysning", "Vei og fortau", "Skadeverk", "Annet"];
+
+/** Tekst på nøyaktig `n` tegn med testordet først. */
+const padded = (n: number) => `${NO_AI} ${"a".repeat(n - NO_AI.length - 1)}`;
+
+/** createReport har «location» i kroppen. Forslagskallet har bare teksten. */
+const isCreateReport = (request: { postData(): string | null }) =>
+  (request.postData() ?? "").includes('"location"');
 
 /** Velger en kategori med tastatur: åpner lista, piler og Enter. */
 async function chooseCategory(page: Page, label: string, downs: number) {
@@ -136,9 +150,9 @@ test("skjemaet: fokus i beskrivelsen, påminnelsen, teller, og «Send inn» er d
   await openForm(page);
   await expect(description(page)).toBeFocused();
 
-  await expect(page.getByText("Ikke skriv navn eller andre personopplysninger.", { exact: true })).toBeVisible();
-  // Påminnelsen har ikke setningen om KI-tjenesten før Story 2.3.
-  await expect(page.getByText(/KI-tjeneste/)).toHaveCount(0);
+  // Påminnelsen er hele teksten fra Story 2.3, med setningen om KI-tjenesten.
+  await expect(page.getByText(REMINDER, { exact: true })).toBeVisible();
+  await expect(page.getByText(/KI-tjeneste/)).toHaveCount(1);
   await expect(location(page)).toHaveAttribute("placeholder", "F.eks. gangveien ved bygg A");
   await expectNoSeriousA11yViolations(page);
   await expectNoHorizontalScroll(page);
@@ -164,9 +178,7 @@ test("skjemaet: fokus i beskrivelsen, påminnelsen, teller, og «Send inn» er d
   await page.keyboard.type("abc");
   await expect(page.getByText("3/1000", { exact: true })).toBeVisible();
   // Telleren leses ikke opp: den står ikke i beskrivelsen av feltet og er ikke aria-live.
-  await expect(description(page)).toHaveAccessibleDescription(
-    "Ikke skriv navn eller andre personopplysninger.",
-  );
+  await expect(description(page)).toHaveAccessibleDescription(REMINDER);
   await expect(page.locator("[aria-live]").filter({ hasText: "3/1000" })).toHaveCount(0);
   await expect(submit(page)).toBeDisabled();
 
@@ -189,9 +201,10 @@ test("tekst over grensen gir feil under feltet med en gang, holder knappen aktiv
   page,
 }) => {
   await openForm(page);
+  // Bare innsendingene telles. Forslagskallet etter blur er også en POST.
   const requests: string[] = [];
   page.on("request", (request) => {
-    if (request.method() === "POST") requests.push(request.url());
+    if (request.method() === "POST" && isCreateReport(request)) requests.push(request.url());
   });
 
   const descriptionError = page.getByText("Beskrivelsen kan ha høyst 1000 tegn.", { exact: true });
@@ -204,9 +217,9 @@ test("tekst over grensen gir feil under feltet med en gang, holder knappen aktiv
 
   // Feilen står under feltet med en gang teksten er over grensen, før noe
   // er sendt inn.
-  await description(page).fill("a".repeat(1000));
+  await description(page).fill(padded(1000));
   await expect(descriptionError).toHaveCount(0);
-  await description(page).fill("a".repeat(1001));
+  await description(page).fill(padded(1001));
   await expect(descriptionError).toBeVisible();
   await location(page).fill("b".repeat(201));
   await expect(locationError).toBeVisible();
@@ -222,14 +235,14 @@ test("tekst over grensen gir feil under feltet med en gang, holder knappen aktiv
   await expect(description(page)).toBeFocused();
   await expect(description(page)).toHaveAttribute("aria-invalid", "true");
   await expect(description(page)).toHaveAccessibleDescription(
-    "Ikke skriv navn eller andre personopplysninger. Beskrivelsen kan ha høyst 1000 tegn.",
+    `${REMINDER} Beskrivelsen kan ha høyst 1000 tegn.`,
   );
   await expect(location(page)).toHaveAttribute("aria-invalid", "true");
   await expect(location(page)).toHaveAccessibleDescription("Stedet kan ha høyst 200 tegn.");
   await expect(page).toHaveURL(NEW_REPORT);
   expect(requests, "ingenting sendes").toEqual([]);
   // Alt brukeren skrev, er beholdt.
-  await expect(description(page)).toHaveValue("a".repeat(1001));
+  await expect(description(page)).toHaveValue(padded(1001));
   await expect(location(page)).toHaveValue("b".repeat(201));
   await expectNoSeriousA11yViolations(page);
   await expectNoHorizontalScroll(page);
@@ -242,7 +255,7 @@ test("tekst over grensen gir feil under feltet med en gang, holder knappen aktiv
 
   // Rettes beskrivelsen, forsvinner feilen uten nytt innsendingsforsøk. Neste
   // forsøk gir fokus til neste feil, lokasjonen.
-  await description(page).fill("a".repeat(1000));
+  await description(page).fill(padded(1000));
   await expect(descriptionError).toHaveCount(0);
   await expect(description(page)).not.toHaveAttribute("aria-invalid");
   await expect(locationError).toBeVisible();
@@ -266,7 +279,7 @@ test("en gyldig innsending: trimmet tekst, toast, detaljsiden med «1 har sett d
   await page.goto("/");
   await openForm(page);
   const unique = randomUUID();
-  const text = `Ny rapport fra e2e ${unique} æøå 😀`;
+  const text = `${NO_AI} Ny rapport fra e2e ${unique} æøå 😀`;
 
   await description(page).fill(`   ${text}   `);
   await location(page).fill("  Gangveien ved bygg A  ");
@@ -278,7 +291,7 @@ test("en gyldig innsending: trimmet tekst, toast, detaljsiden med «1 har sett d
     page.locator("[data-sonner-toast]").getByText("Rapporten er sendt inn", { exact: true }),
   ).toBeVisible();
   const main = page.getByRole("main");
-  // Uten oppsummering er overskriften kategorinavnet (Story 2.3 gir oppsummeringen).
+  // Uten oppsummering (testordet gir ikke forslag) er overskriften kategorinavnet.
   await expect(main.getByRole("heading", { level: 1, name: "Vei og fortau", exact: true })).toBeVisible();
   await expect(main.getByText(text, { exact: true })).toBeVisible();
   await expect(main.getByText("Ny", { exact: true })).toBeVisible();
@@ -298,14 +311,20 @@ test("en gyldig innsending: trimmet tekst, toast, detaljsiden med «1 har sett d
 test("dobbeltklikk på «Send inn» gir én rapport", async ({ page }) => {
   await openForm(page);
   const unique = randomUUID();
-  // Server Action sendes som POST til siden. Telles, så et andre kall også
-  // oppdages når begge ville gitt samme rapport.
+  // Server Action sendes som POST til siden. Innsendingene telles, så et andre
+  // kall også oppdages når begge ville gitt samme rapport.
   let posts = 0;
   page.on("request", (request) => {
-    if (request.method() === "POST" && new URL(request.url()).pathname === NEW_REPORT) posts++;
+    if (
+      request.method() === "POST" &&
+      new URL(request.url()).pathname === NEW_REPORT &&
+      isCreateReport(request)
+    ) {
+      posts++;
+    }
   });
 
-  await description(page).fill(`Dobbeltklikk ${unique}`);
+  await description(page).fill(`${NO_AI} Dobbeltklikk ${unique}`);
   await location(page).fill("Bygg C");
   await chooseCategory(page, "Annet", 4);
   await submit(page).dblclick();

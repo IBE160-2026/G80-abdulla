@@ -3,7 +3,8 @@
 // keyboard.ts), axe-sjekken og breddesjekken. Den ligger i endrer-prosjektene,
 // fordi den skal endre data fra Story 2.2. Fra Story 2.1 logger den inn til
 // slutt med kjerneflytbrukeren for prosjektet (360 eller 1280). Fra Story 2.2
-// registrerer den en rapport, bare med tastatur. endrer-360 og endrer-1280
+// registrerer den en rapport, bare med tastatur. Fra Story 2.3 bruker den
+// mock-forslaget for kategori og oppsummering. endrer-360 og endrer-1280
 // deler databasen, så lista har flere rapporter enn seed når den andre kjører.
 // Stegene som åpner seed-kort, finner dem på innhold og ikke på plassering.
 import { randomUUID } from "node:crypto";
@@ -140,6 +141,8 @@ test("kjerneflyten med tastatur", async ({ page }) => {
   // topplinja foran menyen. Teksten er unik per kjøring.
   const unique = randomUUID();
   const text = `Kjerneflyt ${unique} hull i veien`;
+  // Mock-forslaget: «hull» gir Vei og fortau, og oppsummeringen er første setning.
+  const summary = `Kjerneflyt ${unique} rettet med tastatur`;
   await tabTo(page, "link", "Registrer problem", wide ? { max: 3, reverse: true } : { max: 100 });
   await page.keyboard.press("Enter");
   await expect(page).toHaveURL("/rapporter/ny");
@@ -147,19 +150,34 @@ test("kjerneflyten med tastatur", async ({ page }) => {
   await expect(page.getByLabel("Beskrivelse", { exact: true })).toBeFocused();
   await page.keyboard.type(text);
 
+  // Story 2.3: å forlate beskrivelsen henter forslaget. Kategorien velges av
+  // mock-forslaget, med pillen, opplesningen og en oppsummering, og fokus står
+  // fortsatt på kategorivalget.
   await page.keyboard.press("Tab");
-  await expect(page.getByRole("combobox", { name: "Kategori", exact: true })).toBeFocused();
-  await page.keyboard.press("Enter");
-  await expect(page.getByRole("listbox")).toBeVisible();
-  await expect(page.getByRole("option", { name: "Søppel", exact: true })).toBeFocused();
-  // Ett trykk om gangen, og vent til neste valg har fokus.
-  for (const name of ["Belysning", "Vei og fortau", "Skadeverk"]) {
-    await page.keyboard.press("ArrowDown");
-    await expect(page.getByRole("option", { name, exact: true })).toBeFocused();
+  const categoryField = page.getByRole("combobox", { name: "Kategori", exact: true });
+  await expect(categoryField).toBeFocused();
+  await expect(categoryField).toHaveText("Vei og fortau");
+  await expect(page.getByText("Foreslått av KI", { exact: true })).toBeVisible();
+  await expect(page.locator('p[aria-live="polite"]')).toHaveText("Kategori foreslått: Vei og fortau");
+  await expect(categoryField).toBeFocused();
+  // Teksten står også i beskrivelsen (textarea), så bare avsnittet med oppsummeringen teller.
+  await expect(page.getByText(text, { exact: true }).and(page.locator("p"))).toBeVisible();
+  await expectNoSeriousA11yViolations(page);
+  await expectNoHorizontalScroll(page);
+  if (narrow) {
+    await page.setViewportSize({ width: 320, height: 800 });
+    await expectNoSeriousA11yViolations(page);
+    await expectNoHorizontalScroll(page);
+    await page.setViewportSize({ width: 360, height: 800 });
   }
+
+  // Tab til «Endre», Enter åpner oppsummeringen, og Ctrl+A og skriving bytter den ut.
+  await page.keyboard.press("Tab");
+  await expect(page.getByRole("button", { name: "Endre", exact: true })).toBeFocused();
   await page.keyboard.press("Enter");
-  await expect(page.getByRole("listbox")).toBeHidden();
-  await expect(page.getByRole("combobox", { name: "Kategori", exact: true })).toHaveText("Skadeverk");
+  await expect(page.getByLabel("Oppsummering", { exact: true })).toBeFocused();
+  await page.keyboard.press("Control+A");
+  await page.keyboard.type(summary);
 
   await page.keyboard.press("Tab");
   await expect(page.getByLabel("Lokasjon", { exact: true })).toBeFocused();
@@ -178,7 +196,8 @@ test("kjerneflyten med tastatur", async ({ page }) => {
     page.locator("[data-sonner-toast]").getByText("Rapporten er sendt inn", { exact: true }),
   ).toBeVisible();
   const main = page.getByRole("main");
-  await expect(main.getByRole("heading", { level: 1, name: "Skadeverk", exact: true })).toBeVisible();
+  // Overskriften er oppsummeringen brukeren skrev, og beskrivelsen står under.
+  await expect(main.getByRole("heading", { level: 1, name: summary, exact: true })).toBeVisible();
   await expect(main.getByText(text, { exact: true })).toBeVisible();
   await expect(main.getByText("1 har sett dette", { exact: true })).toBeVisible();
   await expectNoSeriousA11yViolations(page);
@@ -195,6 +214,6 @@ test("kjerneflyten med tastatur", async ({ page }) => {
   await page.keyboard.press("Enter");
   await expect(page).toHaveURL("/");
   await expect(listHeading).toBeVisible();
-  await expect(cards.first()).toContainText(text);
+  await expect(cards.first()).toContainText(summary);
   await expect(cards.first()).toContainText("Ny");
 });

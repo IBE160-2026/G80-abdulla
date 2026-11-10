@@ -3,7 +3,7 @@
 // kategori mot enumen og de norske feilmeldingene. Skjemaet og Server Action
 // bruker den samme parseReportInput.
 import { describe, expect, test } from "vitest";
-import { DESCRIPTION_MAX, LOCATION_MAX } from "./limits";
+import { DESCRIPTION_MAX, LOCATION_MAX, SUMMARY_MAX } from "./limits";
 import {
   parseReportInput,
   REPORT_CATEGORIES,
@@ -23,16 +23,65 @@ describe("parseReportInput", () => {
     });
   });
 
-  test("felt utenom de tre fjernes", () => {
+  test("felt utenom de tre og oppsummeringen fjernes", () => {
     const result = parseReportInput({
       ...valid,
       author_id: "10000000-0000-4000-8000-000000000003",
       status: "resolved",
       hidden: true,
-      summary: "x",
       image_path: "y",
     });
     expect(result).toEqual({ ok: true, data: valid });
+    if (result.ok) expect(Object.keys(result.data).sort()).toEqual(["category", "description", "location"]);
+  });
+
+  describe("summary (Story 2.3)", () => {
+    test("en oppsummering trimmes og tas med", () => {
+      expect(parseReportInput({ ...valid, summary: "  Hull i veien \n" })).toEqual({
+        ok: true,
+        data: { ...valid, summary: "Hull i veien" },
+      });
+    });
+
+    test.each([
+      ["mangler", undefined],
+      ["null", null],
+      ["tom", ""],
+      ["bare mellomrom", "  \n\t "],
+      ["ikke en streng", 5],
+      ["et objekt", { text: "x" }],
+    ])("oppsummering som %s utelates", (_name, summary) => {
+      const result = parseReportInput({ ...valid, summary });
+      expect(result).toEqual({ ok: true, data: valid });
+      if (result.ok) expect("summary" in result.data).toBe(false);
+    });
+
+    test("nøyaktig 300 tegn godtas, 301 avvises med meldingen under feltet", () => {
+      expect(SUMMARY_MAX).toBe(300);
+      expect(parseReportInput({ ...valid, summary: "a".repeat(300) }).ok).toBe(true);
+      expect(parseReportInput({ ...valid, summary: "a".repeat(301) })).toEqual({
+        ok: false,
+        errors: { summary: "Oppsummeringen kan ha høyst 300 tegn." },
+      });
+    });
+
+    test("grensen telles i kodepunkter og gjelder trimmet tekst", () => {
+      expect(parseReportInput({ ...valid, summary: "😀".repeat(300) }).ok).toBe(true);
+      expect(parseReportInput({ ...valid, summary: "😀".repeat(301) }).ok).toBe(false);
+      expect(parseReportInput({ ...valid, summary: `  ${"æ".repeat(300)}  ` }).ok).toBe(true);
+      expect(parseReportInput({ ...valid, summary: "æ".repeat(301) }).ok).toBe(false);
+    });
+
+    test("feilen i oppsummeringen kommer sammen med feil i de andre feltene", () => {
+      expect(parseReportInput({ description: "", category: "x", location: "Vei", summary: "a".repeat(301) })).toEqual({
+        ok: false,
+        errors: {
+          description: REPORT_MESSAGES.descriptionRequired,
+          category: REPORT_MESSAGES.categoryRequired,
+          summary: REPORT_MESSAGES.summaryTooLong,
+        },
+      });
+    });
   });
 
   test("kategoriene er de fem kodene fra databasen, i visningsrekkefølge", () => {
@@ -144,6 +193,7 @@ describe("parseReportInput", () => {
       locationRequired: "Skriv inn et sted.",
       locationTooLong: "Stedet kan ha høyst 200 tegn.",
       categoryRequired: "Velg en kategori.",
+      summaryTooLong: "Oppsummeringen kan ha høyst 300 tegn.",
     });
   });
 });
