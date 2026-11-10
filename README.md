@@ -145,6 +145,10 @@ Alle variablene står i `.env.example`, og `lib/env.ts` validerer dem når appen
 
 Supabase Studio, et grensesnitt for den lokale databasen, ligger på <http://127.0.0.1:54323> mens Supabase kjører.
 
+### Bilder feiler
+
+Feiler et bilde med «Kunne ikke laste opp bildet. Prøv igjen.», men en rapport uten bilde går gjennom, står årsaken i serverloggen (terminalen der `npm run dev` eller `next start` kjører). Linjen `createReport bilde_unavailable` betyr at `sharp` ikke lar seg laste på maskinen (kjør `npm ci` på nytt, og sjekk at programkontrollen ikke blokkerer filene i `node_modules/@img`). `createReport opplasting_<kode>` betyr at lagringen svarte med en feil (sjekk at `npx supabase status` viser at Storage kjører). Loggen har aldri filnavn, sti eller tekst fra rapporten.
+
 ## Teknologi
 
 - Next.js 16 (App Router, React 19) med shadcn/ui og Tailwind CSS 3.4, mobile-first og installerbar som PWA (uten service worker)
