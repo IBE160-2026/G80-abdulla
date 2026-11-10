@@ -6,7 +6,7 @@ import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 // lib/env validerer Supabase-variablene når den importeres, så de settes først.
 vi.stubEnv("NEXT_PUBLIC_SUPABASE_URL", "http://127.0.0.1:54321");
 vi.stubEnv("NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY", "sb_publishable_test");
-const { AI_TIMEOUT_MS, suggest } = await import("./index");
+const { AI_TIMEOUT_MS, suggest, suggestWithOutcome } = await import("./index");
 
 const fetchStub = vi.fn();
 let errorLog: ReturnType<typeof vi.spyOn>;
@@ -209,6 +209,72 @@ describe("suggest med openai", () => {
       resolveLate(completion('{"category":"other","summary":"x"}'));
       await vi.advanceTimersByTimeAsync(0);
       expect(vi.getTimerCount()).toBe(0);
+    });
+  });
+});
+
+describe("suggestWithOutcome", () => {
+  test("mock: ok med forslag og svartid", async () => {
+    const outcome = await suggestWithOutcome("Gatelyset ved gangveien er ødelagt");
+    expect(outcome).toMatchObject({ status: "ok", suggestion: { category: "lighting" } });
+    expect(outcome.ms).toBeGreaterThanOrEqual(0);
+    expect(outcome.code).toBeUndefined();
+    expect(fetchStub).not.toHaveBeenCalled();
+  });
+
+  test("mock: testordet gir none uten feilkode og uten logging", async () => {
+    const outcome = await suggestWithOutcome("ingenforslag");
+    expect(outcome).toMatchObject({ status: "none", suggestion: null });
+    expect(outcome.code).toBeUndefined();
+    expect(loggedText()).toBe("");
+  });
+
+  describe("openai", () => {
+    beforeEach(useOpenAi);
+
+    test.each([
+      ["ikke-200", () => completion("{}", 429), "error", "http_429"],
+      ["ugyldig kategori", () => completion('{"category":"Belysning"}'), "invalid", "ugyldig_svar"],
+      ["ugyldig JSON", () => completion("ikke json"), "invalid", "ugyldig_svar"],
+    ])("%s gir status og kort feilkode", async (_name, response, status, code) => {
+      fetchStub.mockImplementation(async () => response());
+      const outcome = await suggestWithOutcome("Hemmelig beskrivelse 12345");
+      expect(outcome).toMatchObject({ suggestion: null, status, code });
+      expect(loggedText()).not.toMatch(/Hemmelig|12345|sk-/);
+    });
+
+    test("nettverksfeil gir error", async () => {
+      fetchStub.mockRejectedValue(new Error(KEY));
+      expect(await suggestWithOutcome("Hull i veien")).toMatchObject({ status: "error", code: "nettverk" });
+    });
+
+    test("ugyldig miljø gir error med koden feil", async () => {
+      vi.stubEnv("AI_API_KEY", "");
+      expect(await suggestWithOutcome("Hull i veien")).toMatchObject({ status: "error", code: "feil" });
+    });
+
+    test("gyldig svar gir ok med forslaget", async () => {
+      fetchStub.mockImplementation(async () => completion('{"category":"waste","summary":"Boss"}'));
+      expect(await suggestWithOutcome("Boss")).toMatchObject({
+        status: "ok",
+        suggestion: { category: "waste", summary: "Boss" },
+      });
+    });
+
+    test("tidsavbrudd gir timeout med ms lik grensen, og suggest gir fortsatt null", async () => {
+      vi.useFakeTimers();
+      fetchStub.mockImplementation(() => new Promise(() => {}));
+      const pending = suggestWithOutcome("Hull i veien");
+      await vi.advanceTimersByTimeAsync(AI_TIMEOUT_MS);
+      expect(await pending).toEqual({
+        suggestion: null,
+        status: "timeout",
+        code: "timeout",
+        ms: AI_TIMEOUT_MS,
+      });
+      const plain = suggest("Hull i veien");
+      await vi.advanceTimersByTimeAsync(AI_TIMEOUT_MS);
+      expect(await plain).toBeNull();
     });
   });
 });
