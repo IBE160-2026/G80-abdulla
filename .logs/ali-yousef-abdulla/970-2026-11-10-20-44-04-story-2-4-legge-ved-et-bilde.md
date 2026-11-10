@@ -62,6 +62,7 @@ Brukeren ba under walkthroughen om flere elicitation-metoder på feilhåndtering
 - **AD-9 og arkitekturloggen:** godtatt restrisiko ført uttrykkelig: EXIF fjernes bare i Server Action, og en bruker som laster opp direkte mot Storage beholder EXIF i sin egen fil. Lukkes før drift.
 - **`issues.md`:** to nye punkter (telefonbilder over 5 MB, og plattformens grense for forespørselsstørrelse før drift).
 - Ingen kode eller tester er endret siden commit `2d3ab74`.
+- `.impeccable/` er lagt i `.gitignore` (brukerens valg), og punktet om den er lukket i `issues.md`. Merk: Impeccable lagrer dempingen som delt konfig, så en annen maskin kan få funnet på `image-field.tsx` igjen.
 
 ### Åpne punkter
 - Telefonbilder over 5 MB avvises uten hjelp: avgjør nedskalering i nettleseren eller høyere grense, og i så fall som egen story eller endring av kravet.
