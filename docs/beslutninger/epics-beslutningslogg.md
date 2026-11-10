@@ -26,4 +26,5 @@ updated: 2026-11-06T20:48
 - (change) Sluttvalidering: Story 1.2 nevnte seed-data, som først lages i 1.3. Kriteriet er skrevet om så det ikke viser til noe som ikke finnes ennå. FR-henvisninger er lagt til i 1.3, 1.6, 1.7 og 2.5
 - (event) Sluttvalidering med skript: 45 av 45 testbare FR-konsekvenser er dekket, 18 av 18 stories er riktig bygd, 28 byggeklosser er sjekket for bruk før de lages, og det er 0 formatfeil
 - (note) Nye UI-tekster og ny oppførsel som ikke står i UX-dokumentene ennå: «nå» for tidspunkt under ett minutt (1.4), og fokus etter bekreftelse, statusendring og skjuling (3.3, 4.1, 4.2). `EXPERIENCE.md` oppdateres i PR-en for storyen, etter «Definisjon av ferdig»
+- (decision) 2026-11-10 (Epic 1-retro, punkt 2, godkjent av prosjekteier) Story 2.5 og Story 3.3, som er siste story i Epic 2 og Epic 3, får et eget akseptansekriterium om at README er fulgt steg for steg på en ny klone i en tom mappe, slik Story 4.3 har det. Kravet stod i «Definisjon av ferdig» for hver epic, men ble ikke gjort for Epic 1
 - (note) Resultat: 4 epics og 18 stories. Neste steg er `bmad-sprint-planning`, som sjekker om planen er klar og lager sprintstatus
