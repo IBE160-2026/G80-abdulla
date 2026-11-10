@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { SiteHeader } from "@/components/site-header";
+import { Toaster } from "@/components/ui/sonner";
 import { getViewer } from "@/lib/supabase/auth";
 import "./globals.css";
 
@@ -28,6 +29,7 @@ export default async function RootLayout({
       <body className="antialiased">
         <SiteHeader viewer={viewer} />
         {children}
+        <Toaster />
       </body>
     </html>
   );

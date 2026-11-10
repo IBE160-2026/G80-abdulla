@@ -199,6 +199,8 @@ Versjonene med «låst» er låst eksakt i `package.json` og `package-lock.json`
 | Tailwind CSS | 3.4.19 (låst, følger startpakken) |
 | shadcn (CLI) | 4.23.0 (kjøres med `npx shadcn@4.23.0`; `components.json` peker på `tailwind.config.ts`, ellers lager CLI-en Tailwind v4-komponenter) |
 | Zod | 4.6.7 (låst) |
+| `sonner` (toast, shadcn `Toaster`) | 2.0.8 (låst i Story 2.2, eksakt versjon funnet med `npm view`; `next-themes` brukes ikke, siden v1 bare har lys modus) |
+| `@radix-ui/react-select` (shadcn `Select`) | 2.4.1 (låst i Story 2.2) |
 | TypeScript | 5.9.3 (låst, siste 5.x) |
 | ESLint | 9.39.5 (låst, siste 9.x) med `eslint-config-next` 16.4.5 |
 | Vitest | 5.0.5 (låst i Story 1.2) |

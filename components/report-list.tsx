@@ -1,4 +1,6 @@
+import Link from "next/link";
 import { ReportCard } from "@/components/report-card";
+import { Button } from "@/components/ui/button";
 import { formatReportCount } from "@/lib/format";
 import type { Report } from "@/lib/supabase/types";
 
@@ -19,9 +21,14 @@ export function ReportList({
 }) {
   if (reports.length === 0) {
     return (
-      <p className="py-12 text-center text-muted-foreground">
-        Ingen rapporter ennå. Har du sett noe som bør fikses?
-      </p>
+      <div className="flex flex-col items-center gap-4 py-12 text-center">
+        <p className="text-muted-foreground">
+          Ingen rapporter ennå. Har du sett noe som bør fikses?
+        </p>
+        <Button asChild className="h-11 px-6 text-base">
+          <Link href="/rapporter/ny">Registrer problem</Link>
+        </Button>
+      </div>
     );
   }
 

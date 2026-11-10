@@ -73,5 +73,13 @@ test("tom database gir tomtilstanden uten antall", async ({ page }) => {
   ).toBeVisible();
   await expect(page.getByRole("main").getByRole("list")).toHaveCount(0);
   await expect(page.getByText(/^\d+ rapport(er)?$/)).toHaveCount(0);
+  // Story 2.2: tomtilstanden har knappen «Registrer problem» til skjemaet.
+  const register = page
+    .getByRole("main")
+    .getByRole("link", { name: "Registrer problem", exact: true });
+  await expect(register).toBeVisible();
+  await expect(register).toHaveAttribute("href", "/rapporter/ny");
+  const box = await register.boundingBox();
+  expect(box!.height).toBeGreaterThanOrEqual(44);
   await expectNoSeriousA11yViolations(page);
 });

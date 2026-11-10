@@ -1,3 +1,4 @@
+import { NewReportFab } from "@/components/new-report-fab";
 import { ReportList } from "@/components/report-list";
 import { LIST_LIMIT, listReports } from "@/lib/supabase/reports";
 
@@ -9,7 +10,7 @@ export default async function Home() {
   const now = new Date();
 
   return (
-    <main className="mx-auto w-full max-w-[640px] px-4 pb-8 pt-4">
+    <main className="mx-auto w-full max-w-[640px] px-4 pb-24 pt-4 sm:pb-8">
       <h1 className="mb-1 text-title">Rapporter</h1>
       <ReportList
         reports={reports}
@@ -17,6 +18,7 @@ export default async function Home() {
         limit={LIST_LIMIT}
         now={now}
       />
+      <NewReportFab />
     </main>
   );
 }

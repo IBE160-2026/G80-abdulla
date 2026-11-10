@@ -6,7 +6,7 @@ Gruppeprosjekt (G80) i **IBE160 Programmering med KI** ved Høgskolen i Molde, h
 
 ## Status
 
-🟡 **Implementeringen er i gang (Epic 2).** Epic 1 er ferdig: startpakken og lokal Supabase er på plass (Story 1.1), og det samme er testkommandoen (Story 1.2). Den lokale databasen har datamodellen, lesereglene, testbrukere og testrapporter (Story 1.3). Forsiden viser lista over rapportene, nyeste først (Story 1.4), og hvert kort åpner en detaljside med hele rapporten, når den sist ble oppdatert og hvor mange som har sett problemet (Story 1.5). Reglene for bilder er testet: den lokale bildelagringen har tre testbilder, og bare moderatoren kan lese bildet til en skjult rapport (Story 1.6). Detaljsiden viser bildet til rapporten, og i lista har kortene til rapportene med bilde et bildeikon (Story 1.7). I Epic 2 kan du opprette konto og logge inn med e-post og passord fra menyen i topplinja, og du kommer tilbake til siden du kom fra (Story 2.1).
+🟡 **Implementeringen er i gang (Epic 2).** Epic 1 er ferdig: startpakken og lokal Supabase er på plass (Story 1.1), og det samme er testkommandoen (Story 1.2). Den lokale databasen har datamodellen, lesereglene, testbrukere og testrapporter (Story 1.3). Forsiden viser lista over rapportene, nyeste først (Story 1.4), og hvert kort åpner en detaljside med hele rapporten, når den sist ble oppdatert og hvor mange som har sett problemet (Story 1.5). Reglene for bilder er testet: den lokale bildelagringen har tre testbilder, og bare moderatoren kan lese bildet til en skjult rapport (Story 1.6). Detaljsiden viser bildet til rapporten, og i lista har kortene til rapportene med bilde et bildeikon (Story 1.7). I Epic 2 kan du opprette konto og logge inn med e-post og passord fra menyen i topplinja, og du kommer tilbake til siden du kom fra (Story 2.1). Når du er innlogget, kan du registrere en rapport med beskrivelse, kategori og sted fra «+»-knappen på lista (under 640 px) eller «Registrer problem» i topplinja (fra 640 px), og du kommer til rapporten med toasten «Rapporten er sendt inn» (Story 2.2). KI-forslag og bilde i skjemaet kommer i Story 2.3 og 2.4.
 
 ## Kom i gang
 
@@ -161,7 +161,9 @@ De eksakte versjonene står i `package.json` og Stack-tabellen i [arkitekturen](
 | [docs/addendum.md](docs/addendum.md) | Konkurrentresearch og parkerte idéer |
 | [docs/prd.md](docs/prd.md) | Krav (FR-1 til FR-9), brukerreiser og suksessmetrikker |
 | [docs/prd-addendum.md](docs/prd-addendum.md) | Teknisk retning, tilgangskontroll og KI-testsett |
-| [docs/ux/](docs/ux/) | `DESIGN.md` (utseende), `EXPERIENCE.md` (oppførsel) og skisser i `mockups/` |
+| [DESIGN.md](DESIGN.md) | Utseendet: fargetokens, typografi og komponenter. Ligger i roten, der designskillen Impeccable leser den |
+| [PRODUCT.md](PRODUCT.md) | Kort produktsammendrag for Impeccable, hentet fra PRD-en |
+| [docs/ux/](docs/ux/) | `EXPERIENCE.md` (oppførsel) og skisser i `mockups/` |
 | [Arkitektur](docs/planning-artifacts/architecture/architecture-LocalFix-2026-10-28/ARCHITECTURE-SPINE.md) | Arkitekturbeslutninger (AD-1 til AD-15), datamodell, stack og mappestruktur. Vurderingene ligger i `reviews/` ved siden av |
 | [Research: KI-leverandør](docs/planning-artifacts/research/technical-ki-leverandor-gratisniva-norsk-klassifis-2026-10-28/research.md) | Språkmodeller med gratisnivå og norsk kvalitet |
 | [Research: brukerstemmer og konkurrenter](docs/planning-artifacts/research/user-voice-brukerstemmer-og-konkurrenter-for-lokal-2026-10-29/research.md) | Hva brukere sier om lignende løsninger, og hvordan LocalFix skiller seg ut |
@@ -172,7 +174,7 @@ De eksakte versjonene står i `package.json` og Stack-tabellen i [arkitekturen](
 | [docs/beslutninger/](docs/beslutninger/) | Fortløpende beslutningslogger fra hver planleggingsfase |
 | [docs/tilbakemeldinger/](docs/tilbakemeldinger/) | Tilbakemeldinger fra faglærer |
 
-`docs/planning-artifacts/` er BMAD-ens arbeidsmappe for brief, PRD, UX og research. Brief, PRD og UX i `docs/` er kopier derfra, og kopiene oppdateres når en fase oppdateres. Arkitektur og research lenkes direkte til BMAD-mappen.
+`docs/planning-artifacts/` er BMAD-ens arbeidsmappe for brief, PRD, UX og research. Brief, PRD og UX i `docs/` er kopier derfra, og kopiene oppdateres når en fase oppdateres. Unntaket er at kopien av `DESIGN.md` ligger i roten. Arkitektur og research lenkes direkte til BMAD-mappen.
 
 ## Arbeidsflyt
 

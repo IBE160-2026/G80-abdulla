@@ -9,8 +9,12 @@ import { expect, test } from "vitest";
 const ROOT = fileURLToPath(new URL("../", import.meta.url));
 const SELF = "lib/no-cache.test.ts";
 
-// Sidene som leser reports_with_counts.
-const PAGES = ["app/(liste)/page.tsx", "app/rapporter/[id]/page.tsx"];
+// Sidene som leser reports_with_counts, og skjemasiden, som krever innlogging.
+const PAGES = [
+  "app/(liste)/page.tsx",
+  "app/rapporter/[id]/page.tsx",
+  "app/rapporter/ny/page.tsx",
+];
 
 const sources = globSync("{app,components,lib}/**/*.{ts,tsx,js,jsx,mjs}", { cwd: ROOT })
   .map((file) => file.replaceAll("\\", "/"))
