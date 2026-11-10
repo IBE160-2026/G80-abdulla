@@ -102,13 +102,15 @@ describe("suggest med openai", () => {
   });
 
   test("høyst 2000 tegn sendes", async () => {
-    fetchStub.mockResolvedValue(completion('{"category":"other","summary":"x"}'));
-    await suggest("a".repeat(2500));
+    // Et nytt `Response` per kall: en kropp kan bare leses én gang.
+    fetchStub.mockImplementation(async () => completion('{"category":"other","summary":"x"}'));
+    const expected = { category: "other", summary: "x" };
+    expect(await suggest("a".repeat(2500))).toEqual(expected);
     const body = JSON.parse(fetchStub.mock.calls[0][1].body);
     expect(body.messages[1].content).toHaveLength(2000);
 
     fetchStub.mockClear();
-    await suggest("😀".repeat(2500));
+    expect(await suggest("😀".repeat(2500))).toEqual(expected);
     const emoji = JSON.parse(fetchStub.mock.calls[0][1].body);
     expect([...emoji.messages[1].content]).toHaveLength(2000);
   });

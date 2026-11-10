@@ -168,3 +168,54 @@ Gjennomgang 1 (blind-hunter 13 funn, edge-case-hunter 19 og verification-gap 1).
 **Manual checks (if no CLI):**
 - Skriv «Gatelyset ved gangveien er ødelagt» i skjemaet og tab ut: spinner, så Belysning med «Foreslått av KI» og en oppsummering med «Endre».
 - Skriv teksten «ingenforslag …»: meldingen «Vi fikk ikke et forslag. Velg kategori selv.» og tom kategori.
+
+### Review Findings
+
+Gjennomgang 2 (bmad-code-review, 2026-11-10). Branch-diff `main...story/2-3-ki-forslag` uten `.logs/`, `docs/` og `README.md` (2726 linjer, 21 filer). Lag: Blind Hunter, Edge Case Hunter, Verification Gap og Acceptance Auditor. Rå funn: 30, etter gruppering 24 oppføringer, hvorav ett ble avgjort av brukeren og avvist.
+
+- [x] [Review][Patch] HTML-fjerningen kan sette sammen en tagg på nytt — `"<<b>script>alert(1)"` gir `"<script>alert(1)"` etter én regex-runde (kjørt i node). Teksten vises bare som tekst, men Design Notes sier at en lagret oppsummering aldri bærer tagger. Fjern i en løkke til teksten ikke endres mer, og legg til en test. Verdikt: low. Kilde: edge-case-hunter. [lib/ai/validate.ts:40]
+- [x] [Review][Patch] En oppsummering kortet til 300 tegn kan ende med mellomrom — `cleanSummary` trimmer før kuttet, ikke etter. Skjemaet viser teksten untrimmet til innsending, der `parseReportInput` trimmer. Legg `.trim()` etter kuttet og en test. Verdikt: low. Kilde: edge-case-hunter. [lib/ai/validate.ts:42]
+- [x] [Review][Patch] Ingen test sjekker `aria-describedby` på kategorifeltet — `category-status` (under innlasting) og `category-hint` («Vi fikk ikke et forslag») kan fjernes fra `categoryDescribedBy` uten at noen test feiler, og skjermleserbrukeren mister meldingen (UX-DR10). Legg til `toHaveAccessibleDescription` på kategorifeltet i testene «et forslag velger kategorien …» (under spinneren) og «testordet gir …». Verdikt: low (gap-funn, bevist av laget). Kilde: verification-gap. [e2e/endrer/ki-forslag.spec.ts]
+
+#### Rejected
+
+- Gammel KI-kategori, pille og oppsummering blir stående når teksten skrives om uten nytt forslag (blind-hunter, edge-case-hunter, acceptance-auditor): low, samme som B3/E2. Rettelsen er en ny regel med flere grener.
+- Ingen nytt forsøk etter et mislykket forslag (blind-hunter, edge-case-hunter): low, samme som B1/E3. Brukeren får meldingen og velger selv.
+- Låsen ligger i minnet, og en kollisjon ser ut som «ingen forslag» (blind-hunter, edge-case-hunter): low, AD-8 og spec-en sier uttrykkelig at låsen er i minnet i én prosess, og klienten har selv høyst ett kall (B2, E13).
+- Ingen kvote på et betalt kall (blind-hunter): low, ny funksjon og ikke en rettelse. V1 kjører lokalt med mock som standard, og leverandørvalget hører til Story 2.5.
+- Innlengde 2000 mot 1000 i skjemaet, trippel klipping og `[...text]` på en stor streng (blind-hunter, edge-case-hunter, acceptance-auditor): false for den store strengen, siden Server Actions har en kroppsgrense (E14). Resten er low og kosmetikk, og 2000 er frosset i spec-en.
+- Personvernteksten er statisk, uten reservasjon og uten fjerning av personopplysninger (blind-hunter): low, teksten er frosset i spec-en.
+- Oppsummeringen er ikke merket som KI, og overskriften er ikke koblet til «Endre» (blind-hunter): low, spec-en og UX gir bare kategorien pillen. I lesemodus finnes ikke noe felt å koble til.
+- Skjermleser: `role="status"` montert med innhold, spinnertekst uten live-semantikk, kontrast og `text-sm` (blind-hunter): low, samme som B6. Teksten er koblet med `aria-describedby`, axe består, og kontrast følger tokenene i `DESIGN.md`.
+- `onBlur`-sjekken for «Send inn» virker ikke i Safari og Firefox på macOS (blind-hunter): low. Verifisert at `relatedTarget` da er `null`, så det gamle forholdet gjelder (innsendingen venter på forslaget, opptil 5 s med en ekte leverandør, ikke med mock). Påstanden om at klikket svelges er false, siden knappen ikke deaktiveres mens forslaget går.
+- `summary` limt på som `ReportField | "summary"` (blind-hunter): low, bare for utviklere, og ingen konkret feil i dag.
+- `response_format` støttes ikke av alle leverandører, prompt-injeksjon, ingen grense på svarstørrelse og dobbel parsing (blind-hunter): low, leverandørvalget er Story 2.5, og utdata valideres mot kategorikodene (B10).
+- Svake testvakter, faste ventetider og ingen test for `AiTag` (blind-hunter): low, samme som B12. Faste ventetider kan bare gi falsk bestått, og e2e dekker `AiTag`.
+- Mock-nøkkelord treffer delstrenger (blind-hunter): false, den frosne teksten sier at ordstammer treffer (B11a).
+- Spinner for alltid hvis kallet aldri svarer (edge-case-hunter): low, samme som E4. Serveren har 5 s tidsavbrudd, og valg og innsending virker.
+- Docs, README og `epic-2-context.md` mangler i diffen (acceptance-auditor): false, de ligger i hele branch-diffen. Jeg utelot dem fra review-diffen. `.env.example` har nøklene uten verdier.
+- Mock-oppsummeringen deler ikke på «første punktum» slik den frosne teksten sier (acceptance-auditor): low, avviket ble valgt i B11b. Rettelsen ville være å redigere spec-en, og Spec Change Log er tom.
+- «Send inn» rett fra beskrivelsen henter ikke forslag, i strid med den frosne blur-regelen (acceptance-auditor): low, valgt i E5 og verifisert med e2e. Rettelsen ville være å redigere spec-en.
+- `suggestReport` importerer `clipInput` fra `validate` utenom `index.ts` (acceptance-auditor): low, bare en hjelpefunksjon og ingen adapter, og dobbel klipping er ufarlig (B8).
+- Implementation Notes sier at «Endre» regnes som en endring, men koden gjør det ikke (acceptance-auditor): low, notatet er utdatert etter B4. Rettelsen er en spec-endring.
+- Pillen skjules mens et senere kall går (acceptance-auditor): low, spec-en sier spinner i pillens sted mens KI-en jobber.
+- Et sent forslag kan skrive over oppsummeringen mens «Endre» står åpen (blind-hunter, acceptance-auditor): low, avgjort av Ali Yousef Abdulla 2026-11-10. Et nytt forslag erstatter bare en KI-tekst brukeren ikke har endret, og å blokkere det ville låst oppsummeringen for resten av skjemaet (mot B4).
+
+#### Runde 2 (bmad-code-review, 2026-11-10, etter patchene over)
+
+Samme omfang som runde 1 (2756 linjer, 21 filer), med patchene fra runde 1. Rå funn: 38 (Blind Hunter 14, Edge Case Hunter 16, Acceptance Auditor 7, Verification Gap 1). Nesten alle er gjentakelser av funn som allerede er avvist. Etter gruppering: 2 patcher og 0 beslutninger.
+
+- [x] [Review][Patch] Et svar som kommer mens innsendingen pågår, forkastes men teller som forrige forslag — `requestSuggestion` setter `lastSuggested.current = text` før kallet, og `if (submitting.current) return;` slipper svaret uten å gjenopprette den. Feiler innsendingen (`id === null`), blir feltet stående uten forslag for den teksten, og et nytt forslag krever 10 nye tegn. Samme feilklasse som E1, én linje: `lastSuggested.current = previousSuggested` i den grenen. Verdikt: low. Kilde: verification-gap+edge-case-hunter. [components/report-form.tsx:171]
+- [x] [Review][Patch] Testen «høyst 2000 tegn sendes» består av feil grunn — `mockResolvedValue(completion(...))` gir samme `Response` til begge kallene, og `mockClear()` fjerner ikke den. Det andre kallet leser en brukt kropp, gir `ugyldig_svar` og `null`, og testen ser bare på forespørselen. Bruk `mockImplementation(async () => completion(...))` og sjekk at begge svarene er forslag. Verdikt: low (verifisert i `index.test.ts:104–114`). Kilde: blind-hunter+edge-case-hunter. [lib/ai/index.test.ts:105]
+
+##### Rejected (runde 2)
+
+- Gjentakelser av avviste funn fra runde 1: gammel KI-tekst står igjen, ingen nytt forsøk etter feil, lås i minnet og ingen kvote, ugyldig økt vises som «ingen forslag», personvernteksten, KI-merking av oppsummeringen, skjermleser og kontrast, `response_format` og prompt-injeksjon, `onBlur` i Safari og Firefox, `clipInput` utenom `index.ts`, mock-stammer og første setning, svake testvakter, faste ventetider, kjerneflyten uten listeboks, `summary` som tillegg til `REPORT_FIELDS`, redundant parsing, delt klipping av stor streng og avviket fra frosset tekst om blur på «Send inn» (blind-hunter, edge-case-hunter, acceptance-auditor): samme verdikt og begrunnelse som i listen over fra runde 1.
+- Ingen måte å skrive en egen oppsummering på når KI-en ikke ga en (edge-case-hunter, acceptance-auditor): low. Verifisert at blokken bare vises når `summary !== ""` eller «Endre» er åpen. Spec-en lover «Endre» på et forslag, og en oppsummering er valgfri. En «Legg til oppsummering»-knapp er en ny funksjon, og er den ønsket, hører den hjemme i en egen story.
+- «Send inn» venter bak et pågående forslag selv med valgt kategori, fordi Next.js kjører Server Actions i kø (edge-case-hunter, acceptance-auditor): low. Samme som E5 (verifisert i runde 1). Forsinkelsen er høyst 5 s og bare med en ekte leverandør, ikke med mock, og ingenting går tapt. Å gå utenom køen krever en annen arkitektur (rute eller avbrudd). Koden og kommentaren «ikke vente på et forslag som ikke trengs» gjelder bare å ikke starte et kall.
+- Et forkastet svar uten forslag gir verken kategori, pille eller melding (edge-case-hunter): low, forkastingen gjenoppretter `lastSuggested` (E1-patchen), og et nytt forslag hentes ved neste blur.
+- HTML-fjerningen sletter tekst etter `<bokstav` («pris x<y kr»), og beholder innholdet i `<script>` (blind-hunter): low, valgt i B9 (en ufullstendig tagg fjernes til slutten). KI-oppsummeringer med `<` foran en bokstav er sjeldne, og React viser alt som tekst. Brukerens egen oppsummering renses ikke, og det er med vilje.
+- `max_tokens` er ikke satt, innholdet kan komme som en liste med deler, og en ikke-OK-kropp avbrytes ikke (blind-hunter, edge-case-hunter): low, leverandørdetaljer som hører til Story 2.5. `max_tokens` er ikke med i den frosne forespørselen.
+- Ingen `server-only` i `lib/ai` (blind-hunter): false. `serverEnv()` kaster i nettleser (kodekartet i spec-en), nøkkelen er ikke `NEXT_PUBLIC_`, og en ny pakke er forbudt.
+- Mock i produksjon uten advarsel (edge-case-hunter): low, mock er standard etter spec-en og står i README. En advarsel er en ny funksjon.
+- Testhjelperne skiller POST-er på «location» (blind-hunter): low, bare for utviklere. Beskrivelsene i testene har et unikt navn uten ordet.

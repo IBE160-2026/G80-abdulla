@@ -113,6 +113,19 @@ describe("parseSuggestion", () => {
     expect(summary("<img src=x onerror=1")).toBeNull();
   });
 
+  test("en tagg som settes sammen av fjerningen, fjernes også", () => {
+    const summary = (value: string) => parseSuggestion(json({ category: "other", summary: value }))?.summary;
+    expect(summary("<<b>script>alert(1)")).toBe("alert(1)");
+    expect(summary("<<b>img src=x onerror=1")).toBeNull();
+    expect(summary("<<b>script>")).toBeNull();
+  });
+
+  test("en oppsummering kortet til 300 tegn ender ikke med mellomrom", () => {
+    const text = `${"a".repeat(299)} ${"b".repeat(50)}`;
+    const result = parseSuggestion(json({ category: "other", summary: text }))?.summary;
+    expect(result).toBe("a".repeat(299));
+  });
+
   test("oppsummeringen kortes til 300 tegn, også med emoji", () => {
     const long = parseSuggestion(json({ category: "other", summary: "a".repeat(400) }));
     expect(long?.summary).toHaveLength(SUMMARY_MAX);

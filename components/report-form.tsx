@@ -168,7 +168,12 @@ export function ReportForm() {
 
     loadingRef.current = false;
     setLoading(false);
-    if (submitting.current) return;
+    if (submitting.current) {
+      // Svaret slippes mens innsendingen pågår. Feiler den, skal teksten kunne
+      // få et forslag senere, så den teller ikke som forrige forslag.
+      lastSuggested.current = previousSuggested;
+      return;
+    }
 
     if (descriptionValue.current.trim() !== text.trim()) {
       // Teksten er endret siden kallet. Svaret forkastes, og er brukeren ute av

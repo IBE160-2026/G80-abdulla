@@ -114,6 +114,7 @@ test("et forslag velger kategorien med pillen, leses opp og gir en oppsummering"
   await expect(category(page)).toBeFocused();
   await expect(loading(page)).toBeVisible();
   await expect(category(page)).toHaveText("Velg kategori");
+  await expect(category(page)).toHaveAccessibleDescription(/Finner kategori/);
   await expect(liveRegion(page)).toHaveText("");
 
   release();
@@ -327,6 +328,9 @@ test("testordet gir «Vi fikk ikke et forslag», med kategori tom og påkrevd, o
   await page.keyboard.press("Tab");
   await expect(noSuggestion(page)).toBeVisible();
   await expect(category(page)).toHaveText("Velg kategori");
+  await expect(category(page)).toHaveAccessibleDescription(
+    "Vi fikk ikke et forslag. Velg kategori selv.",
+  );
   await expect(category(page)).toHaveAttribute("aria-required", "true");
   await expect(aiTag(page)).toHaveCount(0);
   await expect(editButton(page)).toHaveCount(0);

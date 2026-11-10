@@ -29,17 +29,30 @@ function unfence(text: string): string {
   return match ? match[1].trim() : trimmed;
 }
 
+const TAG = /<\/?[a-zA-Z!][^>]*(?:>|$)/g;
+
 /**
  * Oppsummeringen som ren tekst: HTML-tagger fjernes, mellomrom trimmes, og
- * teksten kortes til `SUMMARY_MAX` tegn (kodepunkter). Tom blir `null`. Bare
+ * teksten kortes til `SUMMARY_MAX` tegn (kodepunkter) og trimmes igjen, så den
+ * ikke ender med mellomrom. Tom blir `null`. Bare
  * tagger som starter med en bokstav, `/` eller `!` fjernes, også en tagg som
  * ikke er lukket (til slutten av teksten). «skilt < 30 og > 50» er vanlig tekst.
  */
 function cleanSummary(value: unknown): string | null {
   if (typeof value !== "string") return null;
-  const text = value.replace(/<\/?[a-zA-Z!][^>]*(?:>|$)/g, "").trim();
+  // Fjerner i runder til teksten er stabil: å fjerne en tagg kan sette sammen
+  // en ny («<<b>script>» gir «<script>» etter én runde).
+  let stripped = value;
+  let previous: string;
+  do {
+    previous = stripped;
+    stripped = stripped.replace(TAG, "");
+  } while (stripped !== previous);
+  const text = stripped.trim();
   if (text === "") return null;
-  return charCount(text) <= SUMMARY_MAX ? text : [...text].slice(0, SUMMARY_MAX).join("");
+  return charCount(text) <= SUMMARY_MAX
+    ? text
+    : [...text].slice(0, SUMMARY_MAX).join("").trim();
 }
 
 /**
