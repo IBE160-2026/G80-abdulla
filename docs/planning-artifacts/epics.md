@@ -795,6 +795,11 @@ slik at KI-leverandøren velges ut fra målinger, og det åpne spørsmålet i PR
 **Så** står resultatene og begrunnelsen i `docs/beslutninger/`, spørsmål 1 i PRD §11 er lukket, raden i Deferred i arkitekturen er oppdatert, og `.env.example` viser variablene for den valgte leverandøren uten nøkkel (NFR-3)
 **Og** oppfyller ingen leverandør kravene, står det i beslutningsloggen, og appen bruker fortsatt mock som standard
 
+**Gitt** at dette er siste story i epicen
+**Når** den er ferdig
+**Så** er README fulgt steg for steg på en ny klone i en tom mappe, uten `.env` og uten installerte avhengigheter
+**Og** alt som ikke virket, er rettet i README, og resultatet står i PR-beskrivelsen (SM-7)
+
 ## Epic 3: Finne rapporter og si «jeg har også sett dette»
 
 Brukeren filtrerer på kategori og status og sorterer på «Nyeste» eller «Flest har sett». Innloggede finner sine egne rapporter med «Mine rapporter» og kan bekrefte andres rapporter én gang.
@@ -939,6 +944,11 @@ slik at moderatoren ser hvor mange problemet gjelder, og rapporten klatrer i lis
 **Når** axe-sjekken kjøres
 **Så** er det ingen funn med alvorlighet «serious» eller «critical»
 **Og** kjerneflyttesten bekrefter en rapport bare med tastatur (NFR-8, SM-2)
+
+**Gitt** at dette er siste story i epicen
+**Når** den er ferdig
+**Så** er README fulgt steg for steg på en ny klone i en tom mappe, uten `.env` og uten installerte avhengigheter
+**Og** alt som ikke virket, er rettet i README, og resultatet står i PR-beskrivelsen (SM-7)
 
 ## Epic 4: Moderator følger opp sakene
 

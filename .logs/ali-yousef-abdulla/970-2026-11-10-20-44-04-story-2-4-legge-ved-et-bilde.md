@@ -68,3 +68,20 @@ Brukeren ba under walkthroughen om flere elicitation-metoder på feilhåndtering
 - Telefonbilder over 5 MB avvises uten hjelp: avgjør nedskalering i nettleseren eller høyere grense, og i så fall som egen story eller endring av kravet.
 - Før drift: plattformens grense for forespørselsstørrelse (for eksempel Vercel 4,5 MB, ikke verifisert) må være minst 5 MiB pluss overhead.
 - Full `npm test` er ikke kjørt etter review-patchene og elicitation-endringene i koden.
+
+## 2026-11-10 kl. 21:22 — Ali Yousef Abdulla
+
+### Oppgave
+Brukeren ba om å fullføre walkthroughen for Story 2.4 og flette PR #55 når full `npm test` var grønn.
+
+### Plan
+- Full `npm test` på nytt, siden serverkoden endret seg etter den første fulle kjøringen (review-patcher, signatursjekk og lat lasting av `sharp`). Så oppdatere PR-beskrivelsen, sette story 2.4 til `done` og flette med vanlig merge-commit.
+- Loggcommiten på en lokal branch `logg/story-2-4-flettet` fra oppdatert `main`, som for Story 2.3. Ikke pushet.
+
+### Resultat
+- **Testkjøring:** `npm test` exit 0 på 8,0 min (482 s): Vitest `unit` 694/694 uten typefeil, pgTAP 180/180, Vitest `db` 36/36 og Playwright 192 bestått. Bucketen har bare seed-objektene etterpå.
+- **PR #55** («Story 2.4: Legge ved et bilde», lukker #32) er flettet til `main` som `cef114f` (merge-commit), 2026-11-10 kl. 21:15 UTC. Issue #32 er lukket. Story 2.4 er `done` i spec-filen og `sprint-status.yaml` (commit `99cecfb` på branchen).
+- Walkthroughen er fullført (orientering, gjennomgang, risikospots og testforslag), med to elicitation-runder som ga rettelsen `2d3ab74` og dokumentasjonen `3b03797`. `.impeccable/` er gitignorert (`2ad8fa2`).
+
+### Åpne punkter
+- Ingen nye. Punktene om telefonbilder over 5 MB, plattformens grense for forespørselsstørrelse før drift, foreldreløse filer og lås mot parallelle opplastinger står i `issues.md`. Neste story er 2.5 (SM-5-testen).

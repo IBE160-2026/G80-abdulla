@@ -78,7 +78,7 @@ action_items:
     action: "Legg README-sjekken på ny klone inn som eget akseptansekriterium på Story
       2.5 og Story 3.3 i epics.md, slik Story 4.3 har det."
     owner: "Ali Yousef Abdulla"
-    status: open
+    status: done
     ref: "docs/implementation-artifacts/epic-1-retro-2026-11-10.md"
   - id: "epic-1-retro-item-3-velg-hvordan-bucketen-ryddes-mellom-test"
     epic: 1
@@ -92,7 +92,7 @@ action_items:
     action: "Legg .claude/** i globalIgnores i eslint.config.mjs, så Impeccable-filene
       ikke gir 93 lint-advarsler."
     owner: "Ali Yousef Abdulla"
-    status: open
+    status: done
     ref: "docs/implementation-artifacts/epic-1-retro-2026-11-10.md"
   - id: "epic-1-retro-item-5-prosessregel-for-tester-bruk-enkeltprosj"
     epic: 1

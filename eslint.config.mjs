@@ -8,7 +8,8 @@ const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
   // playwright-report/ og test-results/ lages av Playwright og har trace-
-  // visningen som bundlet JavaScript når en test feiler.
+  // visningen som bundlet JavaScript når en test feiler. .claude/ har
+  // Impeccable-filene (skills og skript), som ikke er en del av appen.
   globalIgnores([
     ".next/**",
     "out/**",
@@ -16,6 +17,7 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     "playwright-report/**",
     "test-results/**",
+    ".claude/**",
   ]),
 ]);
 
