@@ -47,6 +47,7 @@ describe("summarize", () => {
       slow: 0,
       suspectLanguage: 1,
       noSummary: 0,
+      authRejected: 0,
     });
   });
 
@@ -96,6 +97,36 @@ describe("decide: gyldige svar", () => {
 
   test("tom kjøring består aldri", () => {
     expect(decide(summarize([])).measurablePass).toBe(false);
+  });
+});
+
+describe("decide: avvist nøkkel", () => {
+  const rejected = (code: string) =>
+    result({ answer: null, summary: null, status: "error", code, ms: 120 });
+
+  test("401 og 403 gir «ugyldig kjøring», ikke «ikke bestått»", () => {
+    for (const code of ["http_401", "http_403"]) {
+      const decision = decide(summarize(Array.from({ length: 20 }, () => rejected(code))));
+      expect(summarize([rejected(code)]).authRejected).toBe(1);
+      expect(decision.measurablePass).toBe(false);
+      expect(decision.verdict).toMatch(/^kjøringen er ugyldig, ikke målt/);
+      expect(decision.verdict).toMatch(/20 av 20 kall/);
+      expect(decision.verdict).not.toBe("ikke bestått");
+    }
+  });
+
+  test("også når noen kall feiler på andre måter (som tidsavbrudd blant 401-ene)", () => {
+    const results = Array.from({ length: 20 }, () => rejected("http_401"));
+    results[9] = result({ answer: null, summary: null, status: "timeout", code: "timeout", ms: 5027 });
+    expect(decide(summarize(results)).verdict).toMatch(/19 av 20 kall/);
+  });
+
+  test("andre feil, som 429 og 500, er fortsatt «ikke bestått»", () => {
+    for (const code of ["http_429", "http_500"]) {
+      const decision = decide(summarize(Array.from({ length: 20 }, () => rejected(code))));
+      expect(summarize([rejected(code)]).authRejected).toBe(0);
+      expect(decision.verdict).toBe("ikke bestått");
+    }
   });
 });
 

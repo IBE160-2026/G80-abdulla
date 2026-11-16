@@ -34,6 +34,8 @@ export type Summary = {
   suspectLanguage: number;
   /** Gyldige svar uten oppsummering: språket kan ikke sjekkes for dem. */
   noSummary: number;
+  /** Kall leverandøren avviste med 401 eller 403: nøkkelen eller tillatelsen er feil, så kjøringen måler ikke modellen. */
+  authRejected: number;
 };
 
 export function summarize(results: readonly CaseResult[]): Summary {
@@ -48,6 +50,7 @@ export function summarize(results: readonly CaseResult[]): Summary {
     slow: results.filter((r) => r.status === "timeout" || r.ms >= MAX_MS).length,
     suspectLanguage: results.filter((r) => r.summary !== null && isSuspect(r.summary)).length,
     noSummary: results.filter((r) => r.status === "ok" && r.summary === null).length,
+    authRejected: results.filter((r) => r.status === "error" && (r.code === "http_401" || r.code === "http_403")).length,
   };
 }
 
@@ -72,7 +75,10 @@ export function decide(summary: Summary): Decision {
   const measurablePass = hitsOk && validOk && speedOk;
 
   let verdict: string;
-  if (!measurablePass) {
+  if (summary.authRejected > 0) {
+    // 401 og 403 sier noe om nøkkelen eller tillatelsen, ikke om modellen: ikke la det se ut som at leverandøren strøk.
+    verdict = `kjøringen er ugyldig, ikke målt: leverandøren avviste nøkkelen (http_401 eller http_403) i ${summary.authRejected} av ${summary.total} kall. Rett nøkkelen eller tillatelsen og kjør på nytt`;
+  } else if (!measurablePass) {
     verdict = "ikke bestått";
   } else if (summary.suspectLanguage > 0) {
     verdict = `målingene er bestått, men ${summary.suspectLanguage} oppsummering(er) har mistenkte ord: les dem før valget`;

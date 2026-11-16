@@ -40,8 +40,9 @@ function line(result: CaseResult): string {
     const hint = languageHint(result.summary);
     const words = [...hint.nynorsk, ...hint.dansk];
     const flag = words.length > 0 ? ` [mistenkt språk: ${words.join(", ")}]` : "";
-    // Styretegn (linjeskift, ESC) fra en modell skal ikke bryte oppsettet.
-    const safe = result.summary.replace(/[\u0000-\u001f\u007f]+/g, " ");
+    // Styretegn (linjeskift, ESC, C1 som U+009B, linje- og avsnittsskille og
+    // dobbeltrettingstegn) fra en modell skal ikke bryte oppsettet eller terminalen.
+    const safe = result.summary.replace(/[\u0000-\u001f\u007f-\u009f\u2028\u2029\u202a-\u202e\u2066-\u2069]+/g, " ");
     text += `\n         oppsummering: ${safe}${flag}`;
   }
   return text;

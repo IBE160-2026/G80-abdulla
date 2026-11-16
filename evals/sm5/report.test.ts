@@ -121,6 +121,14 @@ describe("formatReport: linjer og sammendrag", () => {
     expect(text).not.toContain("\u001b");
     expect(text).not.toContain("Første linje\nandre");
   });
+
+  test("C1-tegn, linjeskille og dobbeltrettingstegn i en oppsummering blir mellomrom", () => {
+    const all = results();
+    all[0] = { ...all[0], summary: "a\u009b31mb\u2028c\u2029d\u202ee\u2066f\u2069g" };
+    const text = formatReport({ provider: "mock" }, all).join("\n");
+    expect(text).toContain("oppsummering: a 31mb c d e f g");
+    expect(text).not.toMatch(/[\u0080-\u009f\u2028\u2029\u202a-\u202e\u2066-\u2069]/);
+  });
 });
 
 describe("hostOf", () => {
