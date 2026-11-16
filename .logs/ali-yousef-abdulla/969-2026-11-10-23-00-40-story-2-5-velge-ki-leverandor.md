@@ -49,3 +49,31 @@ Få Story 2.5 ut som PR og begynne på selve leverandørtesten (SM-5) mot en KI-
 - Rett `http_401`: lag/rett Cloudflare API-token (tillatelse Workers AI), sjekk kontoens ID i `AI_BASE_URL`, kjør testen på nytt og gi utskriften til Claude.
 - Etter vellykket kjøring: føre resultat og valg i beslutningsloggen, lukke PRD §11 spørsmål 1, oppdatere Deferred-raden i arkitekturen og `.env.example` (uten nøkkel). Noter at modellen er `@cf/openai/gpt-oss-120b`, og skriv hvis Groq og Mistral ble utelatt.
 - PR #57: full `npm test` med kjøretid og README-sjekk på ny klone er ikke gjort.
+
+## 2026-11-16 kl. 17:44 — Ali Yousef Abdulla
+
+### Oppgave
+Finne ut hva som gjenstår for Story 2.5 (`/bmad-help`), sjekke Cloudflare-401-en, og kjøre code review av PR #57 før den flettes. Etterpå sjekke at alt i PR-en stemmer, og committe og pushe review-rettelsene.
+
+### Plan
+- `bmad-help`: lese sprintstatus, PR og logger, og anbefale neste steg.
+- Cloudflare-401: lese koden (`lib/ai/openai.ts`, `vitest.config.ts`, `evals/sm5/`) og sjekke token og konto-ID uten å vise nøkkelen.
+- `bmad-code-review` av PR #57 med fire underagenter (Blind Hunter, Edge Case Hunter, Verification Gap, Acceptance Auditor), triage mot koden, funnene i spec-en (`### Review Findings`) og utsatte punkter i `docs/implementation-artifacts/deferred-work.md`.
+- Rette patchene, kontrollere PR #57 (CI, konflikter, hemmeligheter, påstandene i PR-teksten), committe og pushe.
+
+### Resultat
+- **Cloudflare-401:** koden er riktig (`POST {AI_BASE_URL}/chat/completions` med `Bearer`, riktig adresseform). 401-en kommer fra tokenet eller kontoen. Auto-modus stoppet forsøket på å inspisere selve nøkkelen, og jeg lot det ligge. To `curl`-kommandoer (`/user/tokens/verify` og et kall mot chat-endepunktet, med nøkkelen lest fra `.env.groq`) ble gitt til Ali. De er ikke kjørt ennå, så årsaken er ikke bekreftet.
+- **Code review:** 38 funn fra fire reviewere, verifisert mot koden: 1 manglende test, 4 patcher, 1 utsatt (AC 4 og «Ferdig»-definisjonen, sporet i `issues.md`) og 25 avvist. Fire påstander ble motbevist (NFD-testen bruker faktisk dekomponert å, `vite` er deklarert, `.env.groq` er gitignorert, exit 0 er valgt i spec-en). Blind Hunter og Verification Gap var uenige om NFC-testen; bytene ga Verification Gap rett.
+- **Test av `vitest.config.ts`:** Ali svarte først «la det stå» (utsatt i `deferred-work.md`), ba så om at testen ble laget. Ny `vitest.config.test.ts` (6 tester). Kontrollert ved å bryte config tre ganger: hver gang feilet nøyaktig én test.
+- **Patcher:** (1) `score.ts` gir «kjøringen er ugyldig, ikke målt» ved minst ett kall med `http_401` eller `http_403`, med tre tester (valgt «minst ett» i stedet for «alle feilrader», siden Cloudflare-kjøring 2 hadde et tidsavbrudd blant 401-ene), (2) README og kommentaren i `vitest.config.ts` nevner `.env.local` og de andre `loadEnv`-filene, (3) innrykket i `vitest.config.ts`, (4) styretegnfilteret i `report.ts` (C1, U+2028/2029, dobbeltrettingstegn) med test. Underveis skrev Edit-verktøyet escape-sekvensene som rå linjeskilletegn og ødela regexen; rettet med `sed`.
+- **Kontroll av PR #57 (på PR-grenen uten endringene mine, via `git stash`):** `MERGEABLE`/`CLEAN`, ingen konflikt mot `main` (to nye dokumentcommits der), ingen hemmeligheter i diffen eller sporede filer, lint 0 funn, 814 av 814 enhetstester, `npm run build` ok, `eval:sm5` mot mock 17 av 20 med advarselen først og sist. Ingen CI-sjekker rapportert på grenen.
+- **Etter rettelsene:** lint 0 funn, `tsc --noEmit` rent, 828 av 828 enhetstester (72 filer).
+- **Commit og push:** `3d8d1db` «Story 2.5: rettelser etter code review av PR #57» (ni filer), pushet til `story/2-5-velge-ki-leverandor`. Loggcommiten `b11ccb4` (økten 2026-11-10, Cloudflare-401) fulgte med i pushen. PR-beskrivelsen er oppdatert: to review-runder, 828 bestått, Cloudflare-prøvene, `Refs #33` beholdt. Spec-status `in-review` og sprintstatus `review` er uendret, siden AC 4 ikke er oppfylt.
+- Spec og `deferred-work.md` har Review Findings og det utsatte AC 4-punktet.
+
+### Åpne punkter
+- Rett `http_401`: kjør de to `curl`-kommandoene, rett token og konto-ID, og kjør `npm run eval:sm5 -- --mode groq` på nytt (allerede i `issues.md`).
+- Etter vellykket kjøring: resultat og valg i beslutningsloggen (også avklaringene i konsollene), PRD §11 spørsmål 1, Deferred-raden og `.env.example` (allerede i `issues.md`).
+- Full `npm test` med kjøretid og README-sjekk på ny klone før flett, og `Closes #33` i siste PR-versjon (allerede i `issues.md`).
+- `npm run build` og `npm run eval:sm5` mot mock er ikke kjørt etter review-rettelsene (`3d8d1db`); kjør dem før flett.
+- Ingen CI på PR-er: `gh pr checks 57` viser ingen sjekker, så ingenting automatisk bekrefter lint og tester; vurder GitHub Actions.
