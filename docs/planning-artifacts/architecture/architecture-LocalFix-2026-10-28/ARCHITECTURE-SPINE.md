@@ -309,7 +309,7 @@ localfix/
 
 | Utsatt | Hvorfor det kan vente | Revisit |
 | --- | --- | --- |
-| Endelig KI-leverandør (foreløpig Cloudflare Workers AI, Gemma 4 26B A4B; nest beste Groq) | Avgjøres av SM-5-testen bak AD-8 | Når SM-5 er kjørt |
+| Bytte av KI-leverandør (valgt 2026-11-18: Cloudflare Workers AI, `@cf/openai/gpt-oss-20b`, etter SM-5; Gemma 4 26B A4B besto ikke) | Valget er tatt og står i beslutningsloggen. Bak AD-8 byttes leverandør med tre variabler i `.env`. Groq og Mistral er ikke målt, og `reasoning_effort` i adapteren er ikke sjekket mot dem | Hvis Cloudflare ikke lenger passer: kjør `npm run eval:sm5` mot den nye leverandøren før bytte |
 | Kompatibilitet mellom shadcn CLI 4.x og startpakkens Tailwind 3.4, og mellom Vitest 5 og Next.js | Ikke sjekket | Ved oppstart: `npx shadcn@4.23.0 add button`, og sjekk at `globals.css` ikke får v4-syntaks. Støtter ikke CLI 4 Tailwind 3.4, låses siste CLI som gjør det, og Tailwind oppgraderes ikke |
 | Kobling av rapporter og bekreftelser til én person via `author_id`, `user_id` og bildemappen i lenken (AD-5) | Godtatt i v1, som bare kjører lokalt med testdata. Lukkes ved å bruke bildenavn uten forfattermappe (eier fra Storage) og skjule forfatteren i API-et | Før appen settes i drift (PRD §6.2) |
 | Opprydding av bildefiler som blir liggende etter en feilet innsending | Ingen kan lese dem (AD-6), og lokalt koster de bare plass | Før appen settes i drift |

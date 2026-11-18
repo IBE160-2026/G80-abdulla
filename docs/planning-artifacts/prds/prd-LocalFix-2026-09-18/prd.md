@@ -13,6 +13,8 @@ Dette dokumentet er skrevet for prosjektdeltakeren selv, som er PM, designer og 
 
 Funksjonene er gruppert, med globalt nummererte funksjonelle krav (FR-N) under hver gruppe. Brukerreiser heter UJ-N og suksessmetrikker SM-N. Tekniske valg, altså *hvordan* noe bygges, står i `prd-addendum.md`, ikke her. Gjenværende antagelser er samlet i §12.
 
+**Endringer 2026-11-18:** SM-5-testen er kjørt mot Cloudflare Workers AI, og det åpne spørsmålet om KI-leverandør (§11) er lukket: valget er `gpt-oss-20b` (Gemma 4 26B A4B besto ikke). Ingen krav er endret.
+
 **Endringer 2026-11-04:** PRD-en er gått gjennom mot arkitekturen. V1 kjøres bare lokalt med testdata (§6). En innlogget bruker kan filtrere på «Mine rapporter» for å finne igjen sine egne rapporter (FR-6, UJ-3). Sortering etter dato gjelder registreringstidspunktet. Kategori er påkrevd, og tekstfeltene har en øvre lengde (FR-3, FR-4). En bekreftelse kan ikke angres, og et problem som kommer tilbake etter **Løst**, meldes som en ny rapport (FR-7). Telleren «har sett dette» teller med rapportøren, så en ny rapport viser 1 (§3, FR-5). En skjult rapport forsvinner også for rapportøren (FR-9). Å redigere eller slette en rapport og å slette sin egen konto er utenfor v1 (§6.2). Universell utforming er et nytt krav, med en konkret kontroll (NFR-8). Rapporter og bekreftelser vises uten navn (§8). KI-leverandøren velges med SM-5-testen i implementeringen, og spørsmålet om hvem som er moderator, stopper ikke v1 (§11). I tillegg er FR-3, FR-9, UJ-3 og mot-metrikkene i §10 presisert.
 
 **Endringer 2026-10-29:** Visjonen skiller LocalFix tydeligere fra FiksGataMi, som også har kommentar og «bekreft» (§1). Detaljsiden skal vise når statusen sist ble endret (FR-8). Hvem moderator er i praksis, og hva som skjer med en sak moderator ikke kan fikse, er ført som åpent spørsmål (§11). Ingen andre krav er endret.
@@ -264,13 +266,14 @@ Mot-metrikkene kan først måles når appen settes i drift. V1 kjøres bare loka
 
 ## 11. Åpne spørsmål
 
-1. **Hvilken språkmodell og hvilken leverandør?** Leverandøren må ha et gratisnivå (NFR-7), slik faglæreren ba om. **Ikke lukket.**
-   - **Foreløpig valg:** Cloudflare Workers AI med Gemma 4 26B A4B. **Nest beste:** Groq med gpt-oss-120b.
-   - **Grunnlag:** Researchen `docs/planning-artifacts/research/technical-ki-leverandor-gratisniva-norsk-klassifis-2026-10-28/research.md` (2026-10-28). Den fant ingen klar vinner og ingen uavhengig måling av norsk kvalitet for noen kandidat, så valget er en kvalifisert favoritt og ikke en avgjørelse.
-   - **Lukkes når** SM-5-testsettet er kjørt mot Cloudflare, Groq og Mistral, bare med testdata, og vinneren treffer minst 16 av 20, gir gyldig JSON hver gang, svarer på under 5 sekunder (FR-4) og ikke viser dansk eller nynorsk i sammendragene ved en språk-ID-sjekk.
-   - **Avklares før valget:** om Cloudflare krever betalingskort for gratisnivået, hvor Cloudflare kjører inferensen, og hva gratisgrensene hos Groq og Mistral faktisk er i konsollen.
+1. **Hvilken språkmodell og hvilken leverandør?** Leverandøren må ha et gratisnivå (NFR-7), slik faglæreren ba om. **Lukket 2026-11-18** (SM-5-testen er kjørt).
+   - **Valg:** Cloudflare Workers AI med `@cf/openai/gpt-oss-20b`, via det OpenAI-kompatible endepunktet og adapteren i `lib/ai`. Appen bruker fortsatt mock som standard (NFR-2), til en nøkkel legges i `.env`.
+   - **Resultat (20 oppdiktede testtekster, bare testdata sendt):** `gpt-oss-20b` traff 19 av 20 i begge kjøringer, ga gyldig svar 20 av 20 ganger og svarte på høyst 2780 ms (snitt 1105 til 1195 ms). Bommen var den tvetydige sm5-08 (fasit `lighting`, svar `roads_sidewalks`). Oppsummeringene var norsk bokmål uten dansk eller nynorsk. Kravene (minst 16 av 20, gyldig hver gang, under 5 s hver gang, ikke dansk eller nynorsk) er oppfylt.
+   - **Ikke valgt:** Gemma 4 26B A4B (forrige foreløpige valg) ga bare 7 gyldige svar av 20 og 13 over 5 s, så den består ikke. `gpt-oss-120b` besto også (18 av 20, høyst 2000 ms), men er ikke bedre og mer ressurskrevende. Groq og Mistral er ikke målt (ingen nøkler), så de er ikke avvist.
+   - **Adapteren:** Resonneringsmodellene ga tomt svar på en tvetydig tekst før adapteren fikk `reasoning_effort: "low"` og `max_tokens: 1000`. Alle leverandører ble kjørt om igjen etter endringen. Hele målingen, med tall fra før og etter, står i `docs/beslutninger/arkitektur-beslutningslogg.md`.
    - **Utelatt:** Gemini på gratisnivå brukes ikke med ekte brukerdata (se §8).
-   - Leverandøren velges når SM-5-testen er kjørt, i implementeringen. Arkitekturen valgte ikke leverandør, men la KI-kallet bak et grensesnitt med mock-modus, så valget kan tas sent. Researchen må oppdateres etter 2027-01-28.
+   - **Ikke avklart i konsollen ennå:** om Cloudflare krever betalingskort, hvor Cloudflare kjører inferensen, og gratisgrensene hos Groq og Mistral. De stopper ikke valget, men må føres før Story 2.5 er ferdig.
+   - Grunnlag: researchen `docs/planning-artifacts/research/technical-ki-leverandor-gratisniva-norsk-klassifis-2026-10-28/research.md` (2026-10-28), som må oppdateres etter 2027-01-28.
 
 2. **Hvem er moderator i praksis, og hva skjer med en sak moderator ikke kan fikse?** **Ikke lukket.**
    - **Grunnlag:** Researchen (2026-10-29) fant ingen kanal ved HiM for hverdagsfeil utendørs, og eierskapet til belysning, gangveier og fortau rundt campus (kommune, fylke, HiM eller Statsbygg) er ikke funnet. Moderator kan oppdatere status, men trolig ikke selv utbedre. Uten en som kan handle, kan **Løst** bli en påstand uten dekning (SM-C2).

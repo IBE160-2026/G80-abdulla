@@ -70,8 +70,8 @@ context:
 - [x] `evals/sm5/testset.ts` (+ formtest) -- 20 beskrivelser, fire per kategori, fasit, to tvetydige med begrunnelse
 - [x] `evals/sm5/score.ts`, `language.ts`, `report.ts` (+ tester) -- poengsum, avgjørelse med grenseverdiene, språkhint og utskrift med mock-advarsel; ingen nøkkel i utskriften
 - [x] `evals/sm5/run.eval.ts`, `vitest.config.ts`, `package.json` -- `npm run eval:sm5`, ikke med i `npm test`; kjør mot mock og kontroller utskriften
-- [ ] `docs/beslutninger/arkitektur-beslutningslogg.md` -- (byggevalgene er ført) avklaringene med kilde og dato, og (etter svaret på åpent spørsmål 1) resultat og valg
-- [ ] `docs/prd.md` og PRD i planleggingsmappa, ARCHITECTURE-SPINE (Deferred), `.env.example`, `README.md` -- lukk spørsmål 1 og oppdater raden og variablene etter resultatet
+- [x] `docs/beslutninger/arkitektur-beslutningslogg.md` -- resultat, valg og adapterendring ført 2026-11-18. **Ikke gjort:** avklaringene fra konsollene (betalingskort, inferenssted, gratisgrenser, trening hos Mistral) står som åpent punkt i loggen
+- [x] `docs/prd.md` og PRD i planleggingsmappa, ARCHITECTURE-SPINE (Deferred), `.env.example`, `README.md` -- spørsmål 1 lukket, raden og variablene oppdatert 2026-11-18 (`.env.example` beholder `AI_PROVIDER=mock`, Cloudflare som kommentert eksempel)
 - [ ] README på en ny klone -- følg den steg for steg i en tom mappe, rett det som ikke virket, skriv resultatet til PR-beskrivelsen (krever at Docker Desktop virker)
 
 **Acceptance Criteria:**
@@ -121,6 +121,8 @@ Code review av PR #57 (2026-11-16): Blind Hunter, Edge Case Hunter, Verification
 - **Venter på prosjekteieren (omfang A):** de tre siste oppgavene. Kjør `npm run eval:sm5 -- --mode <leverandør>`, gjør avklaringene i konsollene, og gi meg utskriftene. Deretter føres resultat og valg, PRD §11 lukkes (begge kopier), Deferred-raden og `.env.example` oppdateres, og README følges på en ny klone (Docker Desktop kreves). Storyen blir ikke `done` før det.
 
 ## Spec Change Log
+
+- 2026-11-18: Etter at Cloudflare-kjøringene ga `content: null` på sm5-08 (resonneringsmodellene gpt-oss), fikk `lib/ai/openai.ts` `reasoning_effort: "low"` og `max_tokens: 1000`. Spec-en sier at hele testsettet da kjøres om igjen for alle leverandører, og det er gjort for `gpt-oss-20b` (to ganger), `gpt-oss-120b` og Gemma. Valgt: `gpt-oss-20b`. Åpent: avklaringene fra konsollene, full `npm test` og README på ny klone.
 
 ## Review Triage Log
 
