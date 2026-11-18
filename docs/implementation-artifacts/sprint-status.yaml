@@ -29,7 +29,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 # - Retrospective appends its action items to action_items; the status view surfaces open ones
 generated: 11-06-2026 20:57
-last_updated: 11-18-2026 12:30
+last_updated: 11-18-2026 13:04
 project: LocalFix
 project_key: NOKEY
 tracking_system: file-system
@@ -51,7 +51,7 @@ development_status:
   2-3-ki-forslag-for-kategori-og-oppsummering: done
   2-4-legge-ved-et-bilde: done
   2-5-velge-ki-leverandør-med-sm-5-testen: done
-  epic-2-retrospective: optional
+  epic-2-retrospective: done
 
   epic-3: backlog
   3-1-filtrere-og-sortere-lista: backlog
@@ -99,5 +99,43 @@ action_items:
     action: "Prosessregel for tester: bruk enkeltprosjekter under arbeidet, kjør full
       npm test én gang per story før PR, og skriv kjøretiden i PR-beskrivelsen."
     owner: "Ali Yousef Abdulla"
-    status: open
+    status: done
     ref: "docs/implementation-artifacts/epic-1-retro-2026-11-10.md"
+  - id: "epic-2-retro-item-6-finn-og-rett-årsaken-til-den-ustabile-e2"
+    epic: 2
+    action: "Finn og rett årsaken til den ustabile e2e/les/innlogging.spec.ts (:98
+      og :44): reproduser med --repeat-each i CI og sjekk om router.refresh() remonterer
+      UserMenu (Story 2.1 B4)."
+    owner: "Ali Yousef Abdulla"
+    status: open
+    ref: "docs/implementation-artifacts/epic-2-retro-2026-11-18.md"
+  - id: "epic-2-retro-item-7-før-avklaringene-fra-cloudflare-konsolle"
+    epic: 2
+    action: "Før avklaringene fra Cloudflare-konsollen (betalingskort, inferenssted)
+      og gratisgrensene hos Groq og Mistral i beslutningsloggen før appen settes i
+      drift."
+    owner: "Ali Yousef Abdulla"
+    status: open
+    ref: "docs/implementation-artifacts/epic-2-retro-2026-11-18.md"
+  - id: "epic-2-retro-item-8-prosessregel-når-et-akseptansekriterium"
+    epic: 2
+    action: "Prosessregel: når et akseptansekriterium krever prosjekteierens kontoer,
+      nøkler eller konsoller, skriv det som egne prosjekteieroppgaver i spec-en med
+      avtalt rekkefølge og gjør dem før storyen bygges."
+    owner: "Ali Yousef Abdulla"
+    status: open
+    ref: "docs/implementation-artifacts/epic-2-retro-2026-11-18.md"
+  - id: "epic-2-retro-item-9-avgjør-om-ci-arbeidsflyten-npm-test-yml"
+    epic: 2
+    action: "Avgjør om CI-arbeidsflyten npm-test.yml skal kjøre på alle PR-er (pull_request-trigger)
+      og om den skal blokkere flett."
+    owner: "Ali Yousef Abdulla"
+    status: open
+    ref: "docs/implementation-artifacts/epic-2-retro-2026-11-18.md"
+  - id: "epic-2-retro-item-10-spec-rekonsiliering-ført-at-adapteren-se"
+    epic: 2
+    action: "Spec-rekonsiliering: ført at adapteren sender reasoning_effort low og
+      max_tokens 1000 i Story 2.3-teksten i epics.md eller epic-2-context.md."
+    owner: "Ali Yousef Abdulla"
+    status: open
+    ref: "docs/implementation-artifacts/epic-2-retro-2026-11-18.md"
