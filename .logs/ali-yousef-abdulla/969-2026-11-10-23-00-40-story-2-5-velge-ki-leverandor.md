@@ -77,3 +77,32 @@ Finne ut hva som gjenstår for Story 2.5 (`/bmad-help`), sjekke Cloudflare-401-e
 - Full `npm test` med kjøretid og README-sjekk på ny klone før flett, og `Closes #33` i siste PR-versjon (allerede i `issues.md`).
 - `npm run build` og `npm run eval:sm5` mot mock er ikke kjørt etter review-rettelsene (`3d8d1db`); kjør dem før flett.
 - Ingen CI på PR-er: `gh pr checks 57` viser ingen sjekker, så ingenting automatisk bekrefter lint og tester; vurder GitHub Actions.
+
+## 2026-11-18 kl. 10:48 — Ali Yousef Abdulla
+
+### Oppgave
+Få en gyldig Cloudflare-måling for SM-5, velge KI-leverandør og føre valget i dokumentene (Story 2.5, PR #57). Startet med `/bmad-help` og en sjekk av PR #57 mot Story 2.5-kriteriene.
+
+### Plan
+- Sjekke PR #57 mot akseptansekriteriene (docs, testsett, lint, enhetstester, `eval:sm5` mot mock).
+- Teste Cloudflare-tilkoblingen uten å vise tokenet (`/user/tokens/verify` og ett chat-kall), rette `.env.groq` (`AI_PROVIDER`, `AI_MODEL`) og kjøre testsettet for Gemma, `gpt-oss-120b` og `gpt-oss-20b`.
+- Finne årsaken til ugyldig svar på sm5-08, teste `max_tokens` og `reasoning_effort` med direkte kall, endre adapteren og kjøre alle tre om igjen.
+- Føre resultat og valg i beslutningsloggen, lukke PRD §11 spørsmål 1 (begge kopier), oppdatere Deferred-raden, `.env.example`, README og spec-en.
+
+### Resultat
+- **PR-sjekk:** AC 1–3 oppfylt i kode, AC 4 og «Ferdig» ikke (som avtalt i omfang A). Lint 0 funn, 828 enhetstester, `eval:sm5` mot mock ok.
+- **Cloudflare:** `.env.groq` hadde plassholder som token (årsaken til 401). Nytt token er gyldig (utløper 2027-02-16), men fila manglet `AI_PROVIDER` og `AI_MODEL`; jeg la til `AI_PROVIDER=openai`. Tokenet er aldri skrevet ut.
+- **Før adapterendring:** Gemma 4 26B A4B 1 av 20 (19 tidsavbrudd, den resonnerer ca. 384 tokens), `gpt-oss-120b` 16 av 20 gyldige (to `ugyldig_svar`, to tidsavbrudd), `gpt-oss-20b` 19 av 20 gyldige (sm5-08 `ugyldig_svar`).
+- **Årsak til sm5-08:** `content: null` med `finish_reason: "length"` (resonneringen bruker hele tokenbudsjettet). `max_tokens` alene ga 3 til 17 s; `reasoning_effort: "low"` + `max_tokens: 1000` ga 1,3 til 3,5 s i 8 av 8 kall.
+- **Adapteren endret** (`lib/ai/openai.ts` og `openai.test.ts`): sender `reasoning_effort: "low"` og `max_tokens: 1000`. Alt kjørt om igjen etter endringen: `gpt-oss-20b` 19 av 20, 20 av 20 gyldige, høyst 2187 og 2780 ms (to kjøringer); `gpt-oss-120b` 18 av 20, 20 av 20, høyst 2000 ms; Gemma 7 av 20, 13 over 5 s.
+- **Valg:** Cloudflare Workers AI med `@cf/openai/gpt-oss-20b`. `.env.groq` peker på den. `.env.example` beholder `AI_PROVIDER=mock`, med Cloudflare-verdiene som kommentert eksempel.
+- **Dokumenter:** beslutningsloggen (fire nye linjer: adapterendring, resultat, valg, åpent punkt), PRD §11 spørsmål 1 lukket i begge kopier (+ «Endringer 2026-11-18»), Deferred-raden i ARCHITECTURE-SPINE, README (status og SM-5-avsnitt), `.env.example` og spec-en (oppgaver og Spec Change Log).
+- **Etter endringene:** lint 0 funn, 828 av 828 enhetstester, ingen token i endrede filer.
+- **Commit og push:** `c0b1729` «Story 2.5: valg av KI-leverandør etter SM-5-kjøring mot Cloudflare» (ni filer), pushet til `story/2-5-velge-ki-leverandor` (PR #57). Loggcommiten `6799222` fulgte med i pushen.
+- Kjøringene mot Cloudflare sendte bare de 20 oppdiktede testtekstene.
+
+### Åpne punkter
+- Avklaringene fra Cloudflare-konsollen (betalingskort, inferenssted), gratisgrensene hos Groq og Mistral og treningsinnstillingen hos Mistral er ikke gjort; de står som åpent punkt i beslutningsloggen.
+- `reasoning_effort` i adapteren er bare sjekket mot Cloudflare; test mot Groq/Mistral hvis de blir aktuelle.
+- Full `npm test` med kjøretid, `npm run build` etter adapterendringen og README-sjekk på ny klone gjenstår før Story 2.5 er `done`; bytt til `Closes #33` i PR #57 og sett spec og sprintstatus til `done`.
+- Oppsummeringene fra `gpt-oss-20b` er lest av Claude, ikke bekreftet av Ali (små stilfeil, ikke feil språk).
