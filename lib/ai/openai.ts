@@ -39,6 +39,11 @@ export async function openaiSuggest(
       body: JSON.stringify({
         model: config.model,
         temperature: 0,
+        // Resonneringsmodeller (gpt-oss) kan bruke hele tokenbudsjettet på å
+        // veie en tvetydig tekst og gi `content: null` (SM-5, sm5-08). Lav
+        // innsats holder svaret kort og raskt, og taket gir et komplett svar.
+        reasoning_effort: "low",
+        max_tokens: 1000,
         response_format: { type: "json_object" },
         messages: [
           { role: "system", content: SYSTEM_PROMPT },

@@ -49,6 +49,8 @@ describe("openaiSuggest", () => {
     expect(body.model).toBe("test-modell");
     expect(body.temperature).toBe(0);
     expect(body.response_format).toEqual({ type: "json_object" });
+    expect(body.reasoning_effort).toBe("low");
+    expect(body.max_tokens).toBe(1000);
     expect(body.messages).toHaveLength(2);
     expect(body.messages[0].role).toBe("system");
     expect(body.messages[0].content).toMatch(/category/);

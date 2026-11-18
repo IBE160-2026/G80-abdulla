@@ -13,6 +13,7 @@
     "test:unit": "vitest run --configLoader runner --project unit",
     "test:db": "npx supabase db reset && node scripts/db-types.mjs --check && npx supabase test db && vitest run --configLoader runner --project db",
     "test:e2e": "playwright test",
+    "eval:sm5": "vitest run --configLoader runner --project sm5 --reporter=verbose",
     "db:types": "node scripts/db-types.mjs"
   },
   "dependencies": {
