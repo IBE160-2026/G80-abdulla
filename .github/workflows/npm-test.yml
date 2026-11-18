@@ -1,0 +1,54 @@
+# Kjører `npm test` på en ny GitHub-kjører, med de samme stegene som README
+# («Start appen» og «Kjør testene»). Brukes når testene ikke kan kjøres lokalt,
+# og som en uavhengig kontroll fra en ren klone. Tidene per steg står i
+# kjøringen på GitHub (Actions → npm test → jobben).
+#
+# Starter ved push til en gren som heter ci/... og manuelt (workflow_dispatch).
+# Den bruker ingen hemmeligheter, og KI står på mock (som i .env.example).
+name: npm test
+
+on:
+  push:
+    branches: ["ci/**"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: npm ci
+        run: npm ci
+
+      - name: Start lokal Supabase
+        run: npx supabase start
+
+      - name: Kopier .env.example til .env
+        run: cp .env.example .env
+
+      - name: Installer nettleseren til Playwright
+        run: npx playwright install --with-deps chromium
+
+      - name: npm test
+        run: npm test
+
+      - name: Lagre Playwright-rapporten
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          if-no-files-found: ignore
+          retention-days: 7
