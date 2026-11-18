@@ -100,9 +100,12 @@ Få en gyldig Cloudflare-måling for SM-5, velge KI-leverandør og føre valget 
 - **Etter endringene:** lint 0 funn, 828 av 828 enhetstester, ingen token i endrede filer.
 - **Commit og push:** `c0b1729` «Story 2.5: valg av KI-leverandør etter SM-5-kjøring mot Cloudflare» (ni filer), pushet til `story/2-5-velge-ki-leverandor` (PR #57). Loggcommiten `6799222` fulgte med i pushen.
 - Kjøringene mot Cloudflare sendte bare de 20 oppdiktede testtekstene.
+- **Build og full `npm test` (senere samme dag):** `npm run build` ok (15,7 s). `npm test` stoppet på `test:db`: Windows' programkontroll blokkerer `node_modules/@supabase/cli-windows-x64/bin/supabase.exe` («En programkontrollpolicy har blokkert denne filen»). `supabase-go.exe` i samme mappe er ikke blokkert, men kan bare `db diff`, så `SUPABASE_CLI_BINARY_OVERRIDE` hjalp ikke. `test:unit` besto (828 av 828, 9,6 s). `db`, pgTAP og Playwright er ikke kjørt, og databasen er ikke nullstilt. Jeg prøvde ikke å omgå policyen. Ingen kjøretid for full `npm test`.
+- **PR #57:** beskrivelsen er skrevet om med valget, SM-5-tabellen over alle kjøringer, adapterendringen og en ærlig testtabell (`db`, pgTAP og Playwright «ikke kjørt», med årsaken). `Refs #33` beholdt.
 
 ### Åpne punkter
 - Avklaringene fra Cloudflare-konsollen (betalingskort, inferenssted), gratisgrensene hos Groq og Mistral og treningsinnstillingen hos Mistral er ikke gjort; de står som åpent punkt i beslutningsloggen.
 - `reasoning_effort` i adapteren er bare sjekket mot Cloudflare; test mot Groq/Mistral hvis de blir aktuelle.
 - Full `npm test` med kjøretid, `npm run build` etter adapterendringen og README-sjekk på ny klone gjenstår før Story 2.5 er `done`; bytt til `Closes #33` i PR #57 og sett spec og sprintstatus til `done`.
 - Oppsummeringene fra `gpt-oss-20b` er lest av Claude, ikke bekreftet av Ali (små stilfeil, ikke feil språk).
+- `supabase.exe` er blokkert av programkontrollen, så `db`, pgTAP og Playwright er ikke kjørt og full `npm test` har ingen kjøretid; det står i `issues.md` og i PR #57.
