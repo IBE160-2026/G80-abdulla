@@ -1,3 +1,4 @@
+import type { ListParams } from "@/lib/list-params";
 import { signReportImage } from "./images";
 import { createClient } from "./server";
 import { REPORT_COLUMNS, type Report, type ReportRow } from "./types";
@@ -50,19 +51,26 @@ function fail(error: { code: string }, what: string): never {
 }
 
 /**
- * Rapportlista, nyeste først (`created_at DESC, id DESC`), lest med brukerens
- * sesjon. RLS bestemmer hvilke rapporter som er synlige, så her filtreres det
+ * Rapportlista, filtrert på kategori og status og sortert etter `params`
+ * (Story 3.1), lest med brukerens sesjon. `newest` sorterer på
+ * `created_at DESC, id DESC`, `confirmations` på `confirmation_count DESC,
+ * created_at DESC, id DESC`, så likt antall gir nyeste først og `id` avgjør
+ * resten. RLS bestemmer hvilke rapporter som er synlige, så her filtreres det
  * aldri på `hidden` (AR-11). `truncated` er sann når lista har nådd
  * grensen, også når det finnes nøyaktig LIST_LIMIT rapporter.
  */
-export async function listReports(): Promise<{
+export async function listReports(params: ListParams): Promise<{
   reports: Report[];
   truncated: boolean;
 }> {
   const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("reports_with_counts")
-    .select(SERVER_COLUMNS)
+  let query = supabase.from("reports_with_counts").select(SERVER_COLUMNS);
+  if (params.category) query = query.eq("category", params.category);
+  if (params.status) query = query.eq("status", params.status);
+  if (params.sort === "confirmations") {
+    query = query.order("confirmation_count", { ascending: false });
+  }
+  const { data, error } = await query
     .order("created_at", { ascending: false })
     .order("id", { ascending: false })
     .limit(LIST_LIMIT);
