@@ -39,6 +39,21 @@ test("kjerneflyten med tastatur", async ({ page }) => {
   // Story 2.2: fra 640 px står «Registrer problem» i topplinja, foran menyen.
   if (wide) await tabTo(page, "link", "Registrer problem", { max: 1 });
   await tabTo(page, "button", "Meny", { max: 1 });
+  // Story 3.1: etter menyen kommer sorteringen og de ni filterbrikkene, før kortene.
+  await tabTo(page, "combobox", "Sortering", { max: 1 });
+  for (const name of [
+    "Alle",
+    "Søppel",
+    "Belysning",
+    "Vei og fortau",
+    "Skadeverk",
+    "Annet",
+    "Ny",
+    "Under behandling",
+    "Løst",
+  ]) {
+    await tabTo(page, "button", name, { max: 1 });
+  }
   for (let i = 0; i < cardCount; i++) {
     await page.keyboard.press("Tab");
     const card = cards.nth(i);
@@ -76,6 +91,54 @@ test("kjerneflyten med tastatur", async ({ page }) => {
     await expectNoHorizontalScroll(page);
     await page.setViewportSize({ width: 360, height: 800 });
   }
+
+  // Story 3.1: filtrer og sorter bare med tastatur. Etter «←» står fokus øverst
+  // på siden, så brikkene nås med Tab. Rapportene fra andre tester har ingen
+  // bekreftelser, så rapport 2 og 1 (to hver) er øverst på «Flest har sett».
+  await tabTo(page, "button", "Belysning", { max: 20 });
+  await page.keyboard.press("Enter");
+  await expect(page).toHaveURL("/?category=lighting");
+  await expect(page.getByRole("button", { name: "Belysning", exact: true })).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+  await expect(page.getByRole("button", { name: "Belysning", exact: true })).toBeFocused();
+  await expect(cards.filter({ hasText: "Slukkede gatelys på gangveien" })).toHaveCount(1);
+  await expect(cards.filter({ hasNotText: "Belysning" })).toHaveCount(0);
+  await expectNoSeriousA11yViolations(page);
+  await expectNoHorizontalScroll(page);
+
+  await tabTo(page, "button", "Alle", { max: 3, reverse: true });
+  await page.keyboard.press("Enter");
+  await expect(page).toHaveURL("/");
+  await expect(page.getByRole("button", { name: "Alle", exact: true })).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+
+  await tabTo(page, "combobox", "Sortering", { max: 3, reverse: true });
+  // Piltastene før valglista har åpnet og gitt fokus til valget, går tapt.
+  await page.keyboard.press("Enter");
+  await expect(page.getByRole("listbox")).toBeVisible();
+  await expect(page.getByRole("option", { name: "Nyeste", exact: true })).toBeFocused();
+  await page.keyboard.press("ArrowDown");
+  await expect(page.getByRole("option", { name: "Flest har sett", exact: true })).toBeFocused();
+  await page.keyboard.press("Enter");
+  await expect(page).toHaveURL("/?sort=confirmations");
+  await expect(page.getByRole("combobox", { name: "Sortering", exact: true })).toHaveText("Flest har sett");
+  await expect(cards.nth(0)).toHaveAttribute("href", "/rapporter/20000000-0000-4000-8000-000000000002");
+  await expect(cards.nth(1)).toHaveAttribute("href", "/rapporter/20000000-0000-4000-8000-000000000001");
+  await expectNoSeriousA11yViolations(page);
+
+  await page.keyboard.press("Enter");
+  await expect(page.getByRole("listbox")).toBeVisible();
+  await expect(page.getByRole("option", { name: "Flest har sett", exact: true })).toBeFocused();
+  await page.keyboard.press("ArrowUp");
+  await expect(page.getByRole("option", { name: "Nyeste", exact: true })).toBeFocused();
+  await page.keyboard.press("Enter");
+  await expect(page).toHaveURL("/");
+  await expect(page.getByRole("combobox", { name: "Sortering", exact: true })).toHaveText("Nyeste");
+  await expect.poll(() => cards.count()).toBeGreaterThanOrEqual(SEED_CARDS);
 
   // Story 1.7: kortet for rapport 2 har bildeikonet. Tab dit og Enter åpner
   // detaljsiden med bildet mellom overskriften og beskrivelsen.

@@ -43,6 +43,7 @@ const { LIST_LIMIT, getReport, listReports } = await import("./reports");
 const { REPORT_COLUMNS } = await import("./types");
 
 const SERVER_COLUMNS = `${REPORT_COLUMNS}, image_path`;
+const NEWEST = { sort: "newest" } as const;
 
 const ID = "20000000-0000-4000-8000-000000000002";
 const IMAGE_PATH =
@@ -91,7 +92,7 @@ afterEach(() => {
 describe("listReports", () => {
   test("leser visningen med REPORT_COLUMNS og image_path, nyeste først, og høyst 500 rader", async () => {
     result = { data: rows(8), error: null };
-    await listReports();
+    await listReports(NEWEST);
     expect(calls).toEqual([
       { method: "from", args: ["reports_with_counts"] },
       { method: "select", args: [SERVER_COLUMNS] },
@@ -103,20 +104,63 @@ describe("listReports", () => {
   });
 
   test.each([
+    [{ category: "lighting", sort: "newest" }, [["category", "lighting"]]],
+    [{ status: "resolved", sort: "newest" }, [["status", "resolved"]]],
+    [
+      { category: "waste", status: "new", sort: "newest" },
+      [
+        ["category", "waste"],
+        ["status", "new"],
+      ],
+    ],
+  ] as const)("filteret %j gir bare .eq på kolonnen (aldri på hidden), før sorteringen", async (params, eqs) => {
+    result = { data: rows(1), error: null };
+    await listReports(params);
+    expect(calls.filter((c) => c.method === "eq").map((c) => c.args)).toEqual(eqs);
+    const firstOrder = calls.findIndex((c) => c.method === "order");
+    expect(calls.findLastIndex((c) => c.method === "eq")).toBeLessThan(firstOrder);
+  });
+
+  test("uten filter gir ingen .eq", async () => {
+    result = { data: rows(1), error: null };
+    await listReports(NEWEST);
+    expect(calls.some((c) => c.method === "eq")).toBe(false);
+  });
+
+  test("«Flest har sett» sorterer på confirmation_count, så created_at og id, alle synkende", async () => {
+    result = { data: rows(8), error: null };
+    await listReports({ sort: "confirmations" });
+    expect(calls).toEqual([
+      { method: "from", args: ["reports_with_counts"] },
+      { method: "select", args: [SERVER_COLUMNS] },
+      { method: "order", args: ["confirmation_count", { ascending: false }] },
+      { method: "order", args: ["created_at", { ascending: false }] },
+      { method: "order", args: ["id", { ascending: false }] },
+      { method: "limit", args: [500] },
+    ]);
+  });
+
+  test("filter og «Flest har sett» kan kombineres, med filteret først", async () => {
+    result = { data: rows(2), error: null };
+    await listReports({ category: "roads_sidewalks", status: "in_progress", sort: "confirmations" });
+    expect(calls.map((c) => c.method)).toEqual(["from", "select", "eq", "eq", "order", "order", "order", "limit"]);
+  });
+
+  test.each([
     [0, false],
     [8, false],
     [499, false],
     [500, true],
   ])("%i rader gir truncated = %s", async (count, truncated) => {
     result = { data: rows(count), error: null };
-    const list = await listReports();
+    const list = await listReports(NEWEST);
     expect(list.reports).toHaveLength(count);
     expect(list.truncated).toBe(truncated);
   });
 
   test("regner ut has_image, sender aldri image_path videre og signerer ingen bilder", async () => {
     result = { data: [row("a", IMAGE_PATH), row("b")], error: null };
-    const { reports } = await listReports();
+    const { reports } = await listReports(NEWEST);
     expect(reports).toEqual([report("a", true), report("b", false)]);
     for (const r of reports) expect(r).not.toHaveProperty("image_path");
     expect(JSON.stringify(reports)).not.toContain(IMAGE_PATH);
@@ -128,7 +172,7 @@ describe("listReports", () => {
       data: [{ ...row("a"), author_id: "10000000-0000-4000-8000-000000000002" }],
       error: null,
     };
-    const { reports } = await listReports();
+    const { reports } = await listReports(NEWEST);
     expect(reports).toEqual([report("a", false)]);
   });
 
@@ -138,7 +182,7 @@ describe("listReports", () => {
       data: null,
       error: { code: "PGRST000", message: "Hemmelig rapporttekst i feilen" },
     };
-    await expect(listReports()).rejects.toThrow("PGRST000");
+    await expect(listReports(NEWEST)).rejects.toThrow("PGRST000");
     expect(log).toHaveBeenCalledTimes(1);
     expect(log).toHaveBeenCalledWith("PGRST000");
     expect(JSON.stringify(log.mock.calls)).not.toContain("Hemmelig");
@@ -151,7 +195,7 @@ describe("listReports", () => {
       data: null,
       error: { code: "", message: "TypeError: fetch failed" },
     };
-    await expect(listReports()).rejects.toThrow(
+    await expect(listReports(NEWEST)).rejects.toThrow(
       "Kunne ikke hente rapportene (ukjent).",
     );
     expect(log).toHaveBeenCalledTimes(1);
