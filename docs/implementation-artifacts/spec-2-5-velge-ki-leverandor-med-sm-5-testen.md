@@ -2,7 +2,7 @@
 title: 'Story 2.5: Velge KI-leverandør med SM-5-testen'
 type: 'feature'
 created: '2026-11-10'
-status: 'in-review'
+status: 'done'
 route: 'dispatch'
 review_loop_iteration: 0
 baseline_commit: '98c666c56eb6851d7f1c6d1cb4f11013bf19f463'
@@ -123,6 +123,7 @@ Code review av PR #57 (2026-11-16): Blind Hunter, Edge Case Hunter, Verification
 ## Spec Change Log
 
 - 2026-11-18: Etter at Cloudflare-kjøringene ga `content: null` på sm5-08 (resonneringsmodellene gpt-oss), fikk `lib/ai/openai.ts` `reasoning_effort: "low"` og `max_tokens: 1000`. Spec-en sier at hele testsettet da kjøres om igjen for alle leverandører, og det er gjort for `gpt-oss-20b` (to ganger), `gpt-oss-120b` og Gemma. Valgt: `gpt-oss-20b`. Åpent: avklaringene fra konsollene, full `npm test` og README på ny klone.
+- 2026-11-18: Story satt til `done` på prosjekteierens uttrykkelige ønske, med disse punktene bevisst åpne (alle i `.logs&ali-yousef-abdulla&issues.md`): avklaringene fra Cloudflare-konsollen (betalingskort, inferenssted) og gratisgrensene hos Groq og Mistral er ikke gjort, README er ikke fulgt steg for steg på en ny klone i en tom mappe (oppgave 7, men CI-kjøringen gjør de samme kommandoene fra en ren klone og bestod), `reasoning_effort` er bare sjekket mot Cloudflare, og oppsummeringene fra `gpt-oss-20b` er lest av Claude, ikke av prosjekteieren. Full `npm test` er kjørt i GitHub Actions (5 min 42 s, alt bestått i forsøk 2) fordi `supabase.exe` er blokkert lokalt.
 
 ## Review Triage Log
 
