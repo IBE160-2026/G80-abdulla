@@ -1,5 +1,7 @@
 # LocalFix
 
+Live: https://g80-abdulla.vercel.app
+
 LocalFix er en webapp der studenter og ansatte på campus ved Høgskolen i Molde kan melde fra om problemer de ser, som ødelagte gatelys, søppel, hull i veien eller farlige fortau. Andre kan bekrefte at de har sett det samme, og en moderator følger saken fra **Ny** via **Under behandling** til **Løst**. KI foreslår kategori og en kort oppsummering når du registrerer et problem.
 
 Gruppeprosjekt (G80) i **IBE160 Programmering med KI** ved Høgskolen i Molde, høsten 2026.
@@ -26,12 +28,12 @@ Lokal Supabase kjører i Docker, så uten Docker starter ikke appen.
 
 ### 2. Forutsetninger
 
-| Verktøy | Versjon | Sjekk |
-|---|---|---|
-| Docker Desktop | 4.x (testet med 4.98.0) | `docker version` |
-| Node.js | 24 LTS (står i `.nvmrc`; testet med 24.19.0) | `node --version` |
-| npm | 11 (følger med Node 24; testet med 11.17.0) | `npm --version` |
-| Git | hvilken som helst nyere | `git --version` |
+| Verktøy       | Versjon                                         | Sjekk              |
+| -------------- | ----------------------------------------------- | ------------------ |
+| Docker Desktop | 4.x (testet med 4.98.0)                         | `docker version` |
+| Node.js        | 24 LTS (står i `.nvmrc`; testet med 24.19.0) | `node --version` |
+| npm            | 11 (følger med Node 24; testet med 11.17.0)    | `npm --version`  |
+| Git            | hvilken som helst nyere                         | `git --version`  |
 
 Supabase CLI trenger du ikke installere selv. Den er en devDependency (`supabase` 2.122.1) og kjøres med `npx supabase`.
 
@@ -58,7 +60,7 @@ cp .env.example .env
 npm run dev
 ```
 
-Åpne <http://localhost:3000>.
+Åpne [http://localhost:3000](http://localhost:3000).
 
 **Første oppstart tar tid.** Første gang laster `npx supabase start` ned sju Docker-bilder fra `public.ecr.aws/supabase/`, til sammen omtrent 1,1 GB (omtrent 4 GB på disk etter utpakking). Det tar 3–5 minutter på en linje med 50–100 Mbit/s. På utviklermaskinen, med 2–5 Mbit/s, tok det omtrent 55 minutter. Senere oppstarter tok 37 sekunder, fordi bildene ligger lagret i Docker.
 
@@ -70,13 +72,13 @@ Stopper nedlastingen med `toomanyrequests: Rate exceeded`, kjører du bare `npx 
 
 I lista har kortene til de to synlige rapportene med bilde, «Slukkede gatelys på gangveien» og «Hull i asfalten ved P2», et lite bildeikon sist i linja med «har sett dette». Åpner du en av dem, vises bildet mellom overskriften og beskrivelsen. Bildet hentes fra en signert lenke som serveren lager for hver visning, og lenken virker i 60 sekunder. Last siden på nytt for å få en ny lenke. Den skjulte rapporten gir 404 for alle andre enn moderatoren, og da lages ingen lenke til bildet.
 
-| E-post | Passord | Rolle | Brukes til |
-|---|---|---|---|
-| `moderator@localfix.test` | `localfix-test` | moderator | Ser også skjulte rapporter |
-| `bruker1@localfix.test` | `localfix-test` | user | Har skrevet testrapporter |
-| `bruker2@localfix.test` | `localfix-test` | user | Har skrevet testrapporter |
-| `kjerneflyt360@localfix.test` | `localfix-test` | user | Satt av til kjerneflyttesten på 360 px |
-| `kjerneflyt1280@localfix.test` | `localfix-test` | user | Satt av til kjerneflyttesten på 1280 px |
+| E-post                           | Passord           | Rolle     | Brukes til                               |
+| -------------------------------- | ----------------- | --------- | ---------------------------------------- |
+| `moderator@localfix.test`      | `localfix-test` | moderator | Ser også skjulte rapporter              |
+| `bruker1@localfix.test`        | `localfix-test` | user      | Har skrevet testrapporter                |
+| `bruker2@localfix.test`        | `localfix-test` | user      | Har skrevet testrapporter                |
+| `kjerneflyt360@localfix.test`  | `localfix-test` | user      | Satt av til kjerneflyttesten på 360 px  |
+| `kjerneflyt1280@localfix.test` | `localfix-test` | user      | Satt av til kjerneflyttesten på 1280 px |
 
 ### Logg inn
 
@@ -112,13 +114,13 @@ npm test
 
 `npm test` kjører alt med én kommando: først Vitest (ren logikk i `lib/` og sjekker av Playwright-oppsettet i `playwright.config.test.ts` og av Vitest-oppsettet i `vitest.config.test.ts`), så databasetestene og til slutt Playwright (`e2e/`). Databasetestene tilbakestiller den lokale databasen (`npx supabase db reset`), tester lesereglene og bildereglene med pgTAP (`npx supabase test db`, filene i `supabase/tests/`), logger inn med hver testbruker i tabellen over og lager signerte lenker til testbildene. Testene som laster opp bilder, rydder bildelagringen selv etterpå, med service-role-nøkkelen fra `npx supabase status -o env`, så `db reset` ikke trengs først. Playwright tilbakestiller den lokale databasen (`npx supabase db reset`), bygger appen (`next build`) og starter den med `next start` på port 3100, så en åpen `npm run dev` på port 3000 ikke blir testet. KI-en går alltid i mock-modus i testene, også om `.env` har `AI_PROVIDER=openai`. Testene kjører i to skjermbredder, 360 og 1280 px, og sjekker tilgjengelighet med axe. Til slutt kjører prosjektet `reset` testene som trenger andre data enn seed (lista med 100 og 500 ekstra rapporter, en tom database og en rapport der bildet mangler i bildelagringen). De legger inn data med `npx supabase db query --local` og kjører `npx supabase db reset` selv, også etter siste test, så databasen har seed-dataene igjen når `npm test` er ferdig.
 
-| Kommando | Hva den kjører |
-|---|---|
-| `npm test` | Vitest, databasetestene og deretter Playwright |
-| `npm run test:unit` | Bare Vitest for ren logikk, uten Supabase og bygg (noen sekunder) |
-| `npm run test:db` | `db reset`, en sjekk av at `lib/supabase/database.types.ts` er lik skjemaet, pgTAP (`supabase/tests/`) og Vitest-testene mot lokal Supabase (`lib/**/*.db.test.ts`) |
-| `npm run test:e2e` | Bare Playwright, med `db reset` før bygget og flere `db reset` i prosjektet `reset` |
-| `npm run db:types` | Genererer `lib/supabase/database.types.ts` fra den lokale databasen. Kjøres etter hver ny migrering, og fila committes |
+| Kommando              | Hva den kjører                                                                                                                                                             |
+| --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `npm test`          | Vitest, databasetestene og deretter Playwright                                                                                                                              |
+| `npm run test:unit` | Bare Vitest for ren logikk, uten Supabase og bygg (noen sekunder)                                                                                                           |
+| `npm run test:db`   | `db reset`, en sjekk av at `lib/supabase/database.types.ts` er lik skjemaet, pgTAP (`supabase/tests/`) og Vitest-testene mot lokal Supabase (`lib/**/*.db.test.ts`) |
+| `npm run test:e2e`  | Bare Playwright, med `db reset` før bygget og flere `db reset` i prosjektet `reset`                                                                                  |
+| `npm run db:types`  | Genererer `lib/supabase/database.types.ts` fra den lokale databasen. Kjøres etter hver ny migrering, og fila committes                                                   |
 
 **Forventet tid:** Omtrent fem minutter. På utviklermaskinen tok `npm test` 4 minutter og 28 sekunder. Det meste av tiden går til `db reset` (rundt et halvt minutt hver gang: databasetestene, Playwright før bygget og fire ganger i prosjektet `reset`) og `next build`. Selve testene tar noen sekunder.
 
@@ -132,12 +134,12 @@ Utskriften viser antall tester som besto. `npx playwright show-report` åpner ra
 
 Alle variablene står i `.env.example`, og `lib/env.ts` validerer dem når appen starter. Mangler en verdi, stopper appen med en melding som sier hvilken variabel det gjelder. `.env` står i `.gitignore`, og repoet har ingen nøkler.
 
-| Variabel | Standard | Forklaring |
-|---|---|---|
-| `NEXT_PUBLIC_SUPABASE_URL` | `http://127.0.0.1:54321` | Adressen til lokal Supabase |
-| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | lokal standardnøkkel | Den offentlige nøkkelen fra `npx supabase status` |
-| `AI_PROVIDER` | `mock` | `mock` trenger ingen nøkkel og gjør ingen nettverkskall: den svarer etter nøkkelord (for eksempel «gatelys» gir Belysning, «søppel» gir Søppel, «hull» gir Vei og fortau, «hærverk» gir Skadeverk, ellers Annet), og testordet `ingenforslag` i teksten gir ingen forslag. `openai` bruker et OpenAI-kompatibelt API (`POST {AI_BASE_URL}/chat/completions`). Svaret valideres alltid, og feil, ugyldig svar eller mer enn 5 sekunder gir «ingen forslag». Høyst 2000 tegn av beskrivelsen sendes |
-| `AI_BASE_URL`, `AI_MODEL`, `AI_API_KEY` | tomme | Påkrevd bare når `AI_PROVIDER=openai` |
+| Variabel                                      | Standard                   | Forklaring                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| --------------------------------------------- | -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`                  | `http://127.0.0.1:54321` | Adressen til lokal Supabase                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`      | lokal standardnøkkel      | Den offentlige nøkkelen fra `npx supabase status`                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| `AI_PROVIDER`                               | `mock`                   | `mock` trenger ingen nøkkel og gjør ingen nettverkskall: den svarer etter nøkkelord (for eksempel «gatelys» gir Belysning, «søppel» gir Søppel, «hull» gir Vei og fortau, «hærverk» gir Skadeverk, ellers Annet), og testordet `ingenforslag` i teksten gir ingen forslag. `openai` bruker et OpenAI-kompatibelt API (`POST {AI_BASE_URL}/chat/completions`). Svaret valideres alltid, og feil, ugyldig svar eller mer enn 5 sekunder gir «ingen forslag». Høyst 2000 tegn av beskrivelsen sendes |
+| `AI_BASE_URL`, `AI_MODEL`, `AI_API_KEY` | tomme                      | Påkrevd bare når `AI_PROVIDER=openai`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
 
 ### Velge KI-leverandør (SM-5)
 
@@ -160,7 +162,7 @@ og kjører `npm run eval:sm5 -- --mode groq`. Skriptet leser `.env`, `.env.local
 
 `supabase/config.toml` slår av Realtime, Edge Functions, Analytics og e-posttesting, som appen ikke bruker. Da laster første oppstart ned mindre, og Docker-daemonen trenger ikke eksponeres på Windows. E-postbekreftelse er slått av (`enable_confirmations = false`), så nye brukere kan logge inn med en gang. Derfor har appen heller ingen sider for bekreftelse, glemt passord eller nytt passord. Minste passordlengde er 6 tegn (`minimum_password_length`), og `lib/limits.ts` har samme tall. Bucketen `report-images` for bildene er privat og godtar JPEG, PNG og WebP på høyst 5 MiB. Testbildene i `supabase/seed-images/` lastes opp ved `npx supabase start` og `npx supabase db reset`.
 
-Supabase Studio, et grensesnitt for den lokale databasen, ligger på <http://127.0.0.1:54323> mens Supabase kjører.
+Supabase Studio, et grensesnitt for den lokale databasen, ligger på [http://127.0.0.1:54323](http://127.0.0.1:54323) mens Supabase kjører.
 
 ### Bilder feiler
 
@@ -177,24 +179,24 @@ De eksakte versjonene står i `package.json` og Stack-tabellen i [arkitekturen](
 
 ## Dokumentasjon
 
-| Dokument | Innhold |
-|---|---|
-| [docs/product-brief.md](docs/product-brief.md) | Problem, løsning, målgruppe og omfang |
-| [docs/addendum.md](docs/addendum.md) | Konkurrentresearch og parkerte idéer |
-| [docs/prd.md](docs/prd.md) | Krav (FR-1 til FR-9), brukerreiser og suksessmetrikker |
-| [docs/prd-addendum.md](docs/prd-addendum.md) | Teknisk retning, tilgangskontroll og KI-testsett |
-| [DESIGN.md](DESIGN.md) | Utseendet: fargetokens, typografi og komponenter. Ligger i roten, der designskillen Impeccable leser den |
-| [PRODUCT.md](PRODUCT.md) | Kort produktsammendrag for Impeccable, hentet fra PRD-en |
-| [docs/ux/](docs/ux/) | `EXPERIENCE.md` (oppførsel) og skisser i `mockups/` |
-| [Arkitektur](docs/planning-artifacts/architecture/architecture-LocalFix-2026-10-28/ARCHITECTURE-SPINE.md) | Arkitekturbeslutninger (AD-1 til AD-15), datamodell, stack og mappestruktur. Vurderingene ligger i `reviews/` ved siden av |
-| [Research: KI-leverandør](docs/planning-artifacts/research/technical-ki-leverandor-gratisniva-norsk-klassifis-2026-10-28/research.md) | Språkmodeller med gratisnivå og norsk kvalitet |
-| [Research: brukerstemmer og konkurrenter](docs/planning-artifacts/research/user-voice-brukerstemmer-og-konkurrenter-for-lokal-2026-10-29/research.md) | Hva brukere sier om lignende løsninger, og hvordan LocalFix skiller seg ut |
-| [Research: personvern](docs/planning-artifacts/research/domain-personvern-bilder-og-rapporter-2026-11-06/research.md) | Personvernkrav for bilder og rapporter: hva som gjelder i v1 og hva som må på plass før drift |
-| [docs/coaching-plan.md](docs/coaching-plan.md) | Hvordan jeg bruker Claude Code som coach fra epics og stories til ferdig app |
-| [docs/ki-logg.md](docs/ki-logg.md) | Hvordan KI er brukt i hver økt, hva jeg bestemte og hva jeg avviste |
-| [.logs/](.logs/) | Sesjonslogg for hver arbeidsøkt med Claude Code (oppgave, plan, resultat) og `issues.md` med åpne punkter |
-| [docs/beslutninger/](docs/beslutninger/) | Fortløpende beslutningslogger fra hver planleggingsfase |
-| [docs/tilbakemeldinger/](docs/tilbakemeldinger/) | Tilbakemeldinger fra faglærer |
+| Dokument                                                                                                                                             | Innhold                                                                                                                      |
+| ---------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| [docs/product-brief.md](docs/product-brief.md)                                                                                                        | Problem, løsning, målgruppe og omfang                                                                                      |
+| [docs/addendum.md](docs/addendum.md)                                                                                                                  | Konkurrentresearch og parkerte idéer                                                                                        |
+| [docs/prd.md](docs/prd.md)                                                                                                                            | Krav (FR-1 til FR-9), brukerreiser og suksessmetrikker                                                                       |
+| [docs/prd-addendum.md](docs/prd-addendum.md)                                                                                                          | Teknisk retning, tilgangskontroll og KI-testsett                                                                             |
+| [DESIGN.md](DESIGN.md)                                                                                                                                | Utseendet: fargetokens, typografi og komponenter. Ligger i roten, der designskillen Impeccable leser den                     |
+| [PRODUCT.md](PRODUCT.md)                                                                                                                              | Kort produktsammendrag for Impeccable, hentet fra PRD-en                                                                     |
+| [docs/ux/](docs/ux/)                                                                                                                                  | `EXPERIENCE.md` (oppførsel) og skisser i `mockups/`                                                                     |
+| [Arkitektur](docs/planning-artifacts/architecture/architecture-LocalFix-2026-10-28/ARCHITECTURE-SPINE.md)                                             | Arkitekturbeslutninger (AD-1 til AD-15), datamodell, stack og mappestruktur. Vurderingene ligger i `reviews/` ved siden av |
+| [Research: KI-leverandør](docs/planning-artifacts/research/technical-ki-leverandor-gratisniva-norsk-klassifis-2026-10-28/research.md)                | Språkmodeller med gratisnivå og norsk kvalitet                                                                             |
+| [Research: brukerstemmer og konkurrenter](docs/planning-artifacts/research/user-voice-brukerstemmer-og-konkurrenter-for-lokal-2026-10-29/research.md) | Hva brukere sier om lignende løsninger, og hvordan LocalFix skiller seg ut                                                  |
+| [Research: personvern](docs/planning-artifacts/research/domain-personvern-bilder-og-rapporter-2026-11-06/research.md)                                 | Personvernkrav for bilder og rapporter: hva som gjelder i v1 og hva som må på plass før drift                             |
+| [docs/coaching-plan.md](docs/coaching-plan.md)                                                                                                        | Hvordan jeg bruker Claude Code som coach fra epics og stories til ferdig app                                                 |
+| [docs/ki-logg.md](docs/ki-logg.md)                                                                                                                    | Hvordan KI er brukt i hver økt, hva jeg bestemte og hva jeg avviste                                                         |
+| [.logs/](.logs/)                                                                                                                                      | Sesjonslogg for hver arbeidsøkt med Claude Code (oppgave, plan, resultat) og `issues.md` med åpne punkter                |
+| [docs/beslutninger/](docs/beslutninger/)                                                                                                              | Fortløpende beslutningslogger fra hver planleggingsfase                                                                     |
+| [docs/tilbakemeldinger/](docs/tilbakemeldinger/)                                                                                                      | Tilbakemeldinger fra faglærer                                                                                               |
 
 `docs/planning-artifacts/` er BMAD-ens arbeidsmappe for brief, PRD, UX og research. Brief, PRD og UX i `docs/` er kopier derfra, og kopiene oppdateres når en fase oppdateres. Unntaket er at kopien av `DESIGN.md` ligger i roten. Arkitektur og research lenkes direkte til BMAD-mappen.
 
