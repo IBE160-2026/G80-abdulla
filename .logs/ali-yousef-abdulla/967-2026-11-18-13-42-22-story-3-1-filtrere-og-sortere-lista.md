@@ -21,3 +21,4 @@ Bygge Story 3.1 («Filtrere og sortere lista», issue #34, FR-6, SM-4) med `bmad
 ### Åpne punkter
 - PR #60 er ikke flettet.
 - Ett testbilde fra de lokale kjøringene ligger igjen i bucketen `report-images` (kan bare slettes via Storage-API-et).
+- **Flettet og ferdig:** PR #60 er flettet i `main` (merge-commit `820e618`), issue #34 er lukket, og Story 3.1 er satt til `done` i `sprint-status.yaml` (`chore/story-3-1-done`).
