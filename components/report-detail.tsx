@@ -1,3 +1,4 @@
+import { ConfirmSection } from "@/components/confirm-section";
 import { StatusBadge } from "@/components/status-badge";
 import { formatDateTime } from "@/lib/format";
 import { CATEGORY_LABELS } from "@/lib/labels";
@@ -16,13 +17,19 @@ import type { Report } from "@/lib/supabase/types";
  * vises hele (`object-contain` på `bg-muted`), så ingenting av problemet
  * kuttes bort. Margen er 8 px over og 12 px under, som `.photo` i
  * `detalj.html`.
+ *
+ * Telleren «N har sett dette» og bekreftknappen (Story 3.3, FR-7) står sist i
+ * `ConfirmSection`, som viser fem tilstander ut fra `hidden`,
+ * `authored_by_me`, `confirmed_by_me` og `isSignedIn`.
  */
 export function ReportDetail({
   report,
   imageUrl,
+  isSignedIn,
 }: {
   report: Report;
   imageUrl: string | null;
+  isSignedIn: boolean;
 }) {
   const category = CATEGORY_LABELS[report.category];
 
@@ -58,7 +65,14 @@ export function ReportDetail({
       <p className="my-1.5 text-sm">
         Registrert {formatDateTime(report.created_at)}
       </p>
-      <p className="my-1.5 text-sm">{report.seen_count} har sett dette</p>
+      <ConfirmSection
+        reportId={report.id}
+        seenCount={report.seen_count}
+        confirmedByMe={report.confirmed_by_me}
+        authoredByMe={report.authored_by_me}
+        hidden={report.hidden}
+        isSignedIn={isSignedIn}
+      />
     </article>
   );
 }
