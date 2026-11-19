@@ -9,7 +9,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/shared/ui/select";
-import { CATEGORY_LABELS, SORT_LABELS, STATUS_LABELS } from "@/shared/report/labels";
+import { SORT_LABELS } from "@/features/rapporter/labels";
+import { CATEGORY_LABELS, STATUS_LABELS } from "@/shared/report/labels";
 import {
   buildListHref,
   clearFilters,
