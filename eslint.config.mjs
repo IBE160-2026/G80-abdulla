@@ -5,7 +5,7 @@ import nextTs from "eslint-config-next/typescript";
 
 // eslint-config-next 16 leverer flat config selv, så startpakkens FlatCompat
 // (for eslint-config-next 15) er byttet ut.
-// Vertical slices (AD-17): en slice i features/<slice>/ importerer bare fra
+// Vertical slices (AD-16): en slice i features/<slice>/ importerer bare fra
 // shared/ og fra seg selv. Bare app/ setter slicene sammen, og shared/ kjenner
 // ingen slice. Sliceområdene leses fra mappene, så en ny slice (moderering i
 // Epic 4) får reglene uten at denne fila endres. no-restricted-imports

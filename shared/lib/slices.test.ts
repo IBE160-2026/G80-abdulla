@@ -1,4 +1,4 @@
-// Vakttest for vertical slices (AD-17): en slice i features/<slice>/ importerer
+// Vakttest for vertical slices (AD-16): en slice i features/<slice>/ importerer
 // bare fra seg selv og fra shared/, og shared/ importerer verken features/ eller
 // app/. ESLint (no-restricted-imports) tar aliasene, og denne testen tar også
 // relative stier og dynamiske importer, som `../../auth/auth-errors`.
