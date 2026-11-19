@@ -1,0 +1,228 @@
+<svg xmlns="http://www.w3.org/2000/svg" xml:lang="nb" viewBox="0 0 1280 1215" width="1280" height="1215" role="img" aria-labelledby="t d">
+<title id="t">Epics, stories og sprint i LocalFix</title>
+<desc id="d">Figur som viser hvordan kravene i PRD-en deles opp i fire epics og atten stories, og hvordan sprint-status.yaml følger hver story fra backlog til done. Fire begrunnelser for hvorfor vi gjør dette steget står nederst.</desc>
+<defs>
+<marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#64748b"/></marker>
+<style>
+text{font-family:'Segoe UI',system-ui,-apple-system,Arial,sans-serif;fill:#1f2937}
+.h1{font-size:26px;font-weight:700}.sub{font-size:14px;fill:#6b7280}
+.h2{font-size:17px;font-weight:700}.b{font-weight:700}
+.m{font-size:12.5px;fill:#4b5563}.s{font-size:12.5px}.xs{font-size:11px;fill:#6b7280}
+.lbl{font-size:11px;font-weight:700;letter-spacing:.08em;fill:#4338ca}
+</style></defs>
+<rect width="1280" height="1215" fill="#ffffff"/>
+<text x="40" y="44" class="h1">Fra krav til ferdig app: epics, stories og sprint i LocalFix</text>
+<text x="40" y="68" class="sub">LocalFix er campusappen der studenter melder problemer og moderatorer følger dem opp. Slik er arbeidet delt opp.</text>
+<rect x="40" y="90" width="255" height="84" rx="10" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.5"/>
+<circle cx="64" cy="116" r="12" fill="#64748b"/><text x="64" y="121" text-anchor="middle" style="fill:#fff;font-weight:700;font-size:13px">1</text>
+<text x="86" y="121" class="h2">Krav (PRD)</text>
+<text x="56" y="146" class="m">Hva appen skal kunne:</text><text x="56" y="163" class="m">FR-1 til FR-9 og tre brukerreiser</text>
+<line x1="299" y1="132" x2="351" y2="132" stroke="#64748b" stroke-width="2" marker-end="url(#ar)"/>
+<rect x="355" y="90" width="255" height="84" rx="10" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.5"/>
+<circle cx="379" cy="116" r="12" fill="#64748b"/><text x="379" y="121" text-anchor="middle" style="fill:#fff;font-weight:700;font-size:13px">2</text>
+<text x="401" y="121" class="h2">Epics</text>
+<text x="371" y="146" class="m">4 store mål, ordnet etter</text><text x="371" y="163" class="m">brukerreisene (1 → 2 → 3 → 4)</text>
+<line x1="614" y1="132" x2="666" y2="132" stroke="#64748b" stroke-width="2" marker-end="url(#ar)"/>
+<rect x="670" y="90" width="255" height="84" rx="10" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.5"/>
+<circle cx="694" cy="116" r="12" fill="#64748b"/><text x="694" y="121" text-anchor="middle" style="fill:#fff;font-weight:700;font-size:13px">3</text>
+<text x="716" y="121" class="h2">Stories</text>
+<text x="686" y="146" class="m">18 små biter, hver med</text><text x="686" y="163" class="m">akseptansekriterier og tester</text>
+<line x1="929" y1="132" x2="981" y2="132" stroke="#64748b" stroke-width="2" marker-end="url(#ar)"/>
+<rect x="985" y="90" width="255" height="84" rx="10" fill="#ecfeff" stroke="#0891b2" stroke-width="1.5"/>
+<circle cx="1009" cy="116" r="12" fill="#0891b2"/><text x="1009" y="121" text-anchor="middle" style="fill:#fff;font-weight:700;font-size:13px">4</text>
+<text x="1031" y="121" class="h2">Sprint</text>
+<text x="1001" y="146" class="m">Én story om gangen, status</text><text x="1001" y="163" class="m">følges i sprint-status.yaml</text>
+<rect x="440" y="205" width="400" height="42" rx="21" fill="#1e1b4b"/><text x="640" y="231" text-anchor="middle" style="fill:#fff;font-weight:700;font-size:15px">LocalFix: meld og følg opp problemer på campus</text>
+<path d="M640 247V270M180 270H1080" stroke="#94a3b8" stroke-width="1.5" fill="none"/>
+<line x1="180" y1="270" x2="180" y2="292" stroke="#94a3b8" stroke-width="1.5"/>
+<line x1="480" y1="270" x2="480" y2="292" stroke="#94a3b8" stroke-width="1.5"/>
+<line x1="780" y1="270" x2="780" y2="292" stroke="#94a3b8" stroke-width="1.5"/>
+<line x1="1080" y1="270" x2="1080" y2="292" stroke="#94a3b8" stroke-width="1.5"/>
+<rect x="40" y="292" width="280" height="86" rx="10" fill="#eef2ff" stroke="#4f46e5" stroke-width="1.5"/>
+<text x="54" y="314" class="lbl">EPIC 1</text>
+<rect x="236" y="300" width="72" height="20" rx="10" fill="#dcfce7"/><text x="272" y="314" text-anchor="middle" style="font-size:11.5px;font-weight:700;fill:#166534">ferdig</text>
+<text x="54" y="341" class="b" style="font-size:15px">Alle kan se rapportene</text>
+<text x="54" y="364" class="m">Dekker FR-5</text>
+<path d="M323 329L337 335L323 341z" fill="#4f46e5"/>
+<line x1="52" y1="378" x2="52" y2="662" stroke="#c7d2fe" stroke-width="2"/>
+<line x1="52" y1="406" x2="64" y2="406" stroke="#c7d2fe" stroke-width="2"/>
+<rect x="64" y="392" width="256" height="28" rx="6" fill="#f0fdf4" stroke="#86efac" stroke-width="1.2"/>
+<text x="74" y="411" class="s b">1.1</text><text x="104" y="411" class="s">Startpakke og lokal Supabase</text>
+<text x="308" y="411" text-anchor="end" style="font-size:13px;font-weight:700;fill:#16a34a">✓</text>
+<line x1="52" y1="440" x2="64" y2="440" stroke="#c7d2fe" stroke-width="2"/>
+<rect x="64" y="426" width="256" height="28" rx="6" fill="#f0fdf4" stroke="#86efac" stroke-width="1.2"/>
+<text x="74" y="445" class="s b">1.2</text><text x="104" y="445" class="s">Testoppsett og kjerneflyttest</text>
+<text x="308" y="445" text-anchor="end" style="font-size:13px;font-weight:700;fill:#16a34a">✓</text>
+<line x1="52" y1="474" x2="64" y2="474" stroke="#c7d2fe" stroke-width="2"/>
+<rect x="64" y="460" width="256" height="28" rx="6" fill="#f0fdf4" stroke="#86efac" stroke-width="1.2"/>
+<text x="74" y="479" class="s b">1.3</text><text x="104" y="479" class="s">Testrapporter i databasen</text>
+<text x="308" y="479" text-anchor="end" style="font-size:13px;font-weight:700;fill:#16a34a">✓</text>
+<line x1="52" y1="508" x2="64" y2="508" stroke="#c7d2fe" stroke-width="2"/>
+<rect x="64" y="494" width="256" height="28" rx="6" fill="#f0fdf4" stroke="#86efac" stroke-width="1.2"/>
+<text x="74" y="513" class="s b">1.4</text><text x="104" y="513" class="s">Rapportlista</text>
+<text x="308" y="513" text-anchor="end" style="font-size:13px;font-weight:700;fill:#16a34a">✓</text>
+<line x1="52" y1="542" x2="64" y2="542" stroke="#c7d2fe" stroke-width="2"/>
+<rect x="64" y="528" width="256" height="28" rx="6" fill="#f0fdf4" stroke="#86efac" stroke-width="1.2"/>
+<text x="74" y="547" class="s b">1.5</text><text x="104" y="547" class="s">Detaljsiden</text>
+<text x="308" y="547" text-anchor="end" style="font-size:13px;font-weight:700;fill:#16a34a">✓</text>
+<line x1="52" y1="576" x2="64" y2="576" stroke="#c7d2fe" stroke-width="2"/>
+<rect x="64" y="562" width="256" height="28" rx="6" fill="#f0fdf4" stroke="#86efac" stroke-width="1.2"/>
+<text x="74" y="581" class="s b">1.6</text><text x="104" y="581" class="s">Bildespike</text>
+<text x="308" y="581" text-anchor="end" style="font-size:13px;font-weight:700;fill:#16a34a">✓</text>
+<line x1="52" y1="610" x2="64" y2="610" stroke="#c7d2fe" stroke-width="2"/>
+<rect x="64" y="596" width="256" height="28" rx="6" fill="#f0fdf4" stroke="#86efac" stroke-width="1.2"/>
+<text x="74" y="615" class="s b">1.7</text><text x="104" y="615" class="s">Bilder på detaljsiden og i lista</text>
+<text x="308" y="615" text-anchor="end" style="font-size:13px;font-weight:700;fill:#16a34a">✓</text>
+<line x1="52" y1="648" x2="64" y2="648" stroke="#c7d2fe" stroke-width="2"/>
+<rect x="64" y="634" width="256" height="28" rx="14" fill="#fff" stroke="#86efac" stroke-width="1.2" stroke-dasharray="4 3"/>
+<text x="78" y="653" class="s">Retrospektiv </text>
+<text x="308" y="653" text-anchor="end" style="font-size:13px;font-weight:700;fill:#16a34a">✓</text>
+<rect x="340" y="292" width="280" height="86" rx="10" fill="#eef2ff" stroke="#4f46e5" stroke-width="1.5"/>
+<text x="354" y="314" class="lbl">EPIC 2</text>
+<rect x="536" y="300" width="72" height="20" rx="10" fill="#dcfce7"/><text x="572" y="314" text-anchor="middle" style="font-size:11.5px;font-weight:700;fill:#166534">ferdig</text>
+<text x="354" y="341" class="b" style="font-size:15px">Studenter kan melde et problem</text>
+<text x="354" y="364" class="m">Dekker FR-1, FR-3, FR-4</text>
+<path d="M623 329L637 335L623 341z" fill="#4f46e5"/>
+<line x1="352" y1="378" x2="352" y2="662" stroke="#c7d2fe" stroke-width="2"/>
+<line x1="352" y1="406" x2="364" y2="406" stroke="#c7d2fe" stroke-width="2"/>
+<rect x="364" y="392" width="256" height="28" rx="6" fill="#f0fdf4" stroke="#86efac" stroke-width="1.2"/>
+<text x="374" y="411" class="s b">2.1</text><text x="404" y="411" class="s">Konto og innlogging</text>
+<text x="608" y="411" text-anchor="end" style="font-size:13px;font-weight:700;fill:#16a34a">✓</text>
+<line x1="352" y1="440" x2="364" y2="440" stroke="#c7d2fe" stroke-width="2"/>
+<rect x="364" y="426" width="256" height="28" rx="6" fill="#f0fdf4" stroke="#86efac" stroke-width="1.2"/>
+<text x="374" y="445" class="s b">2.2</text><text x="404" y="445" class="s">Registrere en rapport</text>
+<text x="608" y="445" text-anchor="end" style="font-size:13px;font-weight:700;fill:#16a34a">✓</text>
+<line x1="352" y1="474" x2="364" y2="474" stroke="#c7d2fe" stroke-width="2"/>
+<rect x="364" y="460" width="256" height="28" rx="6" fill="#f0fdf4" stroke="#86efac" stroke-width="1.2"/>
+<text x="374" y="479" class="s b">2.3</text><text x="404" y="479" class="s">KI-forslag</text>
+<text x="608" y="479" text-anchor="end" style="font-size:13px;font-weight:700;fill:#16a34a">✓</text>
+<line x1="352" y1="508" x2="364" y2="508" stroke="#c7d2fe" stroke-width="2"/>
+<rect x="364" y="494" width="256" height="28" rx="6" fill="#f0fdf4" stroke="#86efac" stroke-width="1.2"/>
+<text x="374" y="513" class="s b">2.4</text><text x="404" y="513" class="s">Legge ved et bilde</text>
+<text x="608" y="513" text-anchor="end" style="font-size:13px;font-weight:700;fill:#16a34a">✓</text>
+<line x1="352" y1="542" x2="364" y2="542" stroke="#c7d2fe" stroke-width="2"/>
+<rect x="364" y="528" width="256" height="28" rx="6" fill="#f0fdf4" stroke="#86efac" stroke-width="1.2"/>
+<text x="374" y="547" class="s b">2.5</text><text x="404" y="547" class="s">Velge KI-leverandør</text>
+<text x="608" y="547" text-anchor="end" style="font-size:13px;font-weight:700;fill:#16a34a">✓</text>
+<line x1="352" y1="648" x2="364" y2="648" stroke="#c7d2fe" stroke-width="2"/>
+<rect x="364" y="634" width="256" height="28" rx="14" fill="#fff" stroke="#86efac" stroke-width="1.2" stroke-dasharray="4 3"/>
+<text x="378" y="653" class="s">Retrospektiv </text>
+<text x="608" y="653" text-anchor="end" style="font-size:13px;font-weight:700;fill:#16a34a">✓</text>
+<rect x="640" y="292" width="280" height="86" rx="10" fill="#eef2ff" stroke="#4f46e5" stroke-width="1.5"/>
+<text x="654" y="314" class="lbl">EPIC 3</text>
+<rect x="836" y="300" width="72" height="20" rx="10" fill="#fef3c7"/><text x="872" y="314" text-anchor="middle" style="font-size:11.5px;font-weight:700;fill:#92400e">pågår</text>
+<text x="654" y="341" class="b" style="font-size:15px">Finne og bekrefte rapporter</text>
+<text x="654" y="364" class="m">Dekker FR-6, FR-7</text>
+<path d="M923 329L937 335L923 341z" fill="#4f46e5"/>
+<line x1="652" y1="378" x2="652" y2="662" stroke="#c7d2fe" stroke-width="2"/>
+<line x1="652" y1="406" x2="664" y2="406" stroke="#c7d2fe" stroke-width="2"/>
+<rect x="664" y="392" width="256" height="28" rx="6" fill="#f0fdf4" stroke="#86efac" stroke-width="1.2"/>
+<text x="674" y="411" class="s b">3.1</text><text x="704" y="411" class="s">Filtrere og sortere lista</text>
+<text x="908" y="411" text-anchor="end" style="font-size:13px;font-weight:700;fill:#16a34a">✓</text>
+<line x1="652" y1="440" x2="664" y2="440" stroke="#c7d2fe" stroke-width="2"/>
+<rect x="664" y="426" width="256" height="28" rx="6" fill="#f0fdf4" stroke="#86efac" stroke-width="1.2"/>
+<text x="674" y="445" class="s b">3.2</text><text x="704" y="445" class="s">Mine rapporter</text>
+<text x="908" y="445" text-anchor="end" style="font-size:13px;font-weight:700;fill:#16a34a">✓</text>
+<line x1="652" y1="474" x2="664" y2="474" stroke="#c7d2fe" stroke-width="2"/>
+<rect x="664" y="460" width="256" height="28" rx="6" fill="#f0fdf4" stroke="#86efac" stroke-width="1.2"/>
+<text x="674" y="479" class="s b">3.3</text><text x="704" y="479" class="s">Bekrefte en rapport</text>
+<text x="908" y="479" text-anchor="end" style="font-size:13px;font-weight:700;fill:#16a34a">✓</text>
+<line x1="652" y1="648" x2="664" y2="648" stroke="#c7d2fe" stroke-width="2"/>
+<rect x="664" y="634" width="256" height="28" rx="14" fill="#fff" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="4 3"/>
+<text x="678" y="653" class="s">Retrospektiv (valgfri)</text>
+<rect x="940" y="292" width="280" height="86" rx="10" fill="#eef2ff" stroke="#4f46e5" stroke-width="1.5"/>
+<text x="954" y="314" class="lbl">EPIC 4</text>
+<rect x="1136" y="300" width="72" height="20" rx="10" fill="#e5e7eb"/><text x="1172" y="314" text-anchor="middle" style="font-size:11.5px;font-weight:700;fill:#374151">backlog</text>
+<text x="954" y="341" class="b" style="font-size:15px">Moderator følger opp sakene</text>
+<text x="954" y="364" class="m">Dekker FR-2, FR-8, FR-9</text>
+<line x1="952" y1="378" x2="952" y2="662" stroke="#c7d2fe" stroke-width="2"/>
+<line x1="952" y1="406" x2="964" y2="406" stroke="#c7d2fe" stroke-width="2"/>
+<rect x="964" y="392" width="256" height="28" rx="6" fill="#f9fafb" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="4 3"/>
+<text x="974" y="411" class="s b">4.1</text><text x="1004" y="411" class="s">Endre status</text>
+<line x1="952" y1="440" x2="964" y2="440" stroke="#c7d2fe" stroke-width="2"/>
+<rect x="964" y="426" width="256" height="28" rx="6" fill="#f9fafb" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="4 3"/>
+<text x="974" y="445" class="s b">4.2</text><text x="1004" y="445" class="s">Skjule og vise en rapport</text>
+<line x1="952" y1="474" x2="964" y2="474" stroke="#c7d2fe" stroke-width="2"/>
+<rect x="964" y="460" width="256" height="28" rx="6" fill="#f9fafb" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="4 3"/>
+<text x="974" y="479" class="s b">4.3</text><text x="1004" y="479" class="s">Sensor kan starte appen</text>
+<line x1="952" y1="648" x2="964" y2="648" stroke="#c7d2fe" stroke-width="2"/>
+<rect x="964" y="634" width="256" height="28" rx="14" fill="#fff" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="4 3"/>
+<text x="978" y="653" class="s">Retrospektiv (valgfri)</text>
+<rect x="664" y="504" width="256" height="64" rx="8" fill="#fffbeb" stroke="#f59e0b" stroke-width="1.5"/>
+<text x="676" y="525" class="s b" style="fill:#92400e">Vi er her (19. november 2026)</text><text x="676" y="543" class="xs">Alle tre stories i Epic 3 er ferdige.</text><text x="676" y="558" class="xs">Epic 4 er neste.</text>
+<rect x="964" y="504" width="256" height="64" rx="8" fill="#f9fafb" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="4 3"/>
+<text x="976" y="525" class="s b">Må ikke bli liggende</text><text x="976" y="543" class="xs">Moderatorfunksjonene bør startes</text><text x="976" y="558" class="xs">senest to uker før fristen.</text>
+<rect x="40" y="686" width="22" height="14" rx="4" fill="#f0fdf4" stroke="#86efac"/><text x="70" y="698" class="xs">Story ferdig (done)</text>
+<rect x="190" y="686" width="22" height="14" rx="4" fill="#f9fafb" stroke="#9ca3af" stroke-dasharray="3 2"/><text x="220" y="698" class="xs">Story i backlog</text>
+<text x="320" y="698" class="xs">▶ Epicene tas i rekkefølge, og hver bygger bare på de foran.</text>
+<rect x="40" y="716" width="1200" height="270" rx="12" fill="#ecfeff" stroke="#0891b2" stroke-width="1.5"/>
+<text x="60" y="746" class="h2">SPRINT: arbeidet tas én story om gangen, og status følges i sprint-status.yaml</text>
+<text x="60" y="766" class="xs">Ingen faste uker: sprinten er rytmen story for story. Hver story flytter seg gjennom fem statuser, og epic-statusen følger med.</text>
+<path d="M60 782H266L280 804L266 826H60L74 804z" fill="#e5e7eb" stroke="#374151" stroke-width="1.2"/>
+<text x="170" y="809" text-anchor="middle" class="b" style="font-size:14px;fill:#374151">backlog</text>
+<text x="74" y="856" class="b" style="font-size:22px;fill:#374151">3</text><text x="92" y="856" class="xs">stories (4.1 til 4.3)</text>
+<text x="74" y="874" class="m">bare i epics.md</text>
+<path d="M292 782H498L512 804L498 826H292L306 804z" fill="#dbeafe" stroke="#1e40af" stroke-width="1.2"/>
+<text x="402" y="809" text-anchor="middle" class="b" style="font-size:14px;fill:#1e40af">ready-for-dev</text>
+<text x="306" y="856" class="b" style="font-size:22px;fill:#1e40af">0</text><text x="324" y="856" class="xs">stories</text>
+<text x="306" y="874" class="m">spec-fil er laget</text>
+<path d="M524 782H730L744 804L730 826H524L538 804z" fill="#fef3c7" stroke="#92400e" stroke-width="1.2"/>
+<text x="634" y="809" text-anchor="middle" class="b" style="font-size:14px;fill:#92400e">in-progress</text>
+<text x="538" y="856" class="b" style="font-size:22px;fill:#92400e">0</text><text x="556" y="856" class="xs">stories</text>
+<text x="538" y="874" class="m">bygges nå</text>
+<path d="M756 782H962L976 804L962 826H756L770 804z" fill="#ede9fe" stroke="#5b21b6" stroke-width="1.2"/>
+<text x="866" y="809" text-anchor="middle" class="b" style="font-size:14px;fill:#5b21b6">review</text>
+<text x="770" y="856" class="b" style="font-size:22px;fill:#5b21b6">0</text><text x="788" y="856" class="xs">stories</text>
+<text x="770" y="874" class="m">klar for kodegjennomgang</text>
+<path d="M988 782H1194L1208 804L1194 826H988L1002 804z" fill="#dcfce7" stroke="#166534" stroke-width="1.2"/>
+<text x="1098" y="809" text-anchor="middle" class="b" style="font-size:14px;fill:#166534">done</text>
+<text x="1002" y="856" class="b" style="font-size:22px;fill:#166534">15</text><text x="1032" y="856" class="xs">stories (1.1 til 3.3)</text>
+<text x="1002" y="874" class="m">ferdig og flettet</text>
+<text x="60" y="902" class="s b">Arbeidsløkke for hver story</text>
+<rect x="60" y="912" width="128" height="30" rx="15" fill="#fff" stroke="#0891b2" stroke-width="1.2"/><text x="124" y="932" text-anchor="middle" class="s">Les</text>
+<line x1="190" y1="927" x2="206" y2="927" stroke="#0891b2" stroke-width="1.5" marker-end="url(#ar)"/>
+<rect x="208" y="912" width="128" height="30" rx="15" fill="#fff" stroke="#0891b2" stroke-width="1.2"/><text x="272" y="932" text-anchor="middle" class="s">Plan</text>
+<line x1="338" y1="927" x2="354" y2="927" stroke="#0891b2" stroke-width="1.5" marker-end="url(#ar)"/>
+<rect x="356" y="912" width="128" height="30" rx="15" fill="#fff" stroke="#0891b2" stroke-width="1.2"/><text x="420" y="932" text-anchor="middle" class="s">Bygg</text>
+<line x1="486" y1="927" x2="502" y2="927" stroke="#0891b2" stroke-width="1.5" marker-end="url(#ar)"/>
+<rect x="504" y="912" width="128" height="30" rx="15" fill="#fff" stroke="#0891b2" stroke-width="1.2"/><text x="568" y="932" text-anchor="middle" class="s">Test</text>
+<line x1="634" y1="927" x2="650" y2="927" stroke="#0891b2" stroke-width="1.5" marker-end="url(#ar)"/>
+<rect x="652" y="912" width="128" height="30" rx="15" fill="#fff" stroke="#0891b2" stroke-width="1.2"/><text x="716" y="932" text-anchor="middle" class="s">Gjennomgang</text>
+<line x1="782" y1="927" x2="798" y2="927" stroke="#0891b2" stroke-width="1.5" marker-end="url(#ar)"/>
+<rect x="800" y="912" width="128" height="30" rx="15" fill="#fff" stroke="#0891b2" stroke-width="1.2"/><text x="864" y="932" text-anchor="middle" class="s">Prøv selv</text>
+<line x1="930" y1="927" x2="946" y2="927" stroke="#0891b2" stroke-width="1.5" marker-end="url(#ar)"/>
+<rect x="948" y="912" width="128" height="30" rx="15" fill="#fff" stroke="#0891b2" stroke-width="1.2"/><text x="1012" y="932" text-anchor="middle" class="s">PR (Closes #N)</text>
+<line x1="1078" y1="927" x2="1094" y2="927" stroke="#0891b2" stroke-width="1.5" marker-end="url(#ar)"/>
+<rect x="1096" y="912" width="128" height="30" rx="15" fill="#fff" stroke="#0891b2" stroke-width="1.2"/><text x="1160" y="932" text-anchor="middle" class="s">Logg</text>
+<text x="60" y="968" class="xs">Epic-statusen går til in-progress når første story starter, og til done når alle storyene er ferdige. «Ferdig» krever grønne tester, PR og oppdatert dokumentasjon.</text>
+<text x="40" y="1022" class="h2">Hvorfor gjør vi dette steget?</text>
+<rect x="40" y="1036" width="285" height="135" rx="10" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.2"/>
+<circle cx="62" cy="1060" r="11" fill="#4f46e5"/><text x="62" y="1065" text-anchor="middle" style="fill:#fff;font-weight:700;font-size:12.5px">1</text>
+<text x="82" y="1065" class="b" style="font-size:14.5px">Stort blir lite</text>
+<text x="56" y="1092" class="m">Hele appen kan ikke bygges og testes</text>
+<text x="56" y="1111" class="m">i ett steg. En story er liten nok til</text>
+<text x="56" y="1130" class="m">én branch, én PR og én testrunde,</text>
+<text x="56" y="1149" class="m">så feil oppdages tidlig.</text>
+<rect x="345" y="1036" width="285" height="135" rx="10" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.2"/>
+<circle cx="367" cy="1060" r="11" fill="#4f46e5"/><text x="367" y="1065" text-anchor="middle" style="fill:#fff;font-weight:700;font-size:12.5px">2</text>
+<text x="387" y="1065" class="b" style="font-size:14.5px">Hvert krav har et hjem</text>
+<text x="361" y="1092" class="m">Hvert FR-krav dekkes av en epic, og</text>
+<text x="361" y="1111" class="m">hver story har akseptansekriterier.</text>
+<text x="361" y="1130" class="m">Da kan vi vise sensor at alt i PRD-en</text>
+<text x="361" y="1149" class="m">er bygd og testet.</text>
+<rect x="650" y="1036" width="285" height="135" rx="10" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.2"/>
+<circle cx="672" cy="1060" r="11" fill="#4f46e5"/><text x="672" y="1065" text-anchor="middle" style="fill:#fff;font-weight:700;font-size:12.5px">3</text>
+<text x="692" y="1065" class="b" style="font-size:14.5px">Riktig rekkefølge</text>
+<text x="666" y="1092" class="m">Epicene bygger på hverandre. Det mest</text>
+<text x="666" y="1111" class="m">usikre kommer tidlig: bildespiken (1.6)</text>
+<text x="666" y="1130" class="m">før Epic 2. KI-valget (2.5) står sist og</text>
+<text x="666" y="1149" class="m">kan kuttes uten å stoppe appen.</text>
+<rect x="955" y="1036" width="285" height="135" rx="10" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.2"/>
+<circle cx="977" cy="1060" r="11" fill="#4f46e5"/><text x="977" y="1065" text-anchor="middle" style="fill:#fff;font-weight:700;font-size:12.5px">4</text>
+<text x="997" y="1065" class="b" style="font-size:14.5px">Oversikt hele veien</text>
+<text x="971" y="1092" class="m">Statusfila viser alltid hva som er ferdig</text>
+<text x="971" y="1111" class="m">og hva som er neste. Blir tiden knapp,</text>
+<text x="971" y="1130" class="m">vet vi hva som forenkles først, og</text>
+<text x="971" y="1149" class="m">hva som aldri kuttes (FR-1 til FR-9).</text>
+<text x="40" y="1200" class="xs">Kilder: docs/planning-artifacts/epics.md og docs/implementation-artifacts/sprint-status.yaml. Status per 19. november 2026.</text>
+</svg>
