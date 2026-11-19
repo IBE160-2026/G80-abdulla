@@ -1,4 +1,4 @@
-// Genererer lib/supabase/database.types.ts fra den lokale databasen (AR-10).
+// Genererer shared/supabase/database.types.ts fra den lokale databasen (AR-10).
 //
 //   node scripts/db-types.mjs           skriver fila (npm run db:types)
 //   node scripts/db-types.mjs --check   feiler hvis fila ikke er lik det
@@ -12,7 +12,7 @@ import { readFileSync, renameSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
 const TARGET = fileURLToPath(
-  new URL("../lib/supabase/database.types.ts", import.meta.url),
+  new URL("../shared/supabase/database.types.ts", import.meta.url),
 );
 const check = process.argv.includes("--check");
 
@@ -49,14 +49,14 @@ if (check) {
   }
   if (normalize(current) !== normalize(generated)) {
     console.error(
-      "lib/supabase/database.types.ts er ikke lik skjemaet i databasen. Kjør `npm run db:types` og commit fila.",
+      "shared/supabase/database.types.ts er ikke lik skjemaet i databasen. Kjør `npm run db:types` og commit fila.",
     );
     process.exit(1);
   }
-  console.log("lib/supabase/database.types.ts er lik skjemaet i databasen.");
+  console.log("shared/supabase/database.types.ts er lik skjemaet i databasen.");
 } else {
   const temporary = `${TARGET}.tmp`;
   writeFileSync(temporary, generated);
   renameSync(temporary, TARGET);
-  console.log("Skrev lib/supabase/database.types.ts.");
+  console.log("Skrev shared/supabase/database.types.ts.");
 }

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import { SiteHeader } from "@/components/site-header";
-import { Toaster } from "@/components/ui/sonner";
-import { getViewer } from "@/lib/supabase/auth";
+import { SiteHeader } from "@/shared/layout/site-header";
+import { Toaster } from "@/shared/ui/sonner";
+import { getViewer } from "@/shared/supabase/auth";
 import "./globals.css";
 
 export const metadata: Metadata = {

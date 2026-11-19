@@ -1,6 +1,6 @@
-import type { SuggestStatus } from "@/lib/ai";
-import { AI_TIMEOUT_MS } from "@/lib/ai/timeout";
-import type { ReportCategory } from "@/lib/supabase/types";
+import type { SuggestStatus } from "@/features/registrering/ai";
+import { AI_TIMEOUT_MS } from "@/features/registrering/ai/timeout";
+import type { ReportCategory } from "@/shared/supabase/types";
 import { isSuspect } from "./language";
 
 // Poengsum og avgjørelse for SM-5 (Story 2.5, PRD §11). Ren logikk uten

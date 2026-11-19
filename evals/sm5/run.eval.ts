@@ -1,13 +1,13 @@
 import { expect, test } from "vitest";
-import { suggestWithOutcome } from "@/lib/ai";
-import { serverEnv } from "@/lib/env";
+import { suggestWithOutcome } from "@/features/registrering/ai";
+import { serverEnv } from "@/shared/lib/env";
 import { formatReport } from "./report";
 import { assertModeMatchesProvider, pauseMs, runInfoFrom, toCaseResult } from "./run-helpers";
 import type { CaseResult } from "./score";
 import { SM5_TESTSET } from "./testset";
 
 // SM-5-kjøringen (Story 2.5): sender testsettet, ett kall om gangen, gjennom
-// samme `lib/ai` som appen og skriver resultatet. `npm run eval:sm5` bruker
+// samme `features/registrering/ai` som appen og skriver resultatet. `npm run eval:sm5` bruker
 // .env. Mot en leverandør: `npm run eval:sm5 -- --mode groq` leser .env og så
 // .env.groq (ignorert av git, med AI_PROVIDER=openai, AI_BASE_URL, AI_MODEL og
 // AI_API_KEY). Kjøringen feiler når miljøet er ugyldig eller når `--mode`

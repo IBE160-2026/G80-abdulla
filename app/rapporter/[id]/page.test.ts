@@ -9,11 +9,11 @@ const getReport = vi.fn();
 const getViewer = vi.fn();
 const NOT_FOUND = new Error("NEXT_NOT_FOUND");
 
-vi.mock("@/lib/supabase/reports", () => ({ getReport }));
-vi.mock("@/lib/supabase/auth", () => ({ getViewer }));
+vi.mock("@/features/rapporter/queries", () => ({ getReport }));
+vi.mock("@/shared/supabase/auth", () => ({ getViewer }));
 // ReportDetail importerer ConfirmSection, som importerer Server Action-en og
 // dermed Supabase-klienten, som krever miljøvariabler.
-vi.mock("./actions", () => ({ confirmReport: vi.fn() }));
+vi.mock("@/features/bekreftelser/actions", () => ({ confirmReport: vi.fn() }));
 vi.mock("next/navigation", () => ({
   notFound: () => {
     throw NOT_FOUND;
@@ -21,7 +21,7 @@ vi.mock("next/navigation", () => ({
 }));
 
 const { default: ReportPage } = await import("./page");
-const { ReportDetail } = await import("@/components/report-detail");
+const { ReportDetail } = await import("@/features/rapporter/components/report-detail");
 
 const render = (id: string) => ReportPage({ params: Promise.resolve({ id }) });
 

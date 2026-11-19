@@ -5,7 +5,8 @@ import tailwindcssAnimate from "tailwindcss-animate";
 // app/globals.css. Radiusene og fontstørrelsene står eksplisitt her.
 export default {
   content: [
-    "./components/**/*.{js,ts,jsx,tsx,mdx}",
+    "./features/**/*.{js,ts,jsx,tsx,mdx}",
+    "./shared/**/*.{js,ts,jsx,tsx,mdx}",
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
@@ -70,7 +71,7 @@ export default {
         lg: "12px",
       },
       // Systemfonten fra Tailwinds sans-stack. Brukes som text-title osv.
-      // Klassenavnene står også i lib/utils.ts, så cn() vet at de er
+      // Klassenavnene står også i shared/lib/utils.ts, så cn() vet at de er
       // fontstørrelser og ikke farger.
       fontSize: {
         title: ["20px", { lineHeight: "1.3", fontWeight: "600" }],

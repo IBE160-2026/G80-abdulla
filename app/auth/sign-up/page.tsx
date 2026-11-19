@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { SignUpForm } from "@/components/sign-up-form";
+import { SignUpForm } from "@/features/auth/components/sign-up-form";
 
 export const metadata: Metadata = {
   title: "Registrer konto · LocalFix",

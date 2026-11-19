@@ -1,8 +1,8 @@
 // Hjelperne for SM-5-kjøringen (Story 2.5): raden i resultatet, valget mellom
 // mock og leverandør, pausen, og stoppen når `--mode` ikke ga en leverandør.
 import { describe, expect, test } from "vitest";
-import type { SuggestOutcome } from "@/lib/ai";
-import type { ServerEnv } from "@/lib/env";
+import type { SuggestOutcome } from "@/features/registrering/ai";
+import type { ServerEnv } from "@/shared/lib/env";
 import { formatReport } from "./report";
 import { assertModeMatchesProvider, pauseMs, PROVIDER_PAUSE_MS, runInfoFrom, toCaseResult } from "./run-helpers";
 import { SM5_TESTSET } from "./testset";

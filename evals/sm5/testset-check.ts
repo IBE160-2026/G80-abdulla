@@ -1,5 +1,5 @@
-import { DESCRIPTION_MAX } from "@/lib/limits";
-import { Constants } from "@/lib/supabase/database.types";
+import { DESCRIPTION_MAX } from "@/shared/lib/limits";
+import { Constants } from "@/shared/supabase/database.types";
 import type { SM5Case } from "./testset";
 
 // Sjekker formen på SM-5-testsettet (Story 2.5, AR-15). Gir en liste med

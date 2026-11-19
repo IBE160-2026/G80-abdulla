@@ -6,7 +6,7 @@
 // etter orienteringen, bildet på detaljsiden og ikonet i lista, at en feilet
 // innsending beholder bildet, og at serverens avvisning vises ved feltet. axe og
 // breddesjekk på 360, 320 og 1280 px. Alle bilder lages med sharp
-// (lib/test-images.ts), og GPS-koordinatene er oppdiktet. Testene lager
+// (e2e/test-images.ts), og GPS-koordinatene er oppdiktet. Testene lager
 // rapporter og bilder, så de ligger i endrer-prosjektene.
 import { randomUUID } from "node:crypto";
 import { expect, test, type Page } from "@playwright/test";
@@ -19,7 +19,7 @@ import {
   jpegOverLimit,
   jpegWithExif,
   plainJpeg,
-} from "../../lib/test-images";
+} from "@/e2e/test-images";
 import { expectNoSeriousA11yViolations } from "../a11y";
 import { logIn } from "../auth";
 import { expectNoHorizontalScroll } from "../layout";

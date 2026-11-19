@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { ReportDetail } from "@/components/report-detail";
-import { parseReportId } from "@/lib/report-id";
-import { getViewer } from "@/lib/supabase/auth";
-import { getReport } from "@/lib/supabase/reports";
+import { ReportDetail } from "@/features/rapporter/components/report-detail";
+import { parseReportId } from "@/shared/report/report-id";
+import { getViewer } from "@/shared/supabase/auth";
+import { getReport } from "@/features/rapporter/queries";
 
 // Detaljsiden leser visningen med brukerens sesjon og lager en signert lenke
 // til bildet, så den skal aldri caches (AR-11, AD-13). Next sender da
