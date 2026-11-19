@@ -1,9 +1,13 @@
 -- Skriving (AD-12): fra Story 2.2 kan authenticated sette inn i reports, og
 -- bare på kolonnene description, location, category, summary og image_path.
+-- Fra Story 3.3 kan authenticated også sette inn i confirmations, bare på
+-- report_id (reglene for bekreftelser testes i bekreftelser.sql).
 -- Alt annet gir 42501 for anon, authenticated og moderatoren: INSERT på
--- profiles og confirmations, INSERT med author_id, status, hidden, created_at
--- eller status_changed_at, og UPDATE, DELETE og TRUNCATE på alle tabellene.
--- Resten av skrivereglene kommer i Epic 3–4, og da endres denne fila.
+-- profiles, INSERT på confirmations for anon, INSERT med author_id, status,
+-- hidden, created_at eller status_changed_at, og UPDATE, DELETE og TRUNCATE
+-- på alle tabellene. `insert into confirmations default values` som innlogget
+-- gir 42501 fra policyen (report_id mangler), ikke fra granten.
+-- Resten av skrivereglene kommer i Epic 4, og da endres denne fila.
 begin;
 \ir hjelpere.psql
 
@@ -32,6 +36,7 @@ select is(
   array[
     'confirmations anon SELECT',
     'confirmations authenticated SELECT',
+    'confirmations.report_id authenticated INSERT',
     'profiles authenticated SELECT',
     'reports anon SELECT',
     'reports authenticated SELECT',
@@ -43,7 +48,7 @@ select is(
     'reports_with_counts anon SELECT',
     'reports_with_counts authenticated SELECT'
   ],
-  'anon og authenticated har lesegrantene og INSERT på fem kolonner i reports (AD-12)'
+  'anon og authenticated har lesegrantene, INSERT på fem kolonner i reports og på report_id i confirmations (AD-12)'
 );
 
 -- Policyen for INSERT navngir rollen og sjekker forfatteren.

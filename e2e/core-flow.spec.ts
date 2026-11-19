@@ -294,6 +294,11 @@ test("kjerneflyten med tastatur", async ({ page }) => {
   await expect(main.getByRole("heading", { level: 1, name: summary, exact: true })).toBeVisible();
   await expect(main.getByText(text, { exact: true })).toBeVisible();
   await expect(main.getByText("1 har sett dette", { exact: true })).toBeVisible();
+  // Story 3.3: rapportøren kan ikke bekrefte sin egen rapport.
+  await expect(main.getByRole("button", { name: "Din rapport", exact: true })).toHaveAttribute(
+    "aria-disabled",
+    "true",
+  );
   // Bildet står på detaljsiden (SM-1).
   const detailImage = main.getByRole("img", { name: "Bilde fra rapporten", exact: true });
   await expect(detailImage).toBeVisible();
@@ -309,8 +314,10 @@ test("kjerneflyten med tastatur", async ({ page }) => {
     await page.setViewportSize({ width: 360, height: 800 });
   }
 
-  // «←» går til lista, og rapporten står øverst med status Ny.
-  await tabTo(page, "link", "Tilbake til lista", { max: 10 });
+  // «←» går til lista, og rapporten står øverst med status Ny. Etter innsendingen
+  // fortsetter Tab fra stedet der «Send inn» sto, og bekreftknappen (Story 3.3)
+  // og toasten står etter det, så topplinja nås med Shift+Tab.
+  await tabTo(page, "link", "Tilbake til lista", { max: 10, reverse: true });
   await page.keyboard.press("Enter");
   await expect(page).toHaveURL("/");
   await expect(listHeading).toBeVisible();
@@ -332,6 +339,31 @@ test("kjerneflyten med tastatur", async ({ page }) => {
   await expect(cards.first()).toContainText(summary);
   await expect(cards.filter({ hasText: "Slukkede gatelys på gangveien" })).toHaveCount(0);
   await expect(cards.filter({ hasText: "Full søppelkasse ved hovedinngangen" })).toHaveCount(0);
+  await expectNoSeriousA11yViolations(page);
+  await expectNoHorizontalScroll(page);
+
+  // Story 3.3: bekreft en annens rapport bare med tastatur. Enter på «Mine
+  // rapporter» slår den av, og Tab går gjennom kortene til rapport 2 (bruker2s
+  // rapport). Kjerneflytbrukeren for prosjektet har ikke bekreftet den, og
+  // hvert prosjekt har sin egen bruker. Telleren er seed-tallet pluss det
+  // første prosjektet har lagt til, så den leses først. Telleren går opp med
+  // én, og knappen beholder fokus som «Du har sett dette ✓».
+  await page.keyboard.press("Enter");
+  await expect(page).toHaveURL("/");
+  await expect(mine).toHaveAttribute("aria-pressed", "false");
+  await expect.poll(() => cards.count()).toBeGreaterThanOrEqual(SEED_CARDS);
+  await tabTo(page, "link", /Slukkede gatelys på gangveien/, { max: 100 });
+  await page.keyboard.press("Enter");
+  await expect(page).toHaveURL("/rapporter/20000000-0000-4000-8000-000000000002");
+  const seenText = page.getByRole("main").locator('[aria-live="polite"]');
+  await expect(seenText).toHaveText(/^\d+ har sett dette$/);
+  const seenBefore = Number.parseInt((await seenText.textContent()) ?? "", 10);
+  await tabTo(page, "button", "Jeg har også sett dette", { max: 20 });
+  await page.keyboard.press("Enter");
+  await expect(seenText).toHaveText(`${seenBefore + 1} har sett dette`);
+  const confirmed = page.getByRole("main").getByRole("button", { name: "Du har sett dette ✓", exact: true });
+  await expect(confirmed).toHaveAttribute("aria-disabled", "true");
+  await expect(confirmed).toBeFocused();
   await expectNoSeriousA11yViolations(page);
   await expectNoHorizontalScroll(page);
 });

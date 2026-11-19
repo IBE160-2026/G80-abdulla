@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { ReportDetail } from "@/components/report-detail";
 import { parseReportId } from "@/lib/report-id";
+import { getViewer } from "@/lib/supabase/auth";
 import { getReport } from "@/lib/supabase/reports";
 
 // Detaljsiden leser visningen med brukerens sesjon og lager en signert lenke
@@ -20,7 +21,9 @@ export const metadata: Metadata = {
  * bildelenke lages. Appen filtrerer aldri på `hidden` selv. Siden har ingen
  * lastegrense, så Next rekker å svare 404 før noe strømmes (Design Notes i
  * spec-en for Story 1.5). Komponenten får bare den signerte lenken, aldri
- * bildestien (Story 1.7).
+ * bildestien (Story 1.7). `getViewer()` gir bare om brukeren er innlogget
+ * (Story 3.3), så bekreftknappen vet om en besøkende skal til innlogging. Den
+ * leses etter rapporten, så en 404 aldri gir et kall til Auth.
  */
 export default async function ReportPage({
   params,
@@ -32,10 +35,11 @@ export default async function ReportPage({
 
   const result = await getReport(id);
   if (!result) notFound();
+  const isSignedIn = (await getViewer()).user !== null;
 
   return (
     <main className="mx-auto w-full max-w-[640px] px-4 pb-8 pt-4">
-      <ReportDetail report={result.report} imageUrl={result.imageUrl} />
+      <ReportDetail report={result.report} imageUrl={result.imageUrl} isSignedIn={isSignedIn} />
     </main>
   );
 }

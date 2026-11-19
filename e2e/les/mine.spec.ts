@@ -90,6 +90,9 @@ const sortSelect = (page: Page) => page.getByRole("combobox", { name: "Sortering
 const filterGroup = (page: Page) => page.getByRole("group", { name: "Filtrer rapportene", exact: true });
 
 async function shownReports(page: Page): Promise<number[]> {
+  // Lista strømmes inn bak en lasteskjerm («Laster rapportene …»). Uten ventingen
+  // kan kortene leses før de er kommet, og svaret er da en tom liste.
+  await expect(page.getByText("Laster rapportene …", { exact: true })).toHaveCount(0);
   const hrefs = await cardLinks(page).evaluateAll((elements) =>
     elements.map((element) => element.getAttribute("href") ?? ""),
   );
