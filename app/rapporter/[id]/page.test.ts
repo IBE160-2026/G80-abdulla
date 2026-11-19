@@ -11,7 +11,7 @@ const NOT_FOUND = new Error("NEXT_NOT_FOUND");
 
 vi.mock("@/features/rapporter/queries", () => ({ getReport }));
 vi.mock("@/shared/supabase/auth", () => ({ getViewer }));
-// ReportDetail importerer ConfirmSection, som importerer Server Action-en og
+// Siden importerer ConfirmSection, som importerer Server Action-en og
 // dermed Supabase-klienten, som krever miljøvariabler.
 vi.mock("@/features/bekreftelser/actions", () => ({ confirmReport: vi.fn() }));
 vi.mock("next/navigation", () => ({
@@ -22,6 +22,7 @@ vi.mock("next/navigation", () => ({
 
 const { default: ReportPage } = await import("./page");
 const { ReportDetail } = await import("@/features/rapporter/components/report-detail");
+const { ConfirmSection } = await import("@/features/bekreftelser/components/confirm-section");
 
 const render = (id: string) => ReportPage({ params: Promise.resolve({ id }) });
 
@@ -60,7 +61,30 @@ test("en synlig rapport gir ReportDetail med rapporten og den signerte lenken", 
   const page = await render("20000000-0000-4000-8000-000000000002");
   const detail = page.props.children;
   expect(detail.type).toBe(ReportDetail);
-  expect(detail.props).toEqual({ report, imageUrl, isSignedIn: false });
+  expect(detail.props.report).toBe(report);
+  expect(detail.props.imageUrl).toBe(imageUrl);
+});
+
+test("bekreftelsen settes inn i ReportDetail som children, med tallene fra rapporten", async () => {
+  const report = {
+    id: "20000000-0000-4000-8000-000000000002",
+    seen_count: 4,
+    confirmed_by_me: false,
+    authored_by_me: true,
+    hidden: false,
+  };
+  getReport.mockResolvedValue({ report, imageUrl: null });
+  const page = await render("20000000-0000-4000-8000-000000000002");
+  const confirm = page.props.children.props.children;
+  expect(confirm.type).toBe(ConfirmSection);
+  expect(confirm.props).toEqual({
+    reportId: report.id,
+    seenCount: 4,
+    confirmedByMe: false,
+    authoredByMe: true,
+    hidden: false,
+    isSignedIn: false,
+  });
 });
 
 test("en innlogget bruker gir isSignedIn true, en besøkende false", async () => {
@@ -68,15 +92,16 @@ test("en innlogget bruker gir isSignedIn true, en besøkende false", async () =>
   getReport.mockResolvedValue({ report, imageUrl: null });
   getViewer.mockResolvedValue({ user: { id: "u1", email: "bruker1@localfix.test" }, isModerator: false });
   const signedIn = await render("20000000-0000-4000-8000-000000000002");
-  expect(signedIn.props.children.props.isSignedIn).toBe(true);
+  expect(signedIn.props.children.props.children.props.isSignedIn).toBe(true);
   getViewer.mockResolvedValue({ user: null, isModerator: false });
   const visitor = await render("20000000-0000-4000-8000-000000000002");
-  expect(visitor.props.children.props.isSignedIn).toBe(false);
+  expect(visitor.props.children.props.children.props.isSignedIn).toBe(false);
 });
 
 test("en rapport uten bilde gir ReportDetail med imageUrl null", async () => {
   const report = { id: "20000000-0000-4000-8000-000000000001", has_image: false };
   getReport.mockResolvedValue({ report, imageUrl: null });
   const page = await render("20000000-0000-4000-8000-000000000001");
-  expect(page.props.children.props).toEqual({ report, imageUrl: null, isSignedIn: false });
+  expect(page.props.children.props.report).toBe(report);
+  expect(page.props.children.props.imageUrl).toBeNull();
 });

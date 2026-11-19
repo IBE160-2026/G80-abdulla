@@ -1,4 +1,4 @@
-import { ConfirmSection } from "@/features/bekreftelser/components/confirm-section";
+import type { ReactNode } from "react";
 import { StatusBadge } from "@/shared/report/status-badge";
 import { formatDateTime } from "@/shared/lib/format";
 import { CATEGORY_LABELS } from "@/shared/report/labels";
@@ -18,18 +18,18 @@ import type { Report } from "@/shared/supabase/types";
  * kuttes bort. Margen er 8 px over og 12 px under, som `.photo` i
  * `detalj.html`.
  *
- * Telleren «N har sett dette» og bekreftknappen (Story 3.3, FR-7) står sist i
- * `ConfirmSection`, som viser fem tilstander ut fra `hidden`,
- * `authored_by_me`, `confirmed_by_me` og `isSignedIn`.
+ * Telleren «N har sett dette» og bekreftknappen (Story 3.3, FR-7) kommer som
+ * `children` og står sist. Siden i `app/` setter inn `ConfirmSection` fra
+ * `features/bekreftelser`, så `rapporter` ikke importerer en annen slice.
  */
 export function ReportDetail({
   report,
   imageUrl,
-  isSignedIn,
+  children,
 }: {
   report: Report;
   imageUrl: string | null;
-  isSignedIn: boolean;
+  children?: ReactNode;
 }) {
   const category = CATEGORY_LABELS[report.category];
 
@@ -65,14 +65,7 @@ export function ReportDetail({
       <p className="my-1.5 text-sm">
         Registrert {formatDateTime(report.created_at)}
       </p>
-      <ConfirmSection
-        reportId={report.id}
-        seenCount={report.seen_count}
-        confirmedByMe={report.confirmed_by_me}
-        authoredByMe={report.authored_by_me}
-        hidden={report.hidden}
-        isSignedIn={isSignedIn}
-      />
+      {children}
     </article>
   );
 }
