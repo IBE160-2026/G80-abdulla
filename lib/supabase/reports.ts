@@ -51,8 +51,9 @@ function fail(error: { code: string }, what: string): never {
 }
 
 /**
- * Rapportlista, filtrert på kategori og status og sortert etter `params`
- * (Story 3.1), lest med brukerens sesjon. `newest` sorterer på
+ * Rapportlista, filtrert på kategori, status og «Mine rapporter»
+ * (`authored_by_me`) og sortert etter `params` (Story 3.1 og 3.2), lest med
+ * brukerens sesjon. `newest` sorterer på
  * `created_at DESC, id DESC`, `confirmations` på `confirmation_count DESC,
  * created_at DESC, id DESC`, så likt antall gir nyeste først og `id` avgjør
  * resten. RLS bestemmer hvilke rapporter som er synlige, så her filtreres det
@@ -67,6 +68,9 @@ export async function listReports(params: ListParams): Promise<{
   let query = supabase.from("reports_with_counts").select(SERVER_COLUMNS);
   if (params.category) query = query.eq("category", params.category);
   if (params.status) query = query.eq("status", params.status);
+  // «Mine rapporter» (Story 3.2) bruker bare `authored_by_me` fra visningen,
+  // som databasen regner ut fra brukerens sesjon. Aldri `author_id` her.
+  if (params.mine) query = query.eq("authored_by_me", true);
   if (params.sort === "confirmations") {
     query = query.order("confirmation_count", { ascending: false });
   }

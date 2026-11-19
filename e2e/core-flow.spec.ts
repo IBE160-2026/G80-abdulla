@@ -319,4 +319,19 @@ test("kjerneflyten med tastatur", async ({ page }) => {
   // Og lista viser bildeikonet, aldri selve bildet.
   await expect(cards.first().getByRole("img", { name: "Har bilde", exact: true })).toBeVisible();
   await expect(cards.first().locator("img")).toHaveCount(0);
+
+  // Story 3.2: «Mine rapporter» er første brikke for en innlogget bruker og
+  // slås på med Enter. Lista viser da bare brukerens egne rapporter: den nye
+  // øverst, og ingen av seed-rapportene til bruker1 og bruker2.
+  await tabTo(page, "button", "Mine rapporter", { max: 20 });
+  await page.keyboard.press("Enter");
+  await expect(page).toHaveURL("/?mine=true");
+  const mine = page.getByRole("button", { name: "Mine rapporter", exact: true });
+  await expect(mine).toHaveAttribute("aria-pressed", "true");
+  await expect(mine).toBeFocused();
+  await expect(cards.first()).toContainText(summary);
+  await expect(cards.filter({ hasText: "Slukkede gatelys på gangveien" })).toHaveCount(0);
+  await expect(cards.filter({ hasText: "Full søppelkasse ved hovedinngangen" })).toHaveCount(0);
+  await expectNoSeriousA11yViolations(page);
+  await expectNoHorizontalScroll(page);
 });

@@ -2,14 +2,16 @@ import Link from "next/link";
 import { ReportCard } from "@/components/report-card";
 import { Button } from "@/components/ui/button";
 import { formatReportCount } from "@/lib/format";
-import { buildListHref, clearFilters, hasActiveFilter, type ListParams } from "@/lib/list-params";
+import { buildListHref, hasActiveFilter, resetFilters, type ListParams } from "@/lib/list-params";
 import type { Report } from "@/lib/supabase/types";
 
 /**
  * Rapportlista (UX-DR6, UX-DR16): antallet, teksten om avkortet liste og
  * kortene i en `ul`. En tom liste gir tomtilstanden uten antall: «Ingen
  * rapporter matcher filteret.» med «Nullstill filter» når et filter er aktivt
- * (Story 3.1), ellers beskjeden om at det ikke finnes rapporter ennå.
+ * (Story 3.1). Bare «Mine rapporter» aktiv gir «Du har ikke registrert noen
+ * rapporter ennå.» med «Registrer problem» (Story 3.2), ellers beskjeden om
+ * at det ikke finnes rapporter ennå.
  */
 export function ReportList({
   reports,
@@ -31,7 +33,21 @@ export function ReportList({
           Ingen rapporter matcher filteret.
         </p>
         <Button asChild variant="outline" className="h-11 px-6 text-base">
-          <Link href={buildListHref(clearFilters(params))}>Nullstill filter</Link>
+          <Link href={buildListHref(resetFilters(params))}>Nullstill filter</Link>
+        </Button>
+      </div>
+    );
+  }
+
+  // Bare «Mine rapporter» er aktiv og brukeren har ingen rapporter (Story 3.2).
+  if (reports.length === 0 && params.mine) {
+    return (
+      <div className="flex flex-col items-center gap-4 py-12 text-center">
+        <p role="status" className="text-muted-foreground">
+          Du har ikke registrert noen rapporter ennå.
+        </p>
+        <Button asChild className="h-11 px-6 text-base">
+          <Link href="/rapporter/ny">Registrer problem</Link>
         </Button>
       </div>
     );

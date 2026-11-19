@@ -15,6 +15,7 @@ import {
   clearFilters,
   LIST_SORTS,
   toggleFilter,
+  toggleMine,
   withSort,
   type ListParams,
   type ListSort,
@@ -26,12 +27,19 @@ const CATEGORIES = Constants.public.Enums.report_category;
 const STATUSES = Constants.public.Enums.report_status;
 
 /**
- * Filterbrikkene og sorteringen over lista (UX-DR7, UX-DR8). Alt kommer fra
+ * Filterbrikkene og sorteringen over lista (UX-DR7, UX-DR8). «Mine rapporter»
+ * står først og vises bare for innloggede (Story 3.2). Alt kommer fra
  * resultatet av `parseListParams`, og hvert trykk går til lenken
  * `buildListHref` lager, så tilstanden bor i URL-en. `router.push` med
  * `scroll: false` beholder fokus på brikken som ble trykket.
  */
-export function ListFilters({ params }: { params: ListParams }) {
+export function ListFilters({
+  params,
+  isSignedIn,
+}: {
+  params: ListParams;
+  isSignedIn: boolean;
+}) {
   const router = useRouter();
   // Propen kommer først når serveren har svart. Et nytt trykk før det må
   // bygge på det forrige trykket og ikke på den gamle propen, ellers faller
@@ -71,6 +79,11 @@ export function ListFilters({ params }: { params: ListParams }) {
         aria-label="Filtrer rapportene"
         className="-mx-4 flex gap-2 overflow-x-auto px-4 py-1"
       >
+        {isSignedIn && (
+          <Chip pressed={params.mine} onClick={() => go(toggleMine)}>
+            Mine rapporter
+          </Chip>
+        )}
         <Chip pressed={noFilter} onClick={() => go(clearFilters)}>
           Alle
         </Chip>

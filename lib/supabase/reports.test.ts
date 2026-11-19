@@ -43,7 +43,7 @@ const { LIST_LIMIT, getReport, listReports } = await import("./reports");
 const { REPORT_COLUMNS } = await import("./types");
 
 const SERVER_COLUMNS = `${REPORT_COLUMNS}, image_path`;
-const NEWEST = { sort: "newest" } as const;
+const NEWEST = { mine: false, sort: "newest" } as const;
 
 const ID = "20000000-0000-4000-8000-000000000002";
 const IMAGE_PATH =
@@ -104,13 +104,22 @@ describe("listReports", () => {
   });
 
   test.each([
-    [{ category: "lighting", sort: "newest" }, [["category", "lighting"]]],
-    [{ status: "resolved", sort: "newest" }, [["status", "resolved"]]],
+    [{ category: "lighting", mine: false, sort: "newest" }, [["category", "lighting"]]],
+    [{ status: "resolved", mine: false, sort: "newest" }, [["status", "resolved"]]],
     [
-      { category: "waste", status: "new", sort: "newest" },
+      { category: "waste", status: "new", mine: false, sort: "newest" },
       [
         ["category", "waste"],
         ["status", "new"],
+      ],
+    ],
+    [{ mine: true, sort: "newest" }, [["authored_by_me", true]]],
+    [
+      { category: "waste", status: "resolved", mine: true, sort: "confirmations" },
+      [
+        ["category", "waste"],
+        ["status", "resolved"],
+        ["authored_by_me", true],
       ],
     ],
   ] as const)("filteret %j gir bare .eq på kolonnen (aldri på hidden), før sorteringen", async (params, eqs) => {
@@ -127,9 +136,24 @@ describe("listReports", () => {
     expect(calls.some((c) => c.method === "eq")).toBe(false);
   });
 
+  test("«Mine rapporter» filtrerer med authored_by_me fra visningen, aldri på author_id eller hidden", async () => {
+    result = { data: rows(1), error: null };
+    await listReports({ mine: true, sort: "newest" });
+    expect(calls).toEqual([
+      { method: "from", args: ["reports_with_counts"] },
+      { method: "select", args: [SERVER_COLUMNS] },
+      { method: "eq", args: ["authored_by_me", true] },
+      { method: "order", args: ["created_at", { ascending: false }] },
+      { method: "order", args: ["id", { ascending: false }] },
+      { method: "limit", args: [500] },
+    ]);
+    // Kolonnelista har hidden, men ingen .eq (eller annet kall) bruker author_id eller hidden.
+    expect(JSON.stringify(calls.filter((c) => c.method !== "select"))).not.toMatch(/author_id|hidden/);
+  });
+
   test("«Flest har sett» sorterer på confirmation_count, så created_at og id, alle synkende", async () => {
     result = { data: rows(8), error: null };
-    await listReports({ sort: "confirmations" });
+    await listReports({ mine: false, sort: "confirmations" });
     expect(calls).toEqual([
       { method: "from", args: ["reports_with_counts"] },
       { method: "select", args: [SERVER_COLUMNS] },
@@ -142,8 +166,23 @@ describe("listReports", () => {
 
   test("filter og «Flest har sett» kan kombineres, med filteret først", async () => {
     result = { data: rows(2), error: null };
-    await listReports({ category: "roads_sidewalks", status: "in_progress", sort: "confirmations" });
-    expect(calls.map((c) => c.method)).toEqual(["from", "select", "eq", "eq", "order", "order", "order", "limit"]);
+    await listReports({
+      category: "roads_sidewalks",
+      status: "in_progress",
+      mine: true,
+      sort: "confirmations",
+    });
+    expect(calls.map((c) => c.method)).toEqual([
+      "from",
+      "select",
+      "eq",
+      "eq",
+      "eq",
+      "order",
+      "order",
+      "order",
+      "limit",
+    ]);
   });
 
   test.each([
