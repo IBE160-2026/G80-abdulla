@@ -1,5 +1,5 @@
-import type { SuggestOutcome } from "@/lib/ai";
-import type { ServerEnv } from "@/lib/env";
+import type { SuggestOutcome } from "@/features/registrering/ai";
+import type { ServerEnv } from "@/shared/lib/env";
 import type { RunInfo } from "./report";
 import type { CaseResult } from "./score";
 import type { SM5Case } from "./testset";

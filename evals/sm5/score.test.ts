@@ -1,7 +1,7 @@
 // Poengsum og avgjørelse for SM-5 (Story 2.5): grenseverdiene 15/16 riktige og
 // 4999/5000 ms, ugyldige svar, tidsavbrudd og språkhint.
 import { describe, expect, test } from "vitest";
-import { AI_TIMEOUT_MS } from "@/lib/ai/timeout";
+import { AI_TIMEOUT_MS } from "@/features/registrering/ai/timeout";
 import { decide, MAX_MS, MIN_HITS, summarize, type CaseResult } from "./score";
 
 function result(over: Partial<CaseResult> = {}): CaseResult {

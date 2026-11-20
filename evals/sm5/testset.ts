@@ -1,4 +1,4 @@
-import type { ReportCategory } from "@/lib/supabase/types";
+import type { ReportCategory } from "@/shared/supabase/types";
 
 // SM-5-testsettet (Story 2.5, AR-15, FR-4): 20 oppdiktede norske beskrivelser,
 // fire per kategori, med fasit. Alle tekstene er laget for testen. Ingen

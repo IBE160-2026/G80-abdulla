@@ -3,16 +3,16 @@ import { loadEnv } from "vite";
 import { configDefaults, defineConfig } from "vitest/config";
 
 // Tre Vitest-prosjekter:
-// - unit: ren logikk i lib/, testene av sider i app/ og komponenter i
-//   components/ som ikke trenger data (app/**/*.test.ts og
-//   components/**/*.test.ts), og sjekkene av Playwright-oppsettet i
+// - unit: ren logikk og komponenter som ikke trenger data i features/ og
+//   shared/, og sider i app/ (features/**/*.test.ts, shared/**/*.test.ts og
+//   app/**/*.test.ts), og sjekkene av Playwright-oppsettet i
 //   playwright.config.test.ts (AD-15) og av dette oppsettet i
 //   vitest.config.test.ts. Trenger ikke Supabase.
 //   `npm run test:unit`.
-// - db: tester mot lokal Supabase (lib/**/*.db.test.ts), kjørt av
+// - db: tester mot lokal Supabase (features/**/*.db.test.ts og shared/**/*.db.test.ts), kjørt av
 //   `npm run test:db` etter `db reset` og pgTAP.
 // - sm5: SM-5-kjøringen (evals/sm5/*.eval.ts, Story 2.5). Sender testsettet
-//   gjennom lib/ai til leverandøren i .env (mock som standard), og er ikke en del
+//   gjennom features/registrering/ai til leverandøren i .env (mock som standard), og er ikke en del
 //   av `npm test`. `npm run eval:sm5`; `-- --mode groq` leser i tillegg
 //   .env.groq (finnes ikke fila, stopper kjøringen). Vites `loadEnv` leser
 //   .env, .env.local, .env.<modus> og .env.<modus>.local (modus er `test` uten
@@ -39,25 +39,25 @@ export default defineConfig(({ mode }) => {
           test: {
             name: "unit",
             include: [
-              "lib/**/*.test.ts",
+              "shared/**/*.test.ts",
+              "features/**/*.test.ts",
               "app/**/*.test.ts",
-              "components/**/*.test.ts",
               "evals/**/*.test.ts",
               "playwright.config.test.ts",
               "vitest.config.test.ts",
             ],
-            exclude: [...configDefaults.exclude, "lib/**/*.db.test.ts"],
+            exclude: [...configDefaults.exclude, "features/**/*.db.test.ts", "shared/**/*.db.test.ts"],
             // expectTypeOf gjør ingenting ved kjøring, og next build sjekker
             // ikke testfilene. Typesjekken gjør at typetestene faktisk feiler.
             typecheck: {
               enabled: true,
               include: [
-                "lib/**/*.test.ts",
+                "shared/**/*.test.ts",
+                "features/**/*.test.ts",
                 "app/**/*.test.ts",
-                "components/**/*.test.ts",
                 "evals/**/*.test.ts",
               ],
-              exclude: [...configDefaults.exclude, "lib/**/*.db.test.ts"],
+              exclude: [...configDefaults.exclude, "features/**/*.db.test.ts", "shared/**/*.db.test.ts"],
             },
           },
         },
@@ -65,7 +65,7 @@ export default defineConfig(({ mode }) => {
           extends: true,
           test: {
             name: "db",
-            include: ["lib/**/*.db.test.ts"],
+            include: ["features/**/*.db.test.ts", "shared/**/*.db.test.ts"],
           },
         },
         {

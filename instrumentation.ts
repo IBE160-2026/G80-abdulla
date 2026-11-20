@@ -2,6 +2,6 @@
 // Supabase-variablene, og serverEnv() validerer KI-variablene, så en feil i
 // .env stopper oppstarten i stedet for å dukke opp ved første forespørsel.
 export async function register() {
-  const { serverEnv } = await import("@/lib/env");
+  const { serverEnv } = await import("@/shared/lib/env");
   serverEnv();
 }

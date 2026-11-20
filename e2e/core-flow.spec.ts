@@ -13,7 +13,7 @@
 import { randomUUID } from "node:crypto";
 import { expect, test } from "@playwright/test";
 import { expectNoSeriousA11yViolations } from "./a11y";
-import { plainJpeg } from "../lib/test-images";
+import { plainJpeg } from "./test-images";
 import { tabTo } from "./keyboard";
 import { expectNoHorizontalScroll } from "./layout";
 

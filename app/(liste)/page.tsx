@@ -1,9 +1,9 @@
-import { NewReportFab } from "@/components/new-report-fab";
-import { ListFilters } from "@/components/list-filters";
-import { ReportList } from "@/components/report-list";
-import { parseListParams, type SearchParams } from "@/lib/list-params";
-import { getViewer } from "@/lib/supabase/auth";
-import { LIST_LIMIT, listReports } from "@/lib/supabase/reports";
+import { NewReportFab } from "@/features/registrering/components/new-report-fab";
+import { ListFilters } from "@/features/rapporter/components/list-filters";
+import { ReportList } from "@/features/rapporter/components/report-list";
+import { parseListParams, type SearchParams } from "@/features/rapporter/list-params";
+import { getViewer } from "@/shared/supabase/auth";
+import { LIST_LIMIT, listReports } from "@/features/rapporter/queries";
 
 // Lista leser visningen med brukerens sesjon og skal aldri caches (AR-11).
 export const dynamic = "force-dynamic";

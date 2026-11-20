@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import { ReportForm } from "@/components/report-form";
-import { requireUser } from "@/lib/supabase/auth";
+import { ReportForm } from "@/features/registrering/components/report-form";
+import { requireUser } from "@/shared/supabase/auth";
 
 // Siden krever innlogging og leser brukerens sesjon, så den skal aldri
 // caches (AR-11).

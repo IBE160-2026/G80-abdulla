@@ -78,19 +78,19 @@ Nummereringen følger PRD-en, så hver story kan spores tilbake dit.
   - `supabase/config.toml` har `enable_confirmations = false`.
   - `supabase/seed.sql` kjører som `postgres` og har faste uuid-er, `moderator@localfix.test`, brukerkontoer og rapporter i alle kategorier og statuser, med eksplisitte og ulike `created_at`.
   - `seed-images/` er lagt i mapper per bruker-uuid og lastes via `objects_path`.
-- **AR-4 Konfigurasjon (AD-11):** Alle miljøvariabler valideres i `lib/env.ts`, ingen andre filer leser `process.env`, og alle står i `.env.example`. Tjenestenøkkelen brukes bare i seed og migrering.
+- **AR-4 Konfigurasjon (AD-11):** Alle miljøvariabler valideres i `shared/lib/env.ts`, ingen andre filer leser `process.env`, og alle står i `.env.example`. Tjenestenøkkelen brukes bare i seed og migrering.
 
 **Database og regler:**
 - **AR-5 Datamodell (AD-4):**
   - Tabellene `profiles`, `reports` og `confirmations`.
   - Enum-verdiene `waste, lighting, roads_sidewalks, vandalism, other`, `new, in_progress, resolved` og `user, moderator`.
-  - `CHECK`-reglene for lengde og tomme verdier, med delte grenser i `lib/limits.ts`.
+  - `CHECK`-reglene for lengde og tomme verdier, med delte grenser i `shared/lib/limits.ts`.
   - `ON DELETE RESTRICT`.
   - Triggeren `handle_new_user` som eneste `security definer`.
   - `status_changed_at`.
 - **AR-6 Visningen `reports_with_counts` (AD-5):**
   - `security_invoker = true` og kolonnene `confirmation_count`, `seen_count`, `confirmed_by_me` og `authored_by_me`.
-  - `lib/supabase/types.ts` med `MergeDeep` og `REPORT_COLUMNS`, så appen aldri sender `author_id`, `user_id` eller `image_path` til nettleseren. En Playwright-test kontrollerer at seed-forfatterens uuid ikke lekker.
+  - `shared/supabase/types.ts` med `MergeDeep` og `REPORT_COLUMNS`, så appen aldri sender `author_id`, `user_id` eller `image_path` til nettleseren. En Playwright-test kontrollerer at seed-forfatterens uuid ikke lekker.
 - **AR-7 Regler i databasen (AD-1, AD-7, AD-12, AD-14):**
   - RLS på alle tabeller, og policyer per rolle.
   - `private.is_moderator()`.
@@ -102,22 +102,22 @@ Nummereringen følger PRD-en, så hver story kan spores tilbake dit.
 
 **Applag:**
 - **AR-9 KI-modul (AD-8):**
-  - `lib/ai/suggest(description)` med adapterne mock og OpenAI-kompatibel, valgt med `AI_PROVIDER=mock|openai`.
+  - `suggest(description)` i `features/registrering/ai/` med adapterne mock og OpenAI-kompatibel, valgt med `AI_PROVIDER=mock|openai`.
   - Høyst 2000 tegn sendes, og det går ett kall om gangen per bruker.
   - Timeout er 5 sekunder, og svaret valideres mot kodeverdiene. Sammendraget er ren tekst og kortes til 300 tegn.
   - Kallet gjøres bare fra en Server Action for innloggede.
-- **AR-10 Kodeverdier og typer (AD-10):** `supabase gen types` lager `lib/supabase/database.types.ts`, og norske visningsnavn hentes bare fra `lib/labels.ts`.
+- **AR-10 Kodeverdier og typer (AD-10):** `supabase gen types` lager `shared/supabase/database.types.ts`, og norske visningsnavn hentes bare fra `shared/report/labels.ts`.
 - **AR-11 Ingen mellomlagring (AD-13):**
   - Sidene er `force-dynamic`, og ingen data hentes med `'use cache'` eller `fetch`-cache.
   - Bilder vises med `unoptimized`, og svar med signerte lenker har `Cache-Control: private, no-store`.
   - Alle endringer kaller `revalidatePath`.
 - **AR-12 Konvensjoner:**
   - Server Actions svarer `{ ok, data | error }`.
-  - Feilkodene er et lukket vokabular, oversatt i `lib/errors.ts`.
+  - Feilkodene er et lukket vokabular, oversatt i `shared/lib/errors.ts`.
   - `setReportStatus(reportId, from, to)` gir `stale_state` hvis statusen er endret av noen andre, og `setReportHidden` tar en eksplisitt verdi.
   - `confirmReport` leser først fra visningen for å gi riktig feilmelding.
   - `parseListParams` og `buildListHref` er eneste tolkning av filter-URL-en.
-  - Datoer formateres bare i `lib/format.ts`.
+  - Datoer formateres bare i `shared/lib/format.ts`.
   - Rapporttekst og e-postadresser logges aldri.
   - Lista henter høyst 500 rader og viser en tekst om at den er avkortet når grensen nås.
 - **AR-13 Innlogging (AD-3):**
@@ -132,7 +132,7 @@ Nummereringen følger PRD-en, så hver story kan spores tilbake dit.
   - `e2e/core-flow.spec.ts` går kjerneflyten bare med tastatur. Den vokser story for story, uten `skip` eller `fixme`.
   - En ytelsestest bruker en egen fixture med 100 rapporter.
   - En story er ikke ferdig før alle testene i `e2e/` består. PR-beskrivelsen har sammendraget fra testkommandoen.
-- **AR-15 KI-testsett (SM-5):** `evals/sm5/` har 20 beskrivelser, 4 per kategori, med fasit, og et skript som bruker `lib/ai`. Skriptet melder at resultatet ikke gjelder kvalitet når det kjører mot mock. Leverandøren velges når testen er kjørt mot Cloudflare, Groq og Mistral (PRD §11).
+- **AR-15 KI-testsett (SM-5):** `evals/sm5/` har 20 beskrivelser, 4 per kategori, med fasit, og et skript som bruker `features/registrering/ai`. Skriptet melder at resultatet ikke gjelder kvalitet når det kjører mot mock. Leverandøren velges når testen er kjørt mot Cloudflare, Groq og Mistral (PRD §11).
 - **AR-16 README (NFR-2, SM-7):** Docker Desktop står først, med forutsetninger og versjoner, kommandoer som kan kopieres, `npx playwright install chromium`, testbrukere, SQL-setningen for å gjøre en bruker til moderator, testkommandoen og et skjermbilde.
 - **AR-17 PWA (NFR-5):** `app/manifest`, uten service worker.
 
@@ -223,6 +223,8 @@ NFR-2, NFR-3, NFR-5, NFR-6 og NFR-7 dekkes i Epic 1. NFR-1, NFR-4 og NFR-8 er ik
 
 Rekkefølgen er 1 → 2 → 3 → 4, og den følger brukerreisene i PRD-en. Hver epic bygger bare på epicene før seg.
 
+Koden er delt i vertical slices (AD-16): `features/<slice>/` for hver funksjon og `shared/` for det felles. Epicene er ikke slicegrenser: Epic 1 og filter og «Mine rapporter» fra Epic 3 er begge `features/rapporter`, Epic 2 er `registrering` og `auth`, bekreftelsen (3.3) er `bekreftelser`, og Epic 4 blir `moderering`. Stiene i Story 1.1 til 3.3 er mappene slik de var da storyene ble bygd, før koden ble flyttet til slices. Arkitekturspinen har dagens struktur.
+
 ### Epic 1: Alle kan se rapportene på campus
 En besøkende åpner appen og ser lista over testrapportene. Hen trykker på en rapport og ser detaljsiden med status, bilde, «N har sett dette» og «sist oppdatert». Appen starter lokalt etter README, i mock-modus og uten nøkler.
 **FR som dekkes:** FR-5
@@ -251,6 +253,7 @@ Dette gjelder hver story, i tillegg til akseptansekriteriene. Arbeidsløkken for
 - Alle testene består: Playwright i `e2e/`, pgTAP og Vitest. axe gir ingen funn med alvorlighet «serious» eller «critical» på flatene som finnes, og kjerneflyttesten er utvidet uten `skip` eller `fixme` (AR-14, NFR-1, NFR-8).
 - Ingen side får horisontal scrolling på 360 px (NFR-1) eller 320 px (WCAG 1.4.10, NFR-8).
 - Rettighetsregler som storyen legger til, håndheves og testes i databasen, ikke bare i grensesnittet (NFR-4).
+- Koden følger vertical slices (AD-16): en slice importerer bare fra seg selv og `shared/`, og det mer enn én slice bruker, ligger i `shared/`. `npm run lint` (`no-restricted-imports`) og `shared/lib/slices.test.ts` stopper brudd.
 - PR-beskrivelsen har sammendraget fra testkommandoen (antall bestått og antall axe-funn) og funnene fra kodegjennomgangen.
 - Endrer storyen en regel i PRD-en, arkitekturen eller UX-en, er dokumentet (begge kopiene der det finnes to) og beslutningsloggen i `docs/beslutninger/` oppdatert i samme PR.
 - Når siste story i en epic er ferdig, er README fulgt steg for steg på en ny klone i en tom mappe, og det som ikke virket, er rettet.
@@ -982,7 +985,7 @@ slik at alle ser at saken er fulgt opp, og når det skjedde.
 **Når** moderatoren endrer status
 **Så** valideres `reportId` som uuid med Zod, og oppdateringen bruker `WHERE id = $1 AND status = $2` (AR-12)
 **Og** er statusen allerede endret av noen andre, gir handlingen `stale_state`
-**Og** handlingen sjekker både `error` og antall rader, oversetter feil i `lib/errors.ts` uten databasetekst og kaller `revalidatePath` for lista og detaljsiden (AR-11)
+**Og** handlingen sjekker både `error` og antall rader, oversetter feil i `shared/lib/errors.ts` uten databasetekst og kaller `revalidatePath` for lista og detaljsiden (AR-11)
 
 **Gitt** detaljsiden for en moderator
 **Når** den vises
@@ -998,7 +1001,7 @@ slik at alle ser at saken er fulgt opp, og når det skjedde.
 
 **Gitt** at handlingen feiler med `stale_state` eller `forbidden`
 **Når** svaret kommer
-**Så** vises en toast med meldingen fra `lib/errors.ts`, «Du har ikke tilgang til dette.» ved `forbidden`, og siden viser statusen som gjelder nå (UX-DR16)
+**Så** vises en toast med meldingen fra `shared/lib/errors.ts`, «Du har ikke tilgang til dette.» ved `forbidden`, og siden viser statusen som gjelder nå (UX-DR16)
 
 **Gitt** brukerreisen UJ-3
 **Når** en e2e-test registrerer en rapport og lar moderatoren sette den til Løst
