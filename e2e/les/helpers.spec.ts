@@ -1,6 +1,8 @@
 // Tester at hjelperne for axe og bredde feiler når de skal, og lar være når de
 // ikke skal (I/O-matrisen i Story 1.2). Sidene lages i testen, så appen ikke
-// trenger å ha feilene.
+// trenger å ha feilene. Til slutt testes at axe venter på animasjoner som blir
+// ferdige, men ikke på uendelige (epic-2-retro-item-6). Hvordan menyen i appen
+// oppfører seg mens den tones inn og ut, testes i innlogging.spec.ts.
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 import { A11Y_TAGS, expectNoSeriousA11yViolations } from "../a11y";
@@ -63,4 +65,41 @@ test("breddehjelperen feiler og oppgir bredden når siden er for bred", async ({
 test("breddehjelperen godtar en side som får plass", async ({ page }) => {
   await page.setContent(html(`<p>Smal</p>`));
   await expectNoHorizontalScroll(page);
+});
+
+test("axe-hjelperen venter til en inntoning er ferdig, så halvgjennomsiktig tekst ikke gir falskt kontrastbrudd", async ({
+  page,
+}) => {
+  await page.setContent(
+    html(
+      // Opasiteten står på 0,2 så lenge animasjonen varer, og er 1 etterpå,
+      // så axe finner bruddet hvis og bare hvis den måler under animasjonen.
+      // 10 s gir god margin for den første axe-kjøringen på en treg maskin.
+      `<style>@keyframes inn { from, to { opacity: 0.2 } }</style><p style="animation: inn 10s">Tekst som tones inn</p>`,
+    ),
+  );
+  // Først sjekkes det at axe faktisk finner bruddet under inntoningen, ellers
+  // ville testen bestått uten å teste noe.
+  const { violations } = await new AxeBuilder({ page }).withTags(A11Y_TAGS).analyze();
+  expect(violations.map((v) => v.id)).toContain("color-contrast");
+  await expectNoSeriousA11yViolations(page);
+});
+
+test("axe-hjelperen venter ikke på en uendelig animasjon", async ({ page }) => {
+  // Et pulserende skjelett, som mens lista laster. Ventet hjelperen på det,
+  // ville den aldri bli ferdig og feile etter 10 s.
+  await page.setContent(
+    html(
+      `<style>@keyframes puls { 50% { opacity: 0.5 } }</style><div style="animation: puls 2s infinite; width: 40px; height: 10px; background: #dddddd"></div>`,
+    ),
+  );
+  // Først sjekkes det at animasjonen faktisk kjører og er uendelig.
+  expect(
+    await page.evaluate(() =>
+      document
+        .getAnimations()
+        .map((animation) => [animation.playState, animation.effect?.getComputedTiming().endTime]),
+    ),
+  ).toEqual([["running", Infinity]]);
+  await expectNoSeriousA11yViolations(page);
 });
