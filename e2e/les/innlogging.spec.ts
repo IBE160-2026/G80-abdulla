@@ -4,7 +4,7 @@
 // Registrering som lager kontoer, ligger i e2e/endrer/registrering.spec.ts.
 // Testene logger inn og ut, men endrer ingen data i appen.
 import { expect, test, type Page } from "@playwright/test";
-import { expectNoSeriousA11yViolations } from "../a11y";
+import { expectNoSeriousA11yViolations, waitForAnimations } from "../a11y";
 import { logIn, menuButton, openMenu, PASSWORD } from "../auth";
 import { tabTo } from "../keyboard";
 import { expectNoHorizontalScroll } from "../layout";
@@ -114,6 +114,40 @@ test("«Logg ut» med tastatur viser lista med «Logg inn» i menyen", async ({ 
   // Sesjonen er borte også på serveren: en ny innlasting viser en besøkende.
   await page.reload();
   await expect((await openMenu(page)).getByRole("menuitem")).toHaveText(["Logg inn"]);
+});
+
+// Regresjonstest for de to ustabile testene over (epic-2-retro-item-6). Menyen
+// tones inn og ut på 150 ms. Her senkes alle animasjoner til en tidel av
+// farten, så det blir 1,5 s, som på en treg CI-maskin, og begge kappløpene
+// skjer hver gang: axe mens menyen tones inn, og en ny meny som åpnes mens den
+// gamle fortsatt tones ut etter «Logg ut».
+test("menyen tones inn og ut uten at axe eller openMenu tar feil, også med trege animasjoner", async ({
+  page,
+}) => {
+  await logIn(page, BRUKER1);
+  // CDP finnes bare i Chromium. Alle prosjektene i playwright.config.ts er
+  // Desktop Chrome, og «Definisjon av ferdig» tillater ikke at tester i e2e/
+  // hoppes over, så testen har ingen nettleservakt. newCDPSession feiler
+  // tydelig ellers.
+  const cdp = await page.context().newCDPSession(page);
+  await cdp.send("Animation.enable");
+  await cdp.send("Animation.setPlaybackRate", { playbackRate: 0.1 });
+
+  // Uten ventingen i axe-hjelperen gir inntoningen falske kontrastbrudd på
+  // e-postadressen og menypunktet.
+  const menu = await openMenu(page);
+  await expect(menu.getByText(BRUKER1, { exact: true })).toBeVisible();
+  await expectNoSeriousA11yViolations(page);
+
+  // Uten ventingen i openMenu blir den gamle menyen, som tones ut, tatt for
+  // den nye, og den er borte når animasjonene er ferdige.
+  await menu.getByRole("menuitem", { name: "Logg ut", exact: true }).click();
+  await expect(page).toHaveURL("/");
+  await expect(page.getByRole("heading", { level: 1, name: "Rapporter" })).toBeVisible();
+  const visitorMenu = await openMenu(page);
+  await waitForAnimations(page);
+  await expect(visitorMenu).toBeVisible();
+  await expect(visitorMenu.getByRole("menuitem")).toHaveText(["Logg inn"]);
 });
 
 test("next under /auth/ sender brukeren til lista, så skjemaet ikke står fast", async ({
@@ -312,7 +346,9 @@ test("registreringssiden har to felt, hjelpeteksten og samme next i lenkene", as
     `/auth/login?next=${next}`,
   );
   await page.keyboard.press("Escape");
-  await expect(menu).toBeHidden();
+  // `menu` er bare den åpne menyen. Venter til menyen er helt borte, også
+  // etter uttoningen.
+  await expect(page.getByRole("menu")).toBeHidden();
   await expect(menuButton(page)).toBeFocused();
   await expectA11yAtAllWidths(page);
 

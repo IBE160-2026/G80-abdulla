@@ -10,13 +10,19 @@ export const menuButton = (page: Page) =>
   page.getByRole("banner").getByRole("button", { name: "Meny", exact: true });
 
 /**
- * Åpner menyen i topplinja med musa og gir menyen. Rett etter innlogging
- * eller utlogging kan `router.refresh()` flytte fokus og lukke menyen igjen,
- * så klikket prøves på nytt til menyen blir stående åpen.
+ * Åpner menyen i topplinja med musa og gir den åpne menyen
+ * (`data-state="open"`). En meny som nettopp ble lukket, for eksempel med
+ * «Logg ut», tones ut i 150 ms og er synlig så lenge, med `data-state="closed"`.
+ * Den ventes bort først, ellers ville den bli tatt for den åpne menyen og
+ * forsvinne rett etterpå. Det var rotårsaken til at «Logg ut» med tastatur i
+ * innlogging.spec.ts var ustabil (epic-2-retro-item-6). Klikket prøves på nytt
+ * til menyen er åpen.
  */
 export async function openMenu(page: Page) {
-  const menu = page.getByRole("menu");
+  const closing = page.getByRole("menu").and(page.locator('[data-state="closed"]'));
+  const menu = page.getByRole("menu").and(page.locator('[data-state="open"]'));
   await expect(async () => {
+    await expect(closing).toHaveCount(0, { timeout: 1_000 });
     if (!(await menu.isVisible())) await menuButton(page).click();
     await expect(menu).toBeVisible({ timeout: 1_000 });
   }).toPass();
