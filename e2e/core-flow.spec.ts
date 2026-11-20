@@ -7,7 +7,9 @@
 // mock-forslaget for kategori og oppsummering. Fra Story 2.4 legger den ved et
 // bilde: knappen nås med tastatur, men valget av fil er unntatt kravet om bare
 // tastatur (filvelgeren er nettleserens egen), og bildet vises på detaljsiden
-// og som ikon i lista. endrer-360 og endrer-1280
+// og som ikon i lista. Fra Story 4.1 logger moderatoren inn til slutt,
+// sorterer på «Flest har sett» og flytter statusen ett steg på rapporten
+// testen registrerte. endrer-360 og endrer-1280
 // deler databasen, så lista har flere rapporter enn seed når den andre kjører.
 // Stegene som åpner seed-kort, finner dem på innhold og ikke på plassering.
 import { randomUUID } from "node:crypto";
@@ -286,6 +288,8 @@ test("kjerneflyten med tastatur", async ({ page }) => {
   await page.keyboard.press("Enter");
 
   await expect(page).toHaveURL(/\/rapporter\/[0-9a-f-]{36}$/);
+  // Story 4.1: moderatoren åpner denne rapporten til slutt.
+  const reportPath = new URL(page.url()).pathname;
   await expect(
     page.locator("[data-sonner-toast]").getByText("Rapporten er sendt inn", { exact: true }),
   ).toBeVisible();
@@ -366,4 +370,70 @@ test("kjerneflyten med tastatur", async ({ page }) => {
   await expect(confirmed).toBeFocused();
   await expectNoSeriousA11yViolations(page);
   await expectNoHorizontalScroll(page);
+
+  // Story 4.1: logg ut, logg inn som moderator, sorter på «Flest har sett»,
+  // åpne rapporten testen registrerte og flytt statusen ett steg, bare med
+  // tastatur. Begge prosjektene bruker moderatoren, men hver sin rapport.
+  await tabTo(page, "button", "Meny", { max: 20, reverse: true });
+  await page.keyboard.press("Enter");
+  await expect(page.getByRole("menuitem", { name: "Logg ut", exact: true })).toBeFocused();
+  await page.keyboard.press("Enter");
+  await expect(page).toHaveURL("/");
+  await expect(listHeading).toBeVisible();
+  // Menyen er lukket, og fokus står på menyknappen eller et sted før den.
+  await expect(page.getByRole("menu")).toBeHidden();
+  const menuButton = page.getByRole("banner").getByRole("button", { name: "Meny", exact: true });
+  const menuFocused = await menuButton.evaluate((element) => element === document.activeElement);
+  if (!menuFocused) await tabTo(page, "button", "Meny", { max: 5 });
+  await page.keyboard.press("Enter");
+  await expect(page.getByRole("menuitem", { name: "Logg inn", exact: true })).toBeFocused();
+  await page.keyboard.press("Enter");
+  await expect(page).toHaveURL("/auth/login?next=%2F");
+  // Menyen tones ut og gir fokus tilbake til menyknappen når den er borte, så
+  // Tab venter til den er lukket (se openMenu i auth.ts).
+  await expect(page.getByRole("menu")).toBeHidden();
+  await tabTo(page, "textbox", "E-post", { max: 5 });
+  await page.keyboard.type("moderator@localfix.test");
+  await page.keyboard.press("Tab");
+  await page.keyboard.type("localfix-test");
+  await page.keyboard.press("Enter");
+  await expect(page).toHaveURL("/");
+  await expect(listHeading).toBeVisible();
+
+  // Som etter forrige innlogging: Shift+Tab til menyen, og sorteringen står
+  // rett etter den. «Mine rapporter» vises først når siden er hentet på nytt
+  // med sesjonen, så Tab venter på den.
+  await expect(page.getByRole("button", { name: "Mine rapporter", exact: true })).toBeVisible();
+  await tabTo(page, "button", "Meny", { max: 15, reverse: true });
+  await tabTo(page, "combobox", "Sortering", { max: 1 });
+  await page.keyboard.press("Enter");
+  await expect(page.getByRole("option", { name: "Nyeste", exact: true })).toBeFocused();
+  await page.keyboard.press("ArrowDown");
+  await expect(page.getByRole("option", { name: "Flest har sett", exact: true })).toBeFocused();
+  await page.keyboard.press("Enter");
+  await expect(page).toHaveURL("/?sort=confirmations");
+
+  await tabTo(page, "link", new RegExp(summary), { max: 300 });
+  await page.keyboard.press("Enter");
+  await expect(page).toHaveURL(reportPath);
+  const moderatorPanel = main.getByRole("region", { name: "Moderator", exact: true });
+  await expect(moderatorPanel).toContainText("Status: Ny");
+  await expect(main.getByText("Ny", { exact: true })).toBeVisible();
+  await expectNoSeriousA11yViolations(page);
+  await expectNoHorizontalScroll(page);
+
+  await tabTo(page, "button", "Under behandling →", { max: 30 });
+  await page.keyboard.press("Enter");
+  await expect(main.getByText("Under behandling", { exact: true })).toBeVisible();
+  await expect(moderatorPanel).toContainText("Status: Under behandling");
+  await expect(moderatorPanel.getByRole("button")).toHaveText(["← Ny", "Løst →"]);
+  await expect(moderatorPanel.getByRole("button", { name: "← Ny", exact: true })).toBeFocused();
+  await expectNoSeriousA11yViolations(page);
+  await expectNoHorizontalScroll(page);
+  if (narrow) {
+    await page.setViewportSize({ width: 320, height: 800 });
+    await expectNoSeriousA11yViolations(page);
+    await expectNoHorizontalScroll(page);
+    await page.setViewportSize({ width: 360, height: 800 });
+  }
 });

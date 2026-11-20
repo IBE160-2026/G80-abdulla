@@ -42,7 +42,7 @@ const imports = files.flatMap((file) => {
 
 test("vakttesten finner sliceene og de felles mappene", () => {
   const slices = new Set(files.map(owner).filter((o) => o?.startsWith("features/")));
-  for (const slice of ["rapporter", "registrering", "auth", "bekreftelser"]) {
+  for (const slice of ["rapporter", "registrering", "auth", "bekreftelser", "moderering"]) {
     expect(slices, `features/${slice}`).toContain(`features/${slice}`);
   }
   expect(files).toContain("shared/lib/slices.test.ts");
