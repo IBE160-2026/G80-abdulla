@@ -222,7 +222,7 @@ describe("confirmReport", () => {
     const answer = await confirmReport(ID);
     expect(answer).toEqual({
       ok: false,
-      error: { code: "forbidden", message: "Du har ikke lov til å gjøre dette." },
+      error: { code: "forbidden", message: "Du har ikke tilgang til dette." },
     });
     expect(revalidatePath).not.toHaveBeenCalled();
   });

@@ -4,7 +4,7 @@
 
 export const ERROR_MESSAGES = {
   unauthenticated: "Du må logge inn først.",
-  forbidden: "Du har ikke lov til å gjøre dette.",
+  forbidden: "Du har ikke tilgang til dette.",
   invalid_status_step: "Statusen kan ikke endres til dette valget.",
   invalid_column_change: "Endringen er ikke tillatt.",
   already_confirmed: "Du har allerede bekreftet denne rapporten.",
@@ -33,20 +33,30 @@ export function actionError(code: ErrorCode): { ok: false; error: ActionError } 
   return { ok: false, error: { code, message: ERROR_MESSAGES[code] } };
 }
 
+/** Om `value` er en av kodene i vokabularet. */
+function isErrorCode(value: unknown): value is ErrorCode {
+  return typeof value === "string" && Object.hasOwn(ERROR_MESSAGES, value);
+}
+
 /**
- * Oversetter en feil fra Supabase (PostgREST) til en `ActionError`, bare ut fra
+ * Oversetter en feil fra Supabase (PostgREST) til en `ActionError` ut fra
  * SQLSTATE i `code`: `23514` (CHECK) er `validation_failed`, `42501` (RLS eller
- * manglende grant) er `forbidden`, alt annet er `unknown`. `message` leses
- * aldri, så databasetekst når verken brukeren eller loggen.
+ * manglende grant) er `forbidden`, og `P0001` (egne feil fra databasen, som
+ * triggeren `reports_guard_update`) er koden i `message` når den er en av
+ * kodene over (Story 4.1). Alt annet er `unknown`. Teksten i `message`
+ * sendes aldri videre: brukeren får bare den faste norske meldingen, og en
+ * `message` som ikke er en kjent kode, gir `unknown`.
  */
 export function toActionError(
-  error: { code?: string | null } | null | undefined,
+  error: { code?: string | null; message?: string | null } | null | undefined,
 ): ActionError {
   const code: ErrorCode =
     error?.code === "23514"
       ? "validation_failed"
       : error?.code === "42501"
         ? "forbidden"
-        : "unknown";
+        : error?.code === "P0001" && isErrorCode(error.message)
+          ? error.message
+          : "unknown";
   return { code, message: ERROR_MESSAGES[code] };
 }

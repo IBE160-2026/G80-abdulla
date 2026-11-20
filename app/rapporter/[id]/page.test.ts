@@ -2,7 +2,8 @@
 // uten noe databasekall, og en id uten rad gir også notFound(). Rapporten og
 // den signerte lenken sendes videre til ReportDetail (Story 1.7). Om brukeren
 // er innlogget, sendes også videre (Story 3.3), og Auth leses først etter at
-// rapporten er funnet.
+// rapporten er funnet. Moderatorpanelet (Story 4.1) settes inn etter
+// bekreftelsen bare for moderatoren.
 import { beforeEach, expect, test, vi } from "vitest";
 
 const getReport = vi.fn();
@@ -14,6 +15,7 @@ vi.mock("@/shared/supabase/auth", () => ({ getViewer }));
 // Siden importerer ConfirmSection, som importerer Server Action-en og
 // dermed Supabase-klienten, som krever miljøvariabler.
 vi.mock("@/features/bekreftelser/actions", () => ({ confirmReport: vi.fn() }));
+vi.mock("@/features/moderering/actions", () => ({ setReportStatus: vi.fn() }));
 vi.mock("next/navigation", () => ({
   notFound: () => {
     throw NOT_FOUND;
@@ -23,8 +25,14 @@ vi.mock("next/navigation", () => ({
 const { default: ReportPage } = await import("./page");
 const { ReportDetail } = await import("@/features/rapporter/components/report-detail");
 const { ConfirmSection } = await import("@/features/bekreftelser/components/confirm-section");
+const { StatusPanel } = await import("@/features/moderering/components/status-panel");
 
 const render = (id: string) => ReportPage({ params: Promise.resolve({ id }) });
+
+type Slot = { type: unknown; props: Record<string, unknown> };
+/** Innholdet siden gir ReportDetail som children, uten tomme plasser (false). */
+const slots = (page: Awaited<ReturnType<typeof render>>): Slot[] =>
+  [page.props.children.props.children].flat().filter(Boolean);
 
 beforeEach(() => {
   getReport.mockReset();
@@ -75,7 +83,8 @@ test("bekreftelsen settes inn i ReportDetail som children, med tallene fra rappo
   };
   getReport.mockResolvedValue({ report, imageUrl: null });
   const page = await render("20000000-0000-4000-8000-000000000002");
-  const confirm = page.props.children.props.children;
+  const [confirm, ...rest] = slots(page);
+  expect(rest).toEqual([]);
   expect(confirm.type).toBe(ConfirmSection);
   expect(confirm.props).toEqual({
     reportId: report.id,
@@ -92,10 +101,35 @@ test("en innlogget bruker gir isSignedIn true, en besøkende false", async () =>
   getReport.mockResolvedValue({ report, imageUrl: null });
   getViewer.mockResolvedValue({ user: { id: "u1", email: "bruker1@localfix.test" }, isModerator: false });
   const signedIn = await render("20000000-0000-4000-8000-000000000002");
-  expect(signedIn.props.children.props.children.props.isSignedIn).toBe(true);
+  expect(slots(signedIn)[0].props.isSignedIn).toBe(true);
   getViewer.mockResolvedValue({ user: null, isModerator: false });
   const visitor = await render("20000000-0000-4000-8000-000000000002");
-  expect(visitor.props.children.props.children.props.isSignedIn).toBe(false);
+  expect(slots(visitor)[0].props.isSignedIn).toBe(false);
+});
+
+test("moderatoren får StatusPanel etter bekreftelsen, med id-en og statusen", async () => {
+  const report = { id: "20000000-0000-4000-8000-000000000002", status: "in_progress", hidden: false };
+  getReport.mockResolvedValue({ report, imageUrl: null });
+  getViewer.mockResolvedValue({ user: { id: "m1", email: "moderator@localfix.test" }, isModerator: true });
+  const page = await render("20000000-0000-4000-8000-000000000002");
+  const [confirm, panel, ...rest] = slots(page);
+  expect(confirm.type).toBe(ConfirmSection);
+  expect(panel.type).toBe(StatusPanel);
+  expect(panel.props).toEqual({ reportId: report.id, status: "in_progress" });
+  expect(rest).toEqual([]);
+});
+
+test("en vanlig bruker og en besøkende får ikke StatusPanel", async () => {
+  const report = { id: "20000000-0000-4000-8000-000000000002", status: "new", hidden: false };
+  getReport.mockResolvedValue({ report, imageUrl: null });
+  for (const viewer of [
+    { user: { id: "u1", email: "bruker1@localfix.test" }, isModerator: false },
+    { user: null, isModerator: false },
+  ]) {
+    getViewer.mockResolvedValue(viewer);
+    const page = await render("20000000-0000-4000-8000-000000000002");
+    expect(slots(page).map((slot) => slot.type)).toEqual([ConfirmSection]);
+  }
 });
 
 test("en rapport uten bilde gir ReportDetail med imageUrl null", async () => {

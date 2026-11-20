@@ -7,12 +7,8 @@ import { PASSWORD } from "./auth";
 // Playwright leser ikke .env selv, så fila leses her (som i Vitest-testene).
 loadEnvConfig(process.cwd(), false, { info: () => {}, error: console.error });
 
-/**
- * Registrerer en rapport som `email` og gir id-en. Rapporten har kategorien
- * «Annet» og blir liggende til neste `db reset`. Brukes av testene som trenger
- * en rapport uten bekreftelser, så de ikke avhenger av seed-tallene.
- */
-export async function createReportAs(email: string, summary: string): Promise<string> {
+/** En klient logget inn som `email`, med den offentlige nøkkelen. */
+async function signedIn(email: string) {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
   if (!url || !key) throw new Error("Mangler NEXT_PUBLIC_SUPABASE_URL eller _PUBLISHABLE_KEY i .env.");
@@ -22,7 +18,16 @@ export async function createReportAs(email: string, summary: string): Promise<st
   });
   const signIn = await supabase.auth.signInWithPassword({ email, password: PASSWORD });
   if (signIn.error) throw new Error(`Innlogging feilet for ${email}.`);
+  return supabase;
+}
 
+/**
+ * Registrerer en rapport som `email` og gir id-en. Rapporten har kategorien
+ * «Annet» og blir liggende til neste `db reset`. Brukes av testene som trenger
+ * en rapport uten bekreftelser, så de ikke avhenger av seed-tallene.
+ */
+export async function createReportAs(email: string, summary: string): Promise<string> {
+  const supabase = await signedIn(email);
   const { data, error } = await supabase
     .from("reports")
     .insert({
@@ -35,4 +40,36 @@ export async function createReportAs(email: string, summary: string): Promise<st
     .single();
   if (error || !data) throw new Error(`Kunne ikke opprette rapporten (${error?.code ?? "ukjent"}).`);
   return data.id as string;
+}
+
+/**
+ * Statusen og `status_changed_at` for rapporten `id`, lest som `email` (Story
+ * 4.1). Testene bruker tidspunktet fra databasen til å sjekke «Sist oppdatert».
+ */
+export async function readStatusAs(
+  email: string,
+  id: string,
+): Promise<{ status: string; status_changed_at: string }> {
+  const supabase = await signedIn(email);
+  const { data, error } = await supabase
+    .from("reports")
+    .select("status, status_changed_at")
+    .eq("id", id)
+    .single();
+  if (error || !data) throw new Error(`Kunne ikke lese rapporten (${error?.code ?? "ukjent"}).`);
+  return data as { status: string; status_changed_at: string };
+}
+
+/** Flytter statusen på rapporten `id` fra `from` til `to` som `email` (Story 4.1). */
+export async function setStatusAs(email: string, id: string, from: string, to: string) {
+  const supabase = await signedIn(email);
+  const { data, error } = await supabase
+    .from("reports")
+    .update({ status: to })
+    .eq("id", id)
+    .eq("status", from)
+    .select("id");
+  if (error || data?.length !== 1) {
+    throw new Error(`Kunne ikke endre statusen (${error?.code ?? "ingen rad"}).`);
+  }
 }

@@ -1,17 +1,19 @@
 -- Skriving (AD-12): fra Story 2.2 kan authenticated sette inn i reports, og
 -- bare på kolonnene description, location, category, summary og image_path.
 -- Fra Story 3.3 kan authenticated også sette inn i confirmations, bare på
--- report_id (reglene for bekreftelser testes i bekreftelser.sql).
+-- report_id (reglene for bekreftelser testes i bekreftelser.sql). Fra Story
+-- 4.1 kan authenticated oppdatere status og hidden i reports (reglene for
+-- statusendring testes i status.sql).
 -- Alt annet gir 42501 for anon, authenticated og moderatoren: INSERT på
 -- profiles, INSERT på confirmations for anon, INSERT med author_id, status,
--- hidden, created_at eller status_changed_at, og UPDATE, DELETE og TRUNCATE
--- på alle tabellene. `insert into confirmations default values` som innlogget
--- gir 42501 fra policyen (report_id mangler), ikke fra granten.
--- Resten av skrivereglene kommer i Epic 4, og da endres denne fila.
+-- hidden, created_at eller status_changed_at, UPDATE av andre kolonner i
+-- reports, og UPDATE, DELETE og TRUNCATE på de andre tabellene. `insert into
+-- confirmations default values` som innlogget gir 42501 fra policyen
+-- (report_id mangler), ikke fra granten.
 begin;
 \ir hjelpere.psql
 
-select plan(60);
+select plan(66);
 
 -- Rettighetsmatrisen i AD-12 er uttømmende: dette er alle grants til anon,
 -- authenticated og PUBLIC på tabeller, visninger og kolonner i public.
@@ -42,13 +44,15 @@ select is(
     'reports authenticated SELECT',
     'reports.category authenticated INSERT',
     'reports.description authenticated INSERT',
+    'reports.hidden authenticated UPDATE',
     'reports.image_path authenticated INSERT',
     'reports.location authenticated INSERT',
+    'reports.status authenticated UPDATE',
     'reports.summary authenticated INSERT',
     'reports_with_counts anon SELECT',
     'reports_with_counts authenticated SELECT'
   ],
-  'anon og authenticated har lesegrantene, INSERT på fem kolonner i reports og på report_id i confirmations (AD-12)'
+  'anon og authenticated har lesegrantene, INSERT på fem kolonner i reports og på report_id i confirmations, og UPDATE på status og hidden i reports (AD-12)'
 );
 
 -- Policyen for INSERT navngir rollen og sjekker forfatteren.
@@ -80,9 +84,13 @@ cross join (
 update skrivesetninger
 set sql = 'update public.profiles set role = role'
 where sql = 'update public.profiles set created_at = created_at';
--- reports: alt utenom INSERT, som har egne tester under.
+-- reports: alt utenom INSERT, som har egne tester under, og UPDATE av status
+-- og hidden, som testes i status.sql. De andre kolonnene har ingen
+-- UPDATE-grant, heller ikke status_changed_at og author_id.
 insert into skrivesetninger (sql) values
   ('update public.reports set created_at = created_at'),
+  ('update public.reports set status_changed_at = status_changed_at'),
+  ('update public.reports set author_id = author_id'),
   ('delete from public.reports'),
   ('truncate public.reports');
 grant select on skrivesetninger to anon, authenticated;
