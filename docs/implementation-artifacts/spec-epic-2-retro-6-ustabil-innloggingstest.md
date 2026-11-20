@@ -2,7 +2,7 @@
 title: 'Rett den ustabile innloggingstesten (epic-2-retro-item-6)'
 type: 'bugfix'
 created: '2026-11-20'
-status: 'in-progress'
+status: 'done'
 route: 'oneshot'
 review_loop_iteration: 0
 baseline_commit: '55eb89c9f6f909180e57d9c00f1fee3e12cc3e9e'
@@ -58,5 +58,6 @@ Kjørt i en ny klone i Temp mot lokal Supabase:
 - **Før rettelsen:** `npx playwright test e2e/les/innlogging.spec.ts -g "…" --project les-360 --project les-1280 --repeat-each 25` ga 7 feil av 50 for «Logg ut» med tastatur og 0 av 50 for den andre testen (den feilet bare i CI).
 - **Mutasjonssjekk av regresjonstesten:** gammel axe-hjelper gir 6 feil av 6 (`color-contrast (serious): 2 noder: .break-all, .relative`), og gammel `openMenu` gir 6 feil av 6 (`toBeVisible`, menyen er borte). Gammel axe-hjelper gir også feil i inntoningstesten i `helpers.spec.ts`.
 - **Etter rettelsen:** de ustabile testene, regresjonstesten og testene for axe-hjelperen med `--repeat-each 20` på begge bredder gir 200 av 200 bestått.
-- **Full `npm test`:** se PR-beskrivelsen.
-- **CI:** `npm-test.yml` på branchen, og en midlertidig `ci/`-gren med `--repeat-each 20` på Linux.
+- **Full `npm test` lokalt** (ny klone i Temp, `7d09042`): Vitest unit 983 av 983, pgTAP PASS, Vitest db 44 av 44, Playwright 258 av 258. 616 s totalt (Playwright 9,3 min).
+- **CI, full `npm test`** (`npm-test.yml` på `fix/ustabil-innloggingstest`, run 44732827431): `success`, 10 min 13 s (`npm test`-steget 7 min 46 s).
+- **CI, `--repeat-each 20` på Linux** (midlertidig gren `ci/ustabil-innloggingstest-repeat`, run 44732840134): `innlogging.spec.ts` og `helpers.spec.ts` på `les-360` og `les-1280`, 840 av 840 bestått, ingen flaky. 26,2 min for Playwright. Grenen er slettet etterpå.
