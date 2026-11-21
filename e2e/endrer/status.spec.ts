@@ -28,6 +28,7 @@ const panelHeading = (page: Page) =>
 /** Statusmerket øverst på detaljsiden: teksten står alene i merket. */
 const badge = (page: Page, label: string) => main(page).getByText(label, { exact: true });
 const lastUpdated = (page: Page) => main(page).getByText(/^Sist oppdatert /);
+/** Knappene i panelet: statusknappene, og «Skjul rapport» sist (Story 4.2). */
 const statusButtons = (page: Page) => panel(page).getByRole("button");
 
 /** «Sist oppdatert …» slik siden skal vise tidspunktet databasen satte. */
@@ -53,6 +54,7 @@ test("panelet vises bare for moderatoren, ikke for rapportøren, en annen bruker
     await expect(main(page).getByRole("heading", { level: 1, name: summary })).toBeVisible();
     await expect(panelHeading(page)).toHaveCount(0);
     await expect(main(page).getByRole("button", { name: /→|←/ })).toHaveCount(0);
+    await expect(main(page).getByRole("button", { name: "Skjul rapport", exact: true })).toHaveCount(0);
   }
 
   await page.context().clearCookies();
@@ -73,7 +75,7 @@ test("moderatoren flytter statusen ett steg om gangen med tastatur, og fokus st�
   // Ny: bare «Under behandling →».
   await expect(badge(page, "Ny")).toBeVisible();
   await expect(panel(page)).toContainText("Status: Ny");
-  await expect(statusButtons(page)).toHaveText(["Under behandling →"]);
+  await expect(statusButtons(page)).toHaveText(["Under behandling →", "Skjul rapport"]);
   // Uten statusendring er «Sist oppdatert» registreringstidspunktet, skrevet
   // som «4. november kl. 14:20».
   await expect(lastUpdated(page)).toHaveText(await expectedLastUpdated(id));
@@ -88,7 +90,7 @@ test("moderatoren flytter statusen ett steg om gangen med tastatur, og fokus st�
   // fokus står på første statusknapp, «← Ny».
   await expect(badge(page, "Under behandling")).toBeVisible();
   await expect(panel(page)).toContainText("Status: Under behandling");
-  await expect(statusButtons(page)).toHaveText(["← Ny", "Løst →"]);
+  await expect(statusButtons(page)).toHaveText(["← Ny", "Løst →", "Skjul rapport"]);
   await expect(statusButtons(page).first()).toBeFocused();
   await expect(lastUpdated(page)).toHaveText(await expectedLastUpdated(id));
   expect((await readStatusAs(MODERATOR, id)).status).toBe("in_progress");
@@ -108,7 +110,7 @@ test("moderatoren flytter statusen ett steg om gangen med tastatur, og fokus st�
   await page.keyboard.press("Enter");
   await expect(badge(page, "Løst")).toBeVisible();
   await expect(panel(page)).toContainText("Status: Løst");
-  await expect(statusButtons(page)).toHaveText(["← Under behandling"]);
+  await expect(statusButtons(page)).toHaveText(["← Under behandling", "Skjul rapport"]);
   await expect(statusButtons(page).first()).toBeFocused();
   await expect(lastUpdated(page)).toHaveText(await expectedLastUpdated(id));
   await expectNoSeriousA11yViolations(page);
@@ -116,7 +118,7 @@ test("moderatoren flytter statusen ett steg om gangen med tastatur, og fokus st�
   // Og tilbake ett steg.
   await page.keyboard.press("Enter");
   await expect(badge(page, "Under behandling")).toBeVisible();
-  await expect(statusButtons(page)).toHaveText(["← Ny", "Løst →"]);
+  await expect(statusButtons(page)).toHaveText(["← Ny", "Løst →", "Skjul rapport"]);
   await expect(statusButtons(page).first()).toBeFocused();
 
   // Statusen står etter omlasting.
@@ -145,7 +147,7 @@ test("knappene er deaktivert mens endringen lagres", async ({ page }) => {
   await forward.click();
   await expect(forward).toBeDisabled();
   release();
-  await expect(statusButtons(page)).toHaveText(["← Ny", "Løst →"]);
+  await expect(statusButtons(page)).toHaveText(["← Ny", "Løst →", "Skjul rapport"]);
   for (const button of await statusButtons(page).all()) await expect(button).toBeEnabled();
   await expect(statusButtons(page).first()).toBeFocused();
 });
@@ -155,7 +157,7 @@ test("en feil gir toast, statusen står, og et nytt forsøk virker", async ({ pa
   const id = await createReportAs(BRUKER2, summary);
   const url = `/rapporter/${id}`;
   await logIn(page, MODERATOR, { next: url });
-  await expect(statusButtons(page)).toHaveText(["Under behandling →"]);
+  await expect(statusButtons(page)).toHaveText(["Under behandling →", "Skjul rapport"]);
 
   // Server Action er en POST til siden. Avbrutt forespørsel gjør at handlingen kaster.
   const pattern = `**${url}`;
@@ -171,7 +173,7 @@ test("en feil gir toast, statusen står, og et nytt forsøk virker", async ({ pa
   ).toBeVisible();
   await expect(badge(page, "Ny")).toBeVisible();
   await expect(panel(page)).toContainText("Status: Ny");
-  await expect(statusButtons(page)).toHaveText(["Under behandling →"]);
+  await expect(statusButtons(page)).toHaveText(["Under behandling →", "Skjul rapport"]);
   await expect(statusButtons(page).first()).toBeEnabled();
   await expect(statusButtons(page).first()).toBeFocused();
   expect((await readStatusAs(MODERATOR, id)).status).toBe("new");
@@ -179,7 +181,7 @@ test("en feil gir toast, statusen står, og et nytt forsøk virker", async ({ pa
   await page.unroute(pattern);
   await page.keyboard.press("Enter");
   await expect(badge(page, "Under behandling")).toBeVisible();
-  await expect(statusButtons(page)).toHaveText(["← Ny", "Løst →"]);
+  await expect(statusButtons(page)).toHaveText(["← Ny", "Løst →", "Skjul rapport"]);
   await expect(statusButtons(page).first()).toBeFocused();
   expect((await readStatusAs(MODERATOR, id)).status).toBe("in_progress");
 });
@@ -191,7 +193,7 @@ test("en endring fra en annen fane gir toast, og siden viser statusen som gjelde
   const id = await createReportAs(BRUKER2, summary);
   const url = `/rapporter/${id}`;
   await logIn(page, MODERATOR, { next: url });
-  await expect(statusButtons(page)).toHaveText(["Under behandling →"]);
+  await expect(statusButtons(page)).toHaveText(["Under behandling →", "Skjul rapport"]);
 
   // En annen fane (her direkte mot API-et med moderatorens sesjon) flytter
   // statusen, mens denne siden fortsatt viser Ny.
@@ -206,7 +208,7 @@ test("en endring fra en annen fane gir toast, og siden viser statusen som gjelde
   ).toBeVisible();
   await expect(badge(page, "Under behandling")).toBeVisible();
   await expect(panel(page)).toContainText("Status: Under behandling");
-  await expect(statusButtons(page)).toHaveText(["← Ny", "Løst →"]);
+  await expect(statusButtons(page)).toHaveText(["← Ny", "Løst →", "Skjul rapport"]);
   await expect(statusButtons(page).first()).toBeFocused();
   // Ingen endring fra denne fanen: statusen er fortsatt in_progress.
   expect((await readStatusAs(MODERATOR, id)).status).toBe("in_progress");

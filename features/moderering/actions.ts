@@ -99,3 +99,63 @@ export async function setReportStatus(
     return actionError("unknown");
   }
 }
+
+/** Svaret fra `setReportHidden`: om rapporten er skjult, slik databasen lagret det. */
+export type HiddenChange = { hidden: boolean };
+
+/**
+ * Skjuler eller viser en rapport (FR-9, Story 4.2). `hidden` er målverdien,
+ * aldri en veksling, så å skjule en skjult rapport er lov og endrer ingenting.
+ * Bare moderatoren kan det, men det avgjør databasen, som for
+ * `setReportStatus`: en vanlig bruker får `42501` (`forbidden`) fra triggeren
+ * `reports_guard_update`. Skjuling sletter ingenting og flytter ikke
+ * `status_changed_at`. RLS avgjør hvem som ser rapporten etterpå, og appen
+ * filtrerer aldri på `hidden`. Rapportøren får ingen melding.
+ *
+ * Rekkefølgen er den samme som i `setReportStatus`: innlogging først, så
+ * validering av id-en som uuid og av `hidden` som boolean (`validation_failed`).
+ * Både `error` og antall rader sjekkes. Skjuling har ingen fra-verdi, så det
+ * finnes ingen utdatert tilstand: null rader betyr at rapporten ikke finnes
+ * for brukeren, og svaret er alltid `report_not_found` (Design Notes i
+ * spec-en). Lista og detaljsiden revalideres etter en endring. Bare
+ * feilkoden logges, med «setReportHidden» foran.
+ */
+export async function setReportHidden(
+  reportId: unknown,
+  hidden: unknown,
+): Promise<ActionResult<HiddenChange>> {
+  const id = typeof reportId === "string" ? parseReportId(reportId) : null;
+  await requireUser(id ? `/rapporter/${id}` : "/");
+  if (!id) return actionError("validation_failed");
+  const target = z.boolean().safeParse(hidden);
+  if (!target.success) return actionError("validation_failed");
+
+  try {
+    const supabase = await createClient();
+
+    const { data: updated, error } = await supabase
+      .from("reports")
+      .update({ hidden: target.data })
+      .eq("id", id)
+      .select("hidden");
+    if (error) {
+      console.error("setReportHidden", error.code || "ukjent");
+      return { ok: false, error: toActionError(error) };
+    }
+
+    if (!updated || updated.length > 1) {
+      console.error("setReportHidden", updated ? "flere_rader" : "ingen_svar");
+      return actionError("unknown");
+    }
+    if (updated.length === 0) return actionError("report_not_found");
+
+    revalidatePath("/");
+    revalidatePath(`/rapporter/${id}`);
+    return { ok: true, data: updated[0] };
+  } catch {
+    // Nettverksfeil eller annet som kastes. Meldingen kan inneholde tekst fra
+    // kallet, så den logges ikke.
+    console.error("setReportHidden", "ukjent");
+    return actionError("unknown");
+  }
+}

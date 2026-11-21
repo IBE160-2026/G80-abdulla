@@ -26,3 +26,9 @@
 - source_spec: `docs/implementation-artifacts/spec-4-1-endre-status.md`
   summary: `signedIn()` i `e2e/api.ts` logger inn på nytt ved hvert kall, og e2e-testene kan nå grensen `sign_in_sign_ups = 30` per 5 min per IP i `supabase/config.toml`; vurder én klient per e-post.
   evidence: Uverifisert (maybe-false, ville vært medium). Full `npm test` besto med flere innlogginger enn grensen innenfor kjøringen, så grensen ser ikke ut til å slå inn lokalt. Avgjøres ved å telle innloggingene i én kjøring og se om GoTrue svarer 429 lokalt og i CI.
+- source_spec: `docs/implementation-artifacts/spec-4-2-skjule-og-vise-en-rapport.md`
+  summary: Grenen der `setReportHidden` (og `setReportStatus` utenom `stale_state`) svarer `ok: false` og viser `toast.error(answer.error.message)` i panelet, er ikke testet i e2e.
+  evidence: Verification Gap, gjennomgang 1 i Story 4.2. `forbidden` og `report_not_found` er vanskelige å utløse for en innlogget moderator i e2e. Handlingene er enhetstestet til svaret, men ingen test ser hva grensesnittet gjør med svaret.
+- source_spec: `docs/implementation-artifacts/spec-4-2-skjule-og-vise-en-rapport.md`
+  summary: Statusknappene i `StatusPanel` (Story 4.1) bruker `disabled` under lagring, så fokus kan gå til `body` til svaret kommer. Vurder `aria-disabled` som i `HideControl` og `ConfirmSection`.
+  evidence: Fantes før Story 4.2 (fra 4.1). Funnet under gjennomgangen av 4.2, der samme feil ble rettet i `HideControl`. Testen «knappene er deaktivert mens endringen lagres» i `status.spec.ts` sjekker ikke fokus mens POST-en holdes igjen.

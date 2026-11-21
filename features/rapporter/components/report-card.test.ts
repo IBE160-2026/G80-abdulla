@@ -1,7 +1,8 @@
 // Tester rapportkortet (Story 1.4) uten nettleser: at metadatalinja regner
 // den relative tiden fra created_at og `now` kortet får, ikke fra
 // status_changed_at eller klokka på maskinen, og at bildeikonet står sist i
-// metadatalinja når rapporten har bilde (Story 1.7).
+// metadatalinja når rapporten har bilde (Story 1.7), og at en skjult rapport
+// har grå bakgrunn og merkelappen «Skjult» (Story 4.2).
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { expect, test } from "vitest";
@@ -62,4 +63,18 @@ test("kortet med bilde har bildeikonet sist i metadatalinja, lest som «Har bild
   expect(svg[0]).not.toContain("aria-hidden");
   // Ikonet står sist i metadatalinja, rett etter den relative tiden.
   expect(html).toMatch(/3 har sett dette · 2 dager siden<svg[^>]*>.*?<\/svg><\/p>/);
+});
+
+test("et skjult kort har grå bakgrunn og «Skjult» som tekst foran statusmerket (Story 4.2)", () => {
+  const html = renderToStaticMarkup(
+    createElement(ReportCard, { report: { ...report, hidden: true }, now: NOW }),
+  );
+  expect(html).toContain("bg-status-hidden");
+  expect(html).toMatch(/text-status-hidden-foreground[^>]*>Skjult<\/div>.*Under behandling/);
+});
+
+test("et synlig kort har verken «Skjult» eller grå bakgrunn", () => {
+  const html = renderToStaticMarkup(createElement(ReportCard, { report, now: NOW }));
+  expect(html).not.toContain("Skjult");
+  expect(html).not.toContain("status-hidden");
 });

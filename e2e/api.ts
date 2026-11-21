@@ -73,3 +73,34 @@ export async function setStatusAs(email: string, id: string, from: string, to: s
     throw new Error(`Kunne ikke endre statusen (${error?.code ?? "ingen rad"}).`);
   }
 }
+
+/**
+ * `hidden`, statusen og `status_changed_at` for rapporten `id`, lest som
+ * `email` (Story 4.2). Gir `null` når RLS skjuler rapporten for `email`.
+ */
+export async function readHiddenAs(
+  email: string,
+  id: string,
+): Promise<{ hidden: boolean; status: string; status_changed_at: string } | null> {
+  const supabase = await signedIn(email);
+  const { data, error } = await supabase
+    .from("reports")
+    .select("hidden, status, status_changed_at")
+    .eq("id", id)
+    .maybeSingle();
+  if (error) throw new Error(`Kunne ikke lese rapporten (${error.code ?? "ukjent"}).`);
+  return data as { hidden: boolean; status: string; status_changed_at: string } | null;
+}
+
+/** Skjuler eller viser rapporten `id` som `email`, med eksplisitt målverdi (Story 4.2). */
+export async function setHiddenAs(email: string, id: string, hidden: boolean) {
+  const supabase = await signedIn(email);
+  const { data, error } = await supabase
+    .from("reports")
+    .update({ hidden })
+    .eq("id", id)
+    .select("id");
+  if (error || data?.length !== 1) {
+    throw new Error(`Kunne ikke endre skjulingen (${error?.code ?? "ingen rad"}).`);
+  }
+}

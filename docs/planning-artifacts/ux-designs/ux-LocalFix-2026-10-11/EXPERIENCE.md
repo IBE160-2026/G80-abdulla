@@ -27,6 +27,8 @@ LocalFix er én responsiv webapp (PWA) laget mobile-first, med shadcn/ui på Nex
 
 **Oppdatert 2026-11-09 (Story 2.1):** menyen i topplinja, innloggings- og registreringssiden, tekstene og feilmeldingene er ført inn. Registreringen har ikke lenger «Gjenta passord», og startpakkens sider for glemt passord, nytt passord og e-postbekreftelse er fjernet.
 
+**Oppdatert 2026-11-21 (Story 4.2):** skjuling og visning i moderatorpanelet er bygget. «Skjul rapport» (`outline`, på egen rad under statusknappene) åpner en shadcn-`AlertDialog` med teksten prosjekteieren bestemte 2026-11-21: tittelen «Skjule rapporten?», teksten «Rapporten blir borte for alle andre, også for den som sendte den inn. Ingenting slettes, og du kan vise den igjen.» og knappene «Avbryt» og «Skjul rapport». Dialogen åpner med fokus på «Avbryt», og knappene står i samme rekkefølge som Tab-rekkefølgen, også på mobil. «Vis rapport» trenger ingen bekreftelse. Mens endringen lagres, er knappen deaktivert med `aria-disabled`, så den beholder fokus. Etter skjuling får «Vis rapport» fokus, etter visning «Skjul rapport», og «Avbryt» eller Escape gir fokus tilbake til «Skjul rapport». Fokus står aldri på `body`. En skjult rapport har for moderatoren den grå merkelappen «Skjult» med en tynn, mørkere grå kant foran statusmerket og grå bakgrunn (`hidden-bg`), både på kortet i lista og på detaljsiden.
+
 Skissene ligger i `mockups/`: `liste.html`, `registrer.html` og `detalj.html`. Hvis en skisse og denne spesifikasjonen sier noe ulikt, gjelder spesifikasjonen.
 
 ## Information Architecture

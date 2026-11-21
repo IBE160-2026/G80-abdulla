@@ -3,7 +3,7 @@
 // den signerte lenken sendes videre til ReportDetail (Story 1.7). Om brukeren
 // er innlogget, sendes også videre (Story 3.3), og Auth leses først etter at
 // rapporten er funnet. Moderatorpanelet (Story 4.1) settes inn etter
-// bekreftelsen bare for moderatoren.
+// bekreftelsen bare for moderatoren, og får også hidden (Story 4.2).
 import { beforeEach, expect, test, vi } from "vitest";
 
 const getReport = vi.fn();
@@ -15,7 +15,10 @@ vi.mock("@/shared/supabase/auth", () => ({ getViewer }));
 // Siden importerer ConfirmSection, som importerer Server Action-en og
 // dermed Supabase-klienten, som krever miljøvariabler.
 vi.mock("@/features/bekreftelser/actions", () => ({ confirmReport: vi.fn() }));
-vi.mock("@/features/moderering/actions", () => ({ setReportStatus: vi.fn() }));
+vi.mock("@/features/moderering/actions", () => ({
+  setReportStatus: vi.fn(),
+  setReportHidden: vi.fn(),
+}));
 vi.mock("next/navigation", () => ({
   notFound: () => {
     throw NOT_FOUND;
@@ -107,7 +110,7 @@ test("en innlogget bruker gir isSignedIn true, en besøkende false", async () =>
   expect(slots(visitor)[0].props.isSignedIn).toBe(false);
 });
 
-test("moderatoren får StatusPanel etter bekreftelsen, med id-en og statusen", async () => {
+test("moderatoren får StatusPanel etter bekreftelsen, med id-en, statusen og hidden", async () => {
   const report = { id: "20000000-0000-4000-8000-000000000002", status: "in_progress", hidden: false };
   getReport.mockResolvedValue({ report, imageUrl: null });
   getViewer.mockResolvedValue({ user: { id: "m1", email: "moderator@localfix.test" }, isModerator: true });
@@ -115,8 +118,18 @@ test("moderatoren får StatusPanel etter bekreftelsen, med id-en og statusen", a
   const [confirm, panel, ...rest] = slots(page);
   expect(confirm.type).toBe(ConfirmSection);
   expect(panel.type).toBe(StatusPanel);
-  expect(panel.props).toEqual({ reportId: report.id, status: "in_progress" });
+  expect(panel.props).toEqual({ reportId: report.id, status: "in_progress", hidden: false });
   expect(rest).toEqual([]);
+});
+
+test("en skjult rapport gir StatusPanel med hidden true for moderatoren", async () => {
+  const report = { id: "20000000-0000-4000-8000-000000000007", status: "new", hidden: true };
+  getReport.mockResolvedValue({ report, imageUrl: null });
+  getViewer.mockResolvedValue({ user: { id: "m1", email: "moderator@localfix.test" }, isModerator: true });
+  const page = await render("20000000-0000-4000-8000-000000000007");
+  const panel = slots(page)[1];
+  expect(panel.type).toBe(StatusPanel);
+  expect(panel.props.hidden).toBe(true);
 });
 
 test("en vanlig bruker og en besøkende får ikke StatusPanel", async () => {
