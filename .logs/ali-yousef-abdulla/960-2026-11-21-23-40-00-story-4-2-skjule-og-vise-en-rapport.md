@@ -31,7 +31,9 @@ Bygge Story 4.2 med `bmad-build`: moderatoren skjuler en rapport (for eksempel m
 - **Verifisering** (ny klone i Temp): `tsc` og lint er rene. Full `npm test` ga exit 0 på 839 s: unit 1108, pgTAP PASS, db 53, Playwright 280.
 - Spec-en er `done`, og `4-2-skjule-og-vise-en-rapport` er `review` i `sprint-status.yaml`.
 
+- **PR #71** (`Closes #38`) er flettet som `4b63224`, og issue #38 er lukket. PR-beskrivelsen har testsammendraget og CI-kjøringen ([44957847326](https://github.com/IBE160-2026/G80-abdulla/actions/runs/44957847326), `workflow_dispatch` på `d185481`). Den var grønn på første forsøk: `npm test` 8 min 42 s, jobben 11 min 8 s, Vitest `unit` 1108 og `db` 53, pgTAP bestått, Playwright 280 (7,9 min).
+- PR #70 (`chore/story-4-1-done`, Story 4.1 `done`) var flettet før denne storyen. Begge story-grenene er slettet, og `4-2-skjule-og-vise-en-rapport` er satt til `done` i `sprint-status.yaml` på `chore/story-4-2-done`, sammen med denne loggen.
+
 ### Åpne punkter
-- Story 4.2: PR med `Closes #38` og testsammendrag, CI-kjøring og flett. Sett `4-2-skjule-og-vise-en-rapport` til `done` etter flett.
 - Statusknappene fra 4.1 bruker fortsatt `disabled` under lagring, så fokus kan gå til `body` (`deferred-work.md`). Vurder `aria-disabled` som i `HideControl`.
 - Grenen der `setReportHidden` eller `setReportStatus` svarer `ok: false` og viser toast i panelet, er ikke testet i e2e (`deferred-work.md`).
