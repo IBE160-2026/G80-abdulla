@@ -3,9 +3,11 @@
 // nøkkelen, som appen gjør. En besøkende får 401, en vanlig bruker 403, også på
 // egen rapport, og moderatoren flytter statusen ett steg med status_changed_at
 // fra databasen. En utdatert fra-status gir null rader, et hopp gir
-// invalid_status_step, og status_changed_at kan ikke settes. Krever lokal
-// Supabase med seed-dataene: kjøres av `npm run test:db`. Rapporten blir
-// liggende til neste `db reset`.
+// invalid_status_step, og status_changed_at kan ikke settes. Moderatoren
+// skjuler og viser rapporten med 200, status_changed_at står stille, og en
+// skjult rapport er borte for alle andre (Story 4.2). Krever lokal Supabase
+// med seed-dataene: kjøres av `npm run test:db`. Rapporten blir liggende til
+// neste `db reset`.
 import { randomUUID } from "node:crypto";
 import { fileURLToPath } from "node:url";
 import { loadEnvConfig } from "@next/env";
@@ -137,4 +139,36 @@ test("moderatoren kan flytte statusen tilbake, og status_changed_at flyttes fram
   expect(Date.parse(data![0].status_changed_at)).toBeGreaterThan(
     Date.parse(before!.status_changed_at),
   );
+});
+
+test("moderatoren skjuler og viser via REST (200), og status_changed_at står stille (Story 4.2)", async () => {
+  const before = await current();
+  for (const hidden of [true, true, false]) {
+    // To ganger true: å skjule en skjult rapport er lov og endrer ingenting.
+    const { data, error, status } = await moderator
+      .from("reports")
+      .update({ hidden })
+      .eq("id", reportId)
+      .select("hidden, status, status_changed_at");
+    expect(error).toBeNull();
+    expect(status).toBe(200);
+    expect(data).toEqual([{ hidden, ...before }]);
+  }
+});
+
+test("en skjult rapport er borte for rapportøren og en besøkende, men finnes for moderatoren (Story 4.2)", async () => {
+  const hide = await moderator.from("reports").update({ hidden: true }).eq("id", reportId).select("id");
+  expect(hide.error).toBeNull();
+  expect(hide.data).toEqual([{ id: reportId }]);
+  for (const supabase of [bruker1, bruker2, anon]) {
+    const { data, error } = await supabase.from("reports").select("id").eq("id", reportId);
+    expect(error).toBeNull();
+    expect(data).toEqual([]);
+  }
+  const { data } = await moderator.from("reports").select("id, hidden").eq("id", reportId);
+  expect(data).toEqual([{ id: reportId, hidden: true }]);
+  // Vis igjen, så rapporten står som før.
+  const show = await moderator.from("reports").update({ hidden: false }).eq("id", reportId).select("id");
+  expect(show.error).toBeNull();
+  expect(show.data).toEqual([{ id: reportId }]);
 });

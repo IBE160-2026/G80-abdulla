@@ -28,8 +28,9 @@ export const metadata: Metadata = {
  * brukeren er moderator (Story 4.1). Den leses etter rapporten, så en 404
  * aldri gir et kall til Auth. Siden setter sammen slicene: `ReportDetail`
  * (rapporter) får `ConfirmSection` (bekreftelser) og, bare for moderatoren,
- * `StatusPanel` (moderering) som `children`. Panelet er bare grensesnittet:
- * databasen avgjør hvem som kan endre status.
+ * `StatusPanel` (moderering) som `children`, med status og `hidden` (Story
+ * 4.2). Panelet er bare grensesnittet: databasen avgjør hvem som kan endre
+ * status og skjule.
  */
 export default async function ReportPage({
   params,
@@ -56,7 +57,11 @@ export default async function ReportPage({
           isSignedIn={isSignedIn}
         />
         {viewer.isModerator && (
-          <StatusPanel reportId={result.report.id} status={result.report.status} />
+          <StatusPanel
+            reportId={result.report.id}
+            status={result.report.status}
+            hidden={result.report.hidden}
+          />
         )}
       </ReportDetail>
     </main>

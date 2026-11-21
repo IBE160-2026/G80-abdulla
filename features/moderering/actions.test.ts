@@ -3,7 +3,10 @@
 // har både id og fra-status i WHERE, at både error og antall rader sjekkes, at
 // null rader gir report_not_found eller stale_state etter et nytt oppslag,
 // oversettingen av 42501 og P0001, revalidatePath og at ingen tekst fra
-// databasen, rapport eller e-post logges.
+// databasen, rapport eller e-post logges. Tester også setReportHidden (Story
+// 4.2): validering av id og hidden, at oppdateringen sender bare hidden med id
+// i WHERE, at null rader alltid gir report_not_found uten nytt oppslag,
+// oversettingen av 42501 og at bare feilkoden logges.
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 const { REDIRECT } = vi.hoisted(() => ({ REDIRECT: new Error("NEXT_REDIRECT") }));
@@ -16,7 +19,7 @@ let updates: unknown[] = [];
 let signedIn = true;
 let throwOnCreate = false;
 let throwOnUpdate = false;
-let updateResult: { data: Changed[] | null; error: DbError | null };
+let updateResult: { data: object[] | null; error: DbError | null };
 let readResult: { data: { id: string } | null; error: DbError | null };
 
 const requireUser = vi.fn(async (returnTo: string) => {
@@ -74,7 +77,7 @@ const revalidatePath = vi.fn((path: string) => {
 });
 vi.mock("next/cache", () => ({ revalidatePath }));
 
-const { setReportStatus } = await import("./actions");
+const { setReportHidden, setReportStatus } = await import("./actions");
 
 const ID = "20000000-0000-4000-8000-000000000004";
 const CHANGED: Changed = { status: "in_progress", status_changed_at: "2026-11-20T12:00:00+00:00" };
@@ -270,6 +273,132 @@ describe("setReportStatus", () => {
     updateResult = { data: null, error: { code: "08006", message: "hemmelig databasetekst" } };
     await setReportStatus(ID, "new", "in_progress");
     expect(errorLog).toHaveBeenCalledExactlyOnceWith("setReportStatus", "08006");
+    expect(loggedText()).not.toMatch(/hemmelig|localfix\.test/);
+  });
+});
+
+describe("setReportHidden", () => {
+  const hiddenCode = (answer: Awaited<ReturnType<typeof setReportHidden>>) =>
+    answer.ok ? null : answer.error.code;
+
+  beforeEach(() => {
+    updateResult = { data: [{ hidden: true }], error: null };
+  });
+
+  test("kaller requireUser med detaljsiden først, og en besøkende når aldri databasen", async () => {
+    signedIn = false;
+    await expect(setReportHidden(ID, true)).rejects.toBe(REDIRECT);
+    expect(order).toEqual([`requireUser /rapporter/${ID}`]);
+    expect(updates).toEqual([]);
+  });
+
+  test("en besøkende med en ugyldig id sendes til lista, uten databasekall", async () => {
+    signedIn = false;
+    await expect(setReportHidden("abc", true)).rejects.toBe(REDIRECT);
+    expect(order).toEqual(["requireUser /"]);
+  });
+
+  test.each(["abc", "", ID + "0", null, undefined, 42, { id: ID }])(
+    "ugyldig id %j gir validation_failed uten databasekall",
+    async (value) => {
+      const answer = await setReportHidden(value, true);
+      expect(answer).toEqual({
+        ok: false,
+        error: { code: "validation_failed", message: "Sjekk feltene og prøv igjen." },
+      });
+      expect(order.filter((step) => step.startsWith("from"))).toEqual([]);
+      expect(revalidatePath).not.toHaveBeenCalled();
+    },
+  );
+
+  test.each([["true"], ["false"], [1], [0], [null], [undefined], [{}]])(
+    "hidden %j som ikke er boolean, gir validation_failed uten databasekall",
+    async (value) => {
+      expect(hiddenCode(await setReportHidden(ID, value))).toBe("validation_failed");
+      expect(order.filter((step) => step.startsWith("from"))).toEqual([]);
+      expect(revalidatePath).not.toHaveBeenCalled();
+    },
+  );
+
+  test("skjuling sender bare hidden: true, med id i WHERE, og revaliderer", async () => {
+    const answer = await setReportHidden(ID, true);
+    expect(answer).toEqual({ ok: true, data: { hidden: true } });
+    expect(updates).toEqual([{ hidden: true }]);
+    expect(order).toEqual([
+      `requireUser /rapporter/${ID}`,
+      "from reports",
+      "update",
+      `eq id ${ID}`,
+      "select hidden",
+      "revalidatePath /",
+      `revalidatePath /rapporter/${ID}`,
+    ]);
+  });
+
+  test("visning sender hidden: false eksplisitt, aldri en veksling", async () => {
+    updateResult = { data: [{ hidden: false }], error: null };
+    expect(await setReportHidden(ID, false)).toEqual({ ok: true, data: { hidden: false } });
+    expect(updates).toEqual([{ hidden: false }]);
+  });
+
+  test("å skjule en skjult rapport sender samme målverdi og gir ok", async () => {
+    expect((await setReportHidden(ID, true)).ok).toBe(true);
+    expect((await setReportHidden(ID, true)).ok).toBe(true);
+    expect(updates).toEqual([{ hidden: true }, { hidden: true }]);
+  });
+
+  test("store bokstaver i id-en sendes med små", async () => {
+    await setReportHidden(ID.toUpperCase(), true);
+    expect(order).toContain(`eq id ${ID}`);
+    expect(order[0]).toBe(`requireUser /rapporter/${ID}`);
+  });
+
+  test("42501 (ikke moderator) gir forbidden, uten revalidering", async () => {
+    updateResult = { data: null, error: { code: "42501", message: "hemmelig databasetekst" } };
+    expect(await setReportHidden(ID, true)).toEqual({
+      ok: false,
+      error: { code: "forbidden", message: "Du har ikke tilgang til dette." },
+    });
+    expect(revalidatePath).not.toHaveBeenCalled();
+  });
+
+  test("andre databasefeil gir unknown", async () => {
+    updateResult = { data: null, error: { code: "08006", message: "hemmelig databasetekst" } };
+    expect(hiddenCode(await setReportHidden(ID, true))).toBe("unknown");
+  });
+
+  test("null rader gir alltid report_not_found, uten nytt oppslag og uten revalidering", async () => {
+    updateResult = { data: [], error: null };
+    expect(await setReportHidden(ID, true)).toEqual({
+      ok: false,
+      error: { code: "report_not_found", message: "Fant ikke rapporten." },
+    });
+    expect(order.filter((step) => step === "from reports")).toHaveLength(1);
+    expect(order).not.toContain("les raden");
+    expect(revalidatePath).not.toHaveBeenCalled();
+  });
+
+  test("uten svar eller med flere rader gir unknown, selv uten error", async () => {
+    updateResult = { data: null, error: null };
+    expect(hiddenCode(await setReportHidden(ID, true))).toBe("unknown");
+    updateResult = { data: [{ hidden: true }, { hidden: true }], error: null };
+    expect(hiddenCode(await setReportHidden(ID, true))).toBe("unknown");
+    expect(revalidatePath).not.toHaveBeenCalled();
+  });
+
+  test("et kast gir unknown, og meldingen logges ikke", async () => {
+    throwOnCreate = true;
+    expect(hiddenCode(await setReportHidden(ID, true))).toBe("unknown");
+    throwOnCreate = false;
+    throwOnUpdate = true;
+    expect(hiddenCode(await setReportHidden(ID, true))).toBe("unknown");
+    expect(loggedText()).not.toContain("hemmelig");
+  });
+
+  test("bare feilkoden logges, med setReportHidden foran", async () => {
+    updateResult = { data: null, error: { code: "08006", message: "hemmelig databasetekst" } };
+    await setReportHidden(ID, true);
+    expect(errorLog).toHaveBeenCalledExactlyOnceWith("setReportHidden", "08006");
     expect(loggedText()).not.toMatch(/hemmelig|localfix\.test/);
   });
 });

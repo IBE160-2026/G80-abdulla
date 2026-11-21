@@ -3,6 +3,7 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { toast } from "sonner";
 import { setReportStatus } from "@/features/moderering/actions";
+import { HideControl } from "@/features/moderering/components/hide-control";
 import { neighbourStatuses, STATUS_ORDER } from "@/features/moderering/status-steps";
 import { ERROR_MESSAGES } from "@/shared/lib/errors";
 import { STATUS_LABELS } from "@/shared/report/labels";
@@ -29,8 +30,19 @@ import { Card } from "@/shared/ui/card";
  * uten å bryte slicegrensen. Knappene har indeksen som nøkkel, så den første
  * beholder fokus også når nye props kommer etter svaret. Statusteksten har
  * `role="status"` (en høflig live-region), så endringen leses opp.
+ *
+ * Under statusknappene står skjul/vis-knappen på egen rad (`HideControl`,
+ * Story 4.2), med `hidden` fra siden.
  */
-export function StatusPanel({ reportId, status }: { reportId: string; status: ReportStatus }) {
+export function StatusPanel({
+  reportId,
+  status,
+  hidden,
+}: {
+  reportId: string;
+  status: ReportStatus;
+  hidden: boolean;
+}) {
   const [shown, setShown] = useState(status);
   const [saving, setSaving] = useState(false);
   // Ny status fra serveren (revalidering) erstatter det som vises. Sammenlignes
@@ -99,6 +111,9 @@ export function StatusPanel({ reportId, status }: { reportId: string; status: Re
               {step.label}
             </Button>
           ))}
+        </div>
+        <div className="mt-2">
+          <HideControl reportId={reportId} hidden={hidden} />
         </div>
       </section>
     </Card>

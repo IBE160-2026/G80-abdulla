@@ -3,11 +3,16 @@
 -- bare når statusen endres. En vanlig bruker får 42501, også på egen rapport,
 -- og anon har ingen UPDATE-grant. Bare status og hidden kan endres. Seed:
 -- rapport 1 (new) og 7 (new, skjult) har bruker1 som forfatter, rapport 2
--- (in_progress), 4 (new) og 6 (resolved) har bruker2.
+-- (in_progress), 4 (new) og 6 (resolved) har bruker2. Story 4.2 legger til
+-- visning alene og at skjuling og visning ikke sletter noe.
 begin;
 \ir hjelpere.psql
 
-select plan(36);
+select plan(39);
+
+-- Antall rapporter før testene, så det kan sjekkes at skjuling og visning ikke
+-- sletter noe (Story 4.2).
+create temp table antall_start as select count(*) as n from public.reports;
 
 -- Policyen og triggeren finnes, og policyen navngir rollen.
 select is(
@@ -155,6 +160,18 @@ select results_eq(
   'uendret status og skjuling flytter ikke status_changed_at'
 );
 
+-- Visning alene (Story 4.2): moderatoren viser den skjulte rapporten igjen
+-- med hidden = false, og status_changed_at står fortsatt stille.
+select lives_ok(
+  $$update public.reports set hidden = false where id = '20000000-0000-4000-8000-000000000002'$$,
+  'moderatoren kan vise en skjult rapport igjen'
+);
+select results_eq(
+  $$select status::text, hidden, status_changed_at from public.reports where id = '20000000-0000-4000-8000-000000000002'$$,
+  $$values ('in_progress', false, '2026-10-23T09:00:00Z'::timestamptz)$$,
+  'visning gjør rapporten synlig og flytter ikke status_changed_at'
+);
+
 -- En skjult rapport kan få ny status, også i samme oppdatering som hidden.
 select lives_ok(
   format($$update public.reports set status = 'in_progress' where id = %L$$, tests.skjult_rapport()),
@@ -199,6 +216,13 @@ select tests.as_postgres();
 select lives_ok(
   $$update public.reports set status = 'resolved' where id = '20000000-0000-4000-8000-000000000004'$$,
   'postgres er ikke vokta av triggeren'
+);
+
+-- Skjuling og visning slettet ingen rad.
+select is(
+  (select count(*) from public.reports),
+  (select n from antall_start),
+  'ingen rapport er slettet'
 );
 
 select * from finish();

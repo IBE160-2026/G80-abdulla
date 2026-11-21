@@ -2,7 +2,9 @@ import type { ReactNode } from "react";
 import { StatusBadge } from "@/shared/report/status-badge";
 import { formatDateTime } from "@/shared/lib/format";
 import { CATEGORY_LABELS } from "@/shared/report/labels";
+import { cn } from "@/shared/lib/utils";
 import type { Report } from "@/shared/supabase/types";
+import { HiddenBadge } from "./hidden-badge";
 
 /**
  * Hele rapporten på detaljsiden (FR-5, FR-8, UX-DR13), etter mockupen
@@ -21,6 +23,9 @@ import type { Report } from "@/shared/supabase/types";
  * Telleren «N har sett dette» og bekreftknappen (Story 3.3, FR-7) kommer som
  * `children` og står sist. Siden i `app/` setter inn `ConfirmSection` fra
  * `features/bekreftelser`, så `rapporter` ikke importerer en annen slice.
+ *
+ * En skjult rapport (bare moderatoren får den fra RLS) har merkelappen
+ * «Skjult» foran statusmerket og grå bakgrunn, som kortet i lista (Story 4.2).
  */
 export function ReportDetail({
   report,
@@ -34,10 +39,13 @@ export function ReportDetail({
   const category = CATEGORY_LABELS[report.category];
 
   return (
-    <article>
+    <article className={cn(report.hidden && "rounded-lg bg-status-hidden p-3")}>
       <div className="flex items-center justify-between gap-2">
         <span className="text-meta text-muted-foreground">{category}</span>
-        <StatusBadge status={report.status} />
+        <span className="flex items-center gap-1.5">
+          {report.hidden && <HiddenBadge />}
+          <StatusBadge status={report.status} />
+        </span>
       </div>
       <p className="mt-1 text-meta text-muted-foreground">
         Sist oppdatert {formatDateTime(report.status_changed_at)}

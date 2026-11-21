@@ -9,7 +9,8 @@
 // tastatur (filvelgeren er nettleserens egen), og bildet vises på detaljsiden
 // og som ikon i lista. Fra Story 4.1 logger moderatoren inn til slutt,
 // sorterer på «Flest har sett» og flytter statusen ett steg på rapporten
-// testen registrerte. endrer-360 og endrer-1280
+// testen registrerte. Fra Story 4.2 skjuler moderatoren rapporten, også
+// bekreftelsen i dialogen, så hele AD-15-flyten går. endrer-360 og endrer-1280
 // deler databasen, så lista har flere rapporter enn seed når den andre kjører.
 // Stegene som åpner seed-kort, finner dem på innhold og ikke på plassering.
 import { randomUUID } from "node:crypto";
@@ -20,6 +21,9 @@ import { tabTo } from "./keyboard";
 import { expectNoHorizontalScroll } from "./layout";
 
 test("kjerneflyten med tastatur", async ({ page }) => {
+  // Hele AD-15-flyten med axe ved hvert steg (og ved 320 px i endrer-360) tar
+  // over standardgrensen på 30 s etter Story 4.2.
+  test.setTimeout(90_000);
   // Lista har minst de åtte seed-rapportene. Flere kommer fra tidligere
   // kjøringer mot samme database, og de nyeste står øverst.
   const SEED_CARDS = 8;
@@ -426,7 +430,7 @@ test("kjerneflyten med tastatur", async ({ page }) => {
   await page.keyboard.press("Enter");
   await expect(main.getByText("Under behandling", { exact: true })).toBeVisible();
   await expect(moderatorPanel).toContainText("Status: Under behandling");
-  await expect(moderatorPanel.getByRole("button")).toHaveText(["← Ny", "Løst →"]);
+  await expect(moderatorPanel.getByRole("button")).toHaveText(["← Ny", "Løst →", "Skjul rapport"]);
   await expect(moderatorPanel.getByRole("button", { name: "← Ny", exact: true })).toBeFocused();
   await expectNoSeriousA11yViolations(page);
   await expectNoHorizontalScroll(page);
@@ -436,4 +440,23 @@ test("kjerneflyten med tastatur", async ({ page }) => {
     await expectNoHorizontalScroll(page);
     await page.setViewportSize({ width: 360, height: 800 });
   }
+
+  // Story 4.2: skjul rapporten med tastatur, også bekreftelsen i dialogen.
+  // Dialogen åpner med fokus på «Avbryt», og Tab går til «Skjul rapport» i
+  // dialogen. Etter skjulingen står fokus på «Vis rapport», og detaljsiden
+  // viser «Skjult».
+  await tabTo(page, "button", "Skjul rapport", { max: 3 });
+  await page.keyboard.press("Enter");
+  const hideDialog = page.getByRole("alertdialog", { name: "Skjule rapporten?" });
+  await expect(hideDialog.getByRole("button", { name: "Avbryt", exact: true })).toBeFocused();
+  await expectNoSeriousA11yViolations(page);
+  await expectNoHorizontalScroll(page);
+  await page.keyboard.press("Tab");
+  await expect(hideDialog.getByRole("button", { name: "Skjul rapport", exact: true })).toBeFocused();
+  await page.keyboard.press("Enter");
+  await expect(hideDialog).toHaveCount(0);
+  await expect(moderatorPanel.getByRole("button", { name: "Vis rapport", exact: true })).toBeFocused();
+  await expect(main.getByText("Skjult", { exact: true })).toBeVisible();
+  await expectNoSeriousA11yViolations(page);
+  await expectNoHorizontalScroll(page);
 });
