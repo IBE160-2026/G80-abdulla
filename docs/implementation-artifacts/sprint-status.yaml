@@ -29,7 +29,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 # - Retrospective appends its action items to action_items; the status view surfaces open ones
 generated: 11-06-2026 20:57
-last_updated: 11-22-2026 12:45
+last_updated: 11-22-2026 12:43
 project: LocalFix
 project_key: NOKEY
 tracking_system: file-system
@@ -63,7 +63,7 @@ development_status:
   4-1-endre-status: done
   4-2-skjule-og-vise-en-rapport: done
   4-3-sensor-kan-starte-og-vurdere-appen: done
-  epic-4-retrospective: optional
+  epic-4-retrospective: done
 action_items:
   - id: "epic-1-retro-item-1-følg-readme-steg-for-steg-på-en-ny-klone"
     epic: 1
@@ -139,3 +139,39 @@ action_items:
     owner: "Ali Yousef Abdulla"
     status: open
     ref: "docs/implementation-artifacts/epic-2-retro-2026-11-18.md"
+  - id: "epic-4-retro-item-11-rett-fokus-i-statuspanel-aria-disabled-i"
+    epic: 4
+    action: "Rett fokus i StatusPanel (aria-disabled i stedet for disabled, som i
+      HideControl) og la e2e/endrer/status.spec.ts sjekke fokus mens POST-en holdes.
+      Legg til en e2e-test for toasten når setReportStatus eller setReportHidden svarer
+      ok:false. Lukker issues.md:153 og :154."
+    owner: "Ali Yousef Abdulla"
+    status: open
+    ref: "docs/implementation-artifacts/epic-4-retro-2026-11-22.md"
+  - id: "epic-4-retro-item-12-få-readme-prøvd-på-en-ren-maskin-en-anne"
+    epic: 4
+    action: "Få README prøvd på en ren maskin: en annen person eller en maskin uten
+      Docker-bilder og Chromium følger README fra start til slutt, inkludert npm run
+      dev, og måler første nedlasting. Prøv macOS hvis mulig. Oppdater Forventet tid
+      og SM-7-raden i docs/testdekning.md."
+    owner: "Ali Yousef Abdulla"
+    status: open
+    ref: "docs/implementation-artifacts/epic-4-retro-2026-11-22.md"
+  - id: "epic-4-retro-item-13-skriv-to-prosessregler-i-docs-coaching-p"
+    epic: 4
+    action: "Skriv to prosessregler i docs/coaching-plan.md: ustabile tester med kjent
+      rettelse rettes i neste story som utvider samme test, og åpne flaky-punkter
+      leses før CI startes; og beslutningsloggen oppdateres i samme PR når en story
+      endrer EXPERIENCE.md, DESIGN.md, PRD-en eller arkitekturen."
+    owner: "Ali Yousef Abdulla"
+    status: open
+    ref: "docs/implementation-artifacts/epic-4-retro-2026-11-22.md"
+  - id: "epic-4-retro-item-14-spec-rekonsiliering-før-én-linje-i-ux-be"
+    epic: 4
+    action: "Spec-rekonsiliering: før én linje i ux-beslutningslogg.md om dialogen
+      Skjule rapporten? fra Story 4.2 (begge kopier av EXPERIENCE.md), og én linje
+      i arkitektur-beslutningslogg.md om at Vercel-adressen i README ble fjernet 2026-11-22
+      (P-2), eller bekreft at README og EXPERIENCE.md er nok. Brukeren bestemmer ordlyden."
+    owner: "Ali Yousef Abdulla"
+    status: open
+    ref: "docs/implementation-artifacts/epic-4-retro-2026-11-22.md"
