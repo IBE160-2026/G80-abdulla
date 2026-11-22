@@ -4,8 +4,7 @@
 import { expect, test, type Page } from "@playwright/test";
 import { expectNoSeriousA11yViolations } from "../a11y";
 import { expectNoHorizontalScroll } from "../layout";
-
-const reportId = (n: number) => `20000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
+import { cardLinks, chip, reportId, shownReports, sortSelect } from "../list";
 
 type Category = "waste" | "lighting" | "roads_sidewalks" | "vandalism" | "other";
 type Status = "new" | "in_progress" | "resolved";
@@ -53,21 +52,6 @@ function href(category: Category | null, status: Status | null, sort: Sort): str
   if (sort !== "newest") query.set("sort", sort);
   const text = query.toString();
   return text ? `/?${text}` : "/";
-}
-
-const cardLinks = (page: Page) => page.getByRole("main").getByRole("listitem").getByRole("link");
-const chip = (page: Page, name: string) => page.getByRole("button", { name, exact: true });
-const sortSelect = (page: Page) => page.getByRole("combobox", { name: "Sortering", exact: true });
-
-async function shownReports(page: Page): Promise<number[]> {
-  // Lista strømmes inn bak en lasteskjerm («Laster rapportene …»). Uten ventingen
-  // kan kortene leses før de er kommet, og svaret er da en tom liste.
-  await expect(page.getByText("Laster rapportene …", { exact: true })).toHaveCount(0);
-  const hrefs = await cardLinks(page).evaluateAll((elements) =>
-    elements.map((element) => element.getAttribute("href") ?? ""),
-  );
-  // Siste del av uuid-en er rapportnummeret, med nuller foran.
-  return hrefs.map((h) => Number(h.split("-").pop()));
 }
 
 async function expectPressed(page: Page, pressed: string[]) {

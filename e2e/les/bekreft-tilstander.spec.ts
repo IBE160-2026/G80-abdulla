@@ -13,8 +13,9 @@ import { expectNoSeriousA11yViolations } from "../a11y";
 import { logIn } from "../auth";
 import { tabTo } from "../keyboard";
 import { expectNoHorizontalScroll } from "../layout";
+import { reportId } from "../list";
 
-const reportUrl = (n: number) => `/rapporter/20000000-0000-4000-8000-00000000000${n}`;
+const reportUrl = (n: number) => `/rapporter/${reportId(n)}`;
 
 const main = (page: Page) => page.getByRole("main");
 const button = (page: Page, name: string) =>

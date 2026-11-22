@@ -6,6 +6,7 @@ import { expect, test, type Page } from "@playwright/test";
 import { expectNoSeriousA11yViolations } from "../a11y";
 import { logIn } from "../auth";
 import { expectNoHorizontalScroll } from "../layout";
+import { cardLinks, chip, shownReports, sortSelect } from "../list";
 
 type Category = "waste" | "lighting" | "roads_sidewalks" | "vandalism" | "other";
 type Status = "new" | "in_progress" | "resolved";
@@ -84,21 +85,7 @@ function href(category: Category | null, status: Status | null, mine: boolean, s
   return text ? `/?${text}` : "/";
 }
 
-const cardLinks = (page: Page) => page.getByRole("main").getByRole("listitem").getByRole("link");
-const chip = (page: Page, name: string) => page.getByRole("button", { name, exact: true });
-const sortSelect = (page: Page) => page.getByRole("combobox", { name: "Sortering", exact: true });
 const filterGroup = (page: Page) => page.getByRole("group", { name: "Filtrer rapportene", exact: true });
-
-async function shownReports(page: Page): Promise<number[]> {
-  // Lista strømmes inn bak en lasteskjerm («Laster rapportene …»). Uten ventingen
-  // kan kortene leses før de er kommet, og svaret er da en tom liste.
-  await expect(page.getByText("Laster rapportene …", { exact: true })).toHaveCount(0);
-  const hrefs = await cardLinks(page).evaluateAll((elements) =>
-    elements.map((element) => element.getAttribute("href") ?? ""),
-  );
-  // Siste del av uuid-en er rapportnummeret, med nuller foran.
-  return hrefs.map((h) => Number(h.split("-").pop()));
-}
 
 async function expectPressed(page: Page, pressed: string[]) {
   for (const name of [MINE, "Alle", ...CATEGORY_NAMES, ...STATUS_NAMES]) {

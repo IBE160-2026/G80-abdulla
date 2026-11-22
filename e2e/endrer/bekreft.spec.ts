@@ -8,7 +8,7 @@
 // bekreftelsene blir liggende til neste `db reset`.
 import { randomUUID } from "node:crypto";
 import { expect, test, type Page } from "@playwright/test";
-import { expectNoSeriousA11yViolations } from "../a11y";
+import { expectAccessibleLayout, expectNoSeriousA11yViolations } from "../a11y";
 import { createReportAs } from "../api";
 import { logIn, PASSWORD } from "../auth";
 import { tabTo } from "../keyboard";
@@ -40,7 +40,6 @@ async function listedIds(page: Page): Promise<string[]> {
 test("en besøkende sendes til innlogging og tilbake, og bekrefter bare med tastatur", async ({
   page,
 }) => {
-  const narrow = test.info().project.name === "endrer-360";
   const summary = `Bekreftelse ${randomUUID()}`;
   const id = await createReportAs("bruker1@localfix.test", summary);
   const url = `/rapporter/${id}`;
@@ -96,14 +95,7 @@ test("en besøkende sendes til innlogging og tilbake, og bekrefter bare med tast
   await expect(counter(page)).toHaveText("2 har sett dette");
   await expect(done).toBeFocused();
   await expect(page.locator("[data-sonner-toast]")).toHaveCount(0);
-  await expectNoSeriousA11yViolations(page);
-  await expectNoHorizontalScroll(page);
-  if (narrow) {
-    await page.setViewportSize({ width: 320, height: 800 });
-    await expectNoSeriousA11yViolations(page);
-    await expectNoHorizontalScroll(page);
-    await page.setViewportSize({ width: 360, height: 800 });
-  }
+  await expectAccessibleLayout(page);
 
   // Tallet står igjen etter omlasting, og knappen er fortsatt «Du har sett dette ✓».
   await page.reload();

@@ -20,18 +20,11 @@ import {
   jpegWithExif,
   plainJpeg,
 } from "@/e2e/test-images";
-import { expectNoSeriousA11yViolations } from "../a11y";
-import { logIn } from "../auth";
-import { expectNoHorizontalScroll } from "../layout";
+import { expectAccessibleLayout } from "../a11y";
+import { category, description, location, NEW_REPORT, openForm, submit } from "../report-form";
 
-const NEW_REPORT = "/rapporter/ny";
 const HINT = "Unngå ansikter og bilskilt på bildet. JPEG, PNG eller WebP, maks 5 MB.";
 
-const description = (page: Page) => page.getByLabel("Beskrivelse", { exact: true });
-const location = (page: Page) => page.getByLabel("Lokasjon", { exact: true });
-const category = (page: Page) => page.getByRole("combobox", { name: "Kategori", exact: true });
-const submit = (page: Page) =>
-  page.getByRole("main").getByRole("button", { name: /^(Send inn|Sender …)$/ });
 const addButton = (page: Page) => page.getByRole("button", { name: "Legg til bilde", exact: true });
 const removeButton = (page: Page) => page.getByRole("button", { name: "Fjern bilde", exact: true });
 const preview = (page: Page) =>
@@ -41,26 +34,9 @@ const imageError = (page: Page) => page.locator("#image-error");
 const detailImage = (page: Page) =>
   page.getByRole("main").getByRole("img", { name: "Bilde fra rapporten", exact: true });
 
-async function openForm(page: Page) {
-  await logIn(page, "bruker2@localfix.test", { next: NEW_REPORT });
-  await expect(page.getByRole("heading", { level: 1, name: "Ny rapport" })).toBeVisible();
-}
-
 /** Velger en fil i filfeltet, slik et valg i filvelgeren gjør. */
 async function pick(page: Page, name: string, mimeType: string, buffer: Buffer) {
   await fileInput(page).setInputFiles({ name, mimeType, buffer });
-}
-
-/** axe og breddesjekk, og også 320 px i 360-prosjektet. */
-async function expectAccessibleLayout(page: Page) {
-  await expectNoSeriousA11yViolations(page);
-  await expectNoHorizontalScroll(page);
-  if (page.viewportSize()!.width === 360) {
-    await page.setViewportSize({ width: 320, height: 800 });
-    await expectNoSeriousA11yViolations(page);
-    await expectNoHorizontalScroll(page);
-    await page.setViewportSize({ width: 360, height: 800 });
-  }
 }
 
 /** Fyller beskrivelse (mock-forslag: «hull» gir Vei og fortau) og lokasjon. */

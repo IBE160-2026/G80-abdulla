@@ -1,5 +1,6 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, type Page } from "@playwright/test";
+import { expectNoHorizontalScroll } from "./layout";
 
 // WCAG-taggene i AD-15 (NFR-8).
 export const A11Y_TAGS = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"];
@@ -88,4 +89,19 @@ export async function expectNoSeriousA11yViolations(page: Page) {
           .join(", ")}`,
     );
   expect(serious, `axe fant brudd på ${page.url()}`).toEqual([]);
+}
+
+/**
+ * axe og breddesjekk på siden, og i 360-prosjektet også på 320 px (WCAG 1.4.10).
+ * Bredden settes tilbake til 360 px etterpå.
+ */
+export async function expectAccessibleLayout(page: Page) {
+  await expectNoSeriousA11yViolations(page);
+  await expectNoHorizontalScroll(page);
+  if (page.viewportSize()!.width === 360) {
+    await page.setViewportSize({ width: 320, height: 800 });
+    await expectNoSeriousA11yViolations(page);
+    await expectNoHorizontalScroll(page);
+    await page.setViewportSize({ width: 360, height: 800 });
+  }
 }

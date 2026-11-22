@@ -10,7 +10,7 @@
 import { randomUUID } from "node:crypto";
 import { expect, test, type Page } from "@playwright/test";
 import { formatDateTime } from "@/shared/lib/format";
-import { expectNoSeriousA11yViolations } from "../a11y";
+import { expectAccessibleLayout, expectNoSeriousA11yViolations } from "../a11y";
 import { createReportAs, readStatusAs, setStatusAs } from "../api";
 import { logIn } from "../auth";
 import { deleteReportRow } from "../db";
@@ -67,7 +67,6 @@ test("panelet vises bare for moderatoren, ikke for rapportøren, en annen bruker
 test("moderatoren flytter statusen ett steg om gangen med tastatur, og fokus står på første statusknapp", async ({
   page,
 }) => {
-  const narrow = test.info().project.name === "endrer-360";
   const summary = `Status ${randomUUID()}`;
   const id = await createReportAs(BRUKER2, summary);
   const url = `/rapporter/${id}`;
@@ -96,14 +95,7 @@ test("moderatoren flytter statusen ett steg om gangen med tastatur, og fokus st�
   await expect(lastUpdated(page)).toHaveText(await expectedLastUpdated(id));
   expect((await readStatusAs(MODERATOR, id)).status).toBe("in_progress");
   await expect(page.locator("[data-sonner-toast]")).toHaveCount(0);
-  await expectNoSeriousA11yViolations(page);
-  await expectNoHorizontalScroll(page);
-  if (narrow) {
-    await page.setViewportSize({ width: 320, height: 800 });
-    await expectNoSeriousA11yViolations(page);
-    await expectNoHorizontalScroll(page);
-    await page.setViewportSize({ width: 360, height: 800 });
-  }
+  await expectAccessibleLayout(page);
 
   // «Løst →» er neste knapp. Løst gir bare «← Under behandling», med fokus.
   await page.keyboard.press("Tab");
