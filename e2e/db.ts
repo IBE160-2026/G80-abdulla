@@ -1,4 +1,6 @@
 import { execSync } from "node:child_process";
+import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 // Hjelpere for testene i prosjektet reset (AD-15). De kjører Supabase CLI som
@@ -30,6 +32,26 @@ function run(command: string) {
 /** Tilbakestiller den lokale databasen til migreringene og seed-dataene. */
 export function resetDb() {
   run("npx supabase db reset");
+}
+
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/**
+ * Sletter én rapport rett i den lokale databasen, som postgres (ingen klient
+ * kan slette, og postgres omgår RLS). Bruk den bare på en rapport testen selv
+ * har laget. `id` må være en uuid, siden den settes rett inn i SQL-en. Setningen
+ * går via en midlertidig fil, så anførselstegn ikke avhenger av skallet.
+ */
+export function deleteReportRow(id: string) {
+  if (!UUID.test(id)) throw new Error(`deleteReportRow: ${id} er ikke en uuid.`);
+  const dir = mkdtempSync(join(tmpdir(), "localfix-sql-"));
+  try {
+    const file = join(dir, "delete-report.sql");
+    writeFileSync(file, `delete from public.reports where id = '${id}';`);
+    run(`npx supabase db query --local --file "${file}"`);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
 }
 
 /** Kjører en SQL-fil fra e2e/fixtures/ mot den lokale databasen. */

@@ -13,6 +13,7 @@ import { formatDateTime } from "@/shared/lib/format";
 import { expectNoSeriousA11yViolations } from "../a11y";
 import { createReportAs, readStatusAs, setStatusAs } from "../api";
 import { logIn } from "../auth";
+import { deleteReportRow } from "../db";
 import { tabTo } from "../keyboard";
 import { expectNoHorizontalScroll } from "../layout";
 
@@ -127,7 +128,9 @@ test("moderatoren flytter statusen ett steg om gangen med tastatur, og fokus st�
   await expect(lastUpdated(page)).toHaveText(await expectedLastUpdated(id));
 });
 
-test("knappene er deaktivert mens endringen lagres", async ({ page }) => {
+test("knappene er aria-disabled mens endringen lagres, og fokus blir på knappen", async ({
+  page,
+}) => {
   const summary = `Lagrer ${randomUUID()}`;
   const id = await createReportAs(BRUKER2, summary);
   const url = `/rapporter/${id}`;
@@ -138,18 +141,33 @@ test("knappene er deaktivert mens endringen lagres", async ({ page }) => {
   const held = new Promise<void>((resolve) => {
     release = resolve;
   });
+  let posts = 0;
   await page.route(`**${url}`, async (route) => {
-    if (route.request().method() === "POST") await held;
+    if (route.request().method() === "POST") {
+      posts += 1;
+      await held;
+    }
     await route.continue();
   });
 
   const forward = panel(page).getByRole("button", { name: "Under behandling →", exact: true });
   await forward.click();
+  // aria-disabled, ikke disabled: knappen beholder fokus mens den lagrer, og
+  // fokus står aldri på body. Et nytt trykk gjør ingenting.
   await expect(forward).toBeDisabled();
+  await expect(forward).toHaveAttribute("aria-disabled", "true");
+  await expect(forward).not.toHaveAttribute("disabled", /.*/);
+  await expect(forward).toBeFocused();
+  expect(await page.evaluate(() => document.activeElement === document.body)).toBe(false);
+  await page.keyboard.press("Enter");
+  await expect(forward).toBeFocused();
+  expect(posts).toBe(1);
   release();
   await expect(statusButtons(page)).toHaveText(["← Ny", "Løst →", "Skjul rapport"]);
   for (const button of await statusButtons(page).all()) await expect(button).toBeEnabled();
   await expect(statusButtons(page).first()).toBeFocused();
+  // Bare ett kall gikk ut, selv med et nytt trykk mens det lagret.
+  expect(posts).toBe(1);
 });
 
 test("en feil gir toast, statusen står, og et nytt forsøk virker", async ({ page }) => {
@@ -184,6 +202,38 @@ test("en feil gir toast, statusen står, og et nytt forsøk virker", async ({ pa
   await expect(statusButtons(page)).toHaveText(["← Ny", "Løst →", "Skjul rapport"]);
   await expect(statusButtons(page).first()).toBeFocused();
   expect((await readStatusAs(MODERATOR, id)).status).toBe("in_progress");
+});
+
+test("en rapport som er borte når statusen skal endres, gir toast, og knappene virker igjen", async ({
+  page,
+}) => {
+  const summary = `Borte status ${randomUUID()}`;
+  const id = await createReportAs(BRUKER2, summary);
+  const url = `/rapporter/${id}`;
+  await logIn(page, MODERATOR, { next: url });
+  await expect(statusButtons(page)).toHaveText(["Under behandling →", "Skjul rapport"]);
+
+  // Rapporten finnes ikke lenger (her slettet rett i databasen, siden ingen
+  // klient kan slette): handlingen får null rader og svarer report_not_found,
+  // ikke stale_state. Raden er laget av denne testen.
+  deleteReportRow(id);
+  await expect(readStatusAs(MODERATOR, id)).rejects.toThrow();
+
+  await tabTo(page, "button", "Under behandling →", { max: 30 });
+  await page.keyboard.press("Enter");
+  await expect(
+    page.locator("[data-sonner-toast]").getByText("Fant ikke rapporten.", { exact: true }),
+  ).toBeVisible();
+  // Ikke stale_state: den meldingen står ikke i noen toast.
+  await expect(
+    page.locator("[data-sonner-toast]").getByText(/Rapporten er endret/),
+  ).toHaveCount(0);
+  // Panelet står som før, knappene er aktive igjen, og fokus står på første knapp.
+  await expect(panel(page)).toContainText("Status: Ny");
+  await expect(statusButtons(page)).toHaveText(["Under behandling →", "Skjul rapport"]);
+  await expect(statusButtons(page).first()).not.toHaveAttribute("aria-disabled", "true");
+  await expect(statusButtons(page).first()).toBeFocused();
+  await expectNoSeriousA11yViolations(page);
 });
 
 test("en endring fra en annen fane gir toast, og siden viser statusen som gjelder nå", async ({
