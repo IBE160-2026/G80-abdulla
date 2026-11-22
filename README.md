@@ -100,7 +100,7 @@ npm run dev
 
 Åpne [http://localhost:3000](http://localhost:3000). Lista viser åtte rapporter fra testdataene, nyeste først, som på skjermbildet øverst.
 
-**Første oppstart tar tid.** Første gang laster `npx supabase start` ned sju Docker-bilder fra `public.ecr.aws/supabase/`, til sammen omtrent 1,1 GB (omtrent 4 GB på disk etter utpakking). Det tar 3–5 minutter på en linje med 50–100 Mbit/s. På utviklermaskinen, med 2–5 Mbit/s, tok det omtrent 55 minutter. Senere oppstarter tok 37 sekunder, fordi bildene ligger lagret i Docker.
+**Første oppstart tar tid.** Første gang laster `npx supabase start` ned sju Docker-bilder fra `public.ecr.aws/supabase/`, og to av dem (`postgres-meta` og `kong`) kan komme fra `ghcr.io/supabase/` når `public.ecr.aws` stenger for mange forespørsler. Til sammen er det omtrent 1,1 GB (omtrent 4 GB på disk etter utpakking). Det tar 3–5 minutter på en linje med 50–100 Mbit/s. Ved en måling 2026-11-22 på utviklermaskinen, uten Docker-bilder fra før, tok det 7 minutter og 25 sekunder, med automatiske nye forsøk etter `toomanyrequests`. Ved en tidligere måling, med 2–5 Mbit/s, tok det omtrent 55 minutter. Senere oppstarter tok 37 sekunder, fordi bildene ligger lagret i Docker.
 
 Stopper nedlastingen med `toomanyrequests: Rate exceeded`, kjører du bare `npx supabase start` på nytt. Bildene som allerede er lastet ned, beholdes.
 
@@ -180,7 +180,7 @@ npm test
 | `npm run test:e2e`  | Bare Playwright, med `db reset` før bygget og flere `db reset` i prosjektet `reset`                                                                                  |
 | `npm run db:types`  | Genererer `shared/supabase/database.types.ts` fra den lokale databasen. Kjøres etter hver ny migrering, og fila committes                                                   |
 
-**Forventet tid:** 10–15 minutter. Ved Story 4.3 tok `npm test` 13 minutter og 30 sekunder i en ny klone på utviklermaskinen (Docker og Chromium var lastet ned fra før), og hele CI-jobben (med Docker-bilder og Chromium) tok 10 minutter og 52 sekunder på en GitHub-kjører, med 7,7 minutter i Playwright. Det meste av tiden går til Playwright-testene (rundt 280, én og én, i to skjermbredder), `db reset` (rundt et halvt minutt hver gang: databasetestene, Playwright før bygget og fire ganger i prosjektet `reset`) og `next build`.
+**Forventet tid:** 10–16 minutter for `npm test`, og rundt 30 minutter første gang med alt som skal lastes ned. Ved en måling 2026-11-22 i en ny klone, uten Docker-bilder og Chromium fra før, tok `git clone` 6 s, `npm ci` 39 s, `npx supabase start` 7 min 25 s, `npx playwright install chromium` 2 min 27 s og første `npm test` 15 min 41 s (284 Playwright-tester, 14,1 min i Playwright), til sammen 27 minutter. Med Docker og Chromium fra før tok `npm test` 13 minutter og 30 sekunder (Story 4.3), og hele CI-jobben (med Docker-bilder og Chromium) tok 10 minutter og 52 sekunder på en GitHub-kjører, med 7,7 minutter i Playwright. Det meste av tiden går til Playwright-testene (rundt 280, én og én, i to skjermbredder), `db reset` (rundt et halvt minutt hver gang: databasetestene, Playwright før bygget og fire ganger i prosjektet `reset`) og `next build`.
 
 Første gang laster `npx supabase test db` ned Docker-bildet `supabase/pg_prove`, og `npx playwright install chromium` laster ned nettleseren. Brytes nedlastingen, kan kommandoen likevel avslutte uten feil. Kjør den da på nytt. Sier `npm test` at `chrome-headless-shell.exe` mangler, er det samme årsak.
 
