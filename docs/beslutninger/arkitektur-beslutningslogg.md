@@ -2,7 +2,7 @@
 scope: LocalFix v1: hele systemet
 purpose: Konsistenskontrakt for bygging av LocalFix (IBE160), bare spine
 altitude: initiative (hele systemet, greenfield)
-updated: 2026-11-19T15:10
+updated: 2026-11-22T14:05
 ---
 
 - (direction) (by user) Coaching-vei, bare spinen som leveranse (build substrate). Mål: konsistenskontrakt for LocalFix v1, IBE160-vurdering, solo-utvikler
@@ -70,3 +70,4 @@ updated: 2026-11-19T15:10
 - (decision) 2026-11-19 (AD-16, KI-forslag, godkjent av prosjekteier) Håndheving: `no-restricted-imports` i `eslint.config.mjs`, bygd ut fra mappene i `features/` så en ny slice får reglene automatisk, og `shared/lib/slices.test.ts`, som også fanger relative stier. Reglene dekker import på tvers av slices, fra `shared/` til `features/` og `app/`, og AD-3 (komponenter importerer ikke `queries.ts`, `ai/` eller datatilgang, og nettleserklienten bare i `features/auth/components`). Alle seks regelbruddene ble prøvd med bevisste feil, og testen fanger relative stier
 - (change) 2026-11-19 (AD-16) To endringer er mer enn flytting, og begge er nødvendige for isolasjonen: `SiteHeader` tar innholdet til høyre som `actions` (slot) i stedet for å importere `NewReportLink` og `UserMenu`, og `ReportDetail` tar bekreftelsen som `children` i stedet for å importere `ConfirmSection`. `SORT_LABELS` flyttes fra `shared/report/labels.ts` til `features/rapporter/labels.ts`, siden bare lista bruker dem. Utseende og atferd er uendret
 - (event) 2026-11-19 (AD-16) Kjerneregelen står også i `epics.md` (Definisjon av ferdig) og i arkitekturspinen (AD-16, lagtabell, mappetre og kravtabell). Stiene i Story 1.1 til 3.3 og i `docs/implementation-artifacts/spec-*.md` er ikke rettet: de viser mappene slik de var da storyene ble bygd
+- (change) 2026-11-22 (Story 4.3, prosjekteierens valg) Vercel-linja («Live: …», lagt til i README 2026-11-18, `50e67a9`) er fjernet. README sier bare at appen kjører lokalt, slik PRD §6 og NFR-2 krever (v1 settes ikke i drift)
