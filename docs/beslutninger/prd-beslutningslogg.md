@@ -31,3 +31,4 @@ updated: 2026-10-11T22:43
 - (event) PRD finalized (oppdatert etter ny brief); reviewer-pass og bmad-review-polish ikke kjørt, tilbudt bruker
 - (decision) (by user) Språkmodell: alternativ A - leverandør med gratisnivå som faglærer ba om; valg av konkret leverandør utsatt til arkitektur, bak grensesnitt med mock
 - (decision) (by user) Moderator: rollekolonne med standard bruker, ferdig moderatorkonto i seed-data, opprykk via SQL dokumentert i README; ingen admin-side i v1
+- (change) 2026-11-22 (by user) §6: en offentlig demo med testdataene og testbrukerne (https://g80-abdulla.vercel.app) er tillatt. Registrering er slått av og KI er i mock-modus, så demoen tar ikke imot ekte personopplysninger. Drift for ekte brukere (§6.2) og moderatorspørsmålet i §11 er fortsatt åpne, og NFR-2 (lokal kjøring etter README) er uendret. Endret i begge kopiene av PRD-en.

@@ -198,7 +198,7 @@ Moderator kan skjule en rapport, for eksempel fordi den viser personer eller bil
 
 ## 6. MVP-omfang
 
-V1 kjøres lokalt med testdata, slik sensor gjør det (NFR-2). Den settes ikke i drift for ekte brukere.
+V1 kjøres lokalt med testdata, slik sensor gjør det (NFR-2). Den settes ikke i drift for ekte brukere. En offentlig demo med de samme testdataene og testbrukerne finnes fra 2026-11-22, med registrering slått av og KI i mock-modus, så den tar ikke imot ekte personopplysninger. Demoen er ikke drift (§6.2) og endrer ikke NFR-2.
 
 ### 6.1 I omfang (v1)
 - Konto, innlogging og roller (FR-1, FR-2)
