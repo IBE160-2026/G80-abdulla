@@ -21,3 +21,20 @@ Ta `epic-2-retro-item-7`: føre avklaringene om Cloudflare (betalingskort, infer
 - Hvilken region Cloudflare kjører Workers AI-inferensen i: må bekreftes hos Cloudflare (vilkår for databehandling og innstillinger for datalokalisering) før appen settes i drift, siden rapportteksten sendes dit (PRD §8).
 - Mistrals gratisgrenser står i konsollen. De trengs bare hvis Mistral velges.
 - Følg med på om `gpt-oss-20b` havner på listen over modeller som krever Workers Paid.
+
+## 2026-11-22 kl. 16:45 — Ali Yousef Abdulla
+
+### Oppgave
+Ta betalingskort-spørsmålet fra `epic-2-retro-item-7`.
+
+### Plan
+- Søke i repoet etter et eksisterende svar, og spørre prosjekteieren hvis det ikke fantes. Ikke bruke Cloudflare-nøkkelen i `.env` til å sjekke kontoen.
+
+### Resultat
+- Ingen logg, spec eller beslutningslogg sa noe om kortet. Prosjekteieren svarte «ingen kort»: Cloudflare ba ikke om betalingskort, og ingen kort er lagt inn.
+- **Ført i `arkitektur-beslutningslogg.md`** som en `(event)` med kilden «oppgitt av prosjekteieren og ikke sjekket i kontoen». `updated` er oppdatert. `issues.md`: punktet om konsollavklaringene er oppdatert, ikke lukket.
+- `epic-2-retro-item-7` står fortsatt som `in-progress`.
+
+### Åpne punkter
+- Hvilken region Cloudflare kjører Workers AI-inferensen i: må bekreftes hos Cloudflare før appen settes i drift (PRD §8).
+- Mistrals grenser står bare i konsollen, og trengs bare hvis Mistral velges.
