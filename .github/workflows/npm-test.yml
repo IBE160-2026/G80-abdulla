@@ -3,14 +3,27 @@
 # og som en uavhengig kontroll fra en ren klone. Tidene per steg står i
 # kjøringen på GitHub (Actions → npm test → jobben).
 #
-# Starter ved push til en gren som heter ci/... og manuelt (workflow_dispatch).
+# Starter ved hver pull request mot main (ny, ny commit eller gjenåpnet), ved push
+# til en gren som heter ci/... og manuelt (workflow_dispatch). En PR som bare
+# endrer docs/ eller .logs/ hoppes over, siden ingen test leser dem. README.md
+# leses av seed-login.db.test.ts og utløser derfor en kjøring. Skal kjøringen
+# bli et krav for å flette, må paths-ignore fjernes først, ellers blir kravet
+# stående ventende på en PR som bare endrer docs/.
 # Den bruker ingen hemmeligheter, og KI står på mock (som i .env.example).
+# En ny commit på samme PR eller gren avbryter kjøringen som pågår.
 name: npm test
 
 on:
+  pull_request:
+    branches: [main]
+    paths-ignore: [".logs/**", "docs/**"]
   push:
     branches: ["ci/**"]
   workflow_dispatch:
+
+concurrency:
+  group: npm-test-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
