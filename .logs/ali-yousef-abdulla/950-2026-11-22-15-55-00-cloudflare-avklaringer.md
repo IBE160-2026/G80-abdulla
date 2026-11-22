@@ -38,3 +38,20 @@ Ta betalingskort-spørsmålet fra `epic-2-retro-item-7`.
 ### Åpne punkter
 - Hvilken region Cloudflare kjører Workers AI-inferensen i: må bekreftes hos Cloudflare før appen settes i drift (PRD §8).
 - Mistrals grenser står bare i konsollen, og trengs bare hvis Mistral velges.
+
+## 2026-11-22 kl. 17:15 — Ali Yousef Abdulla
+
+### Oppgave
+Ta region-spørsmålet fra `epic-2-retro-item-7`: hvor kjører Cloudflare Workers AI-inferensen.
+
+### Plan
+- Lese Cloudflares dokumentasjon (datasiden, grensesiden, oversikten, bloggen om «Region: Earth» og produktkompatibilitetstabellen for Data Localization Suite) via `web-fetch`-agenten, og foreslå en logglinje.
+
+### Resultat
+- **Regionen er ikke oppgitt** i dokumentasjonen, og kunden kan ikke begrense den: Workers AI er ✘ for Regional Services i kompatibilitetstabellen (endret 2026-11-17) og ✅ bare for Customer Metadata Boundary, som gjelder logger og analyse. Datasiden (endret 2026-10-16) sier at Cloudflare ikke beholder inn- og utdata for vanlige forespørsler og ikke trener på dem. Ruting til et annet land ved full kapasitet er ikke omtalt. Tabellverdiene er lest av agenten fra en gjengivelse av siden og ikke sjekket visuelt.
+- **Ført i `arkitektur-beslutningslogg.md`** som en `(event)` etter at prosjekteieren godkjente ordlyden. `updated` er oppdatert. `issues.md` er oppdatert.
+- `epic-2-retro-item-7` står fortsatt som `in-progress`. Prosjekteieren har ikke svart på om det skal settes til `done`.
+
+### Åpne punkter
+- Skal `epic-2-retro-item-7` settes til `done`? Alle punktene er ført med kilde, men Mistrals faktiske grenser er ikke lest fra konsollen (Mistral er ikke valgt).
+- Før drift (PRD §8): velg en leverandør med dokumentert region, eller godta at regionen er ukjent og si det til brukerne.
