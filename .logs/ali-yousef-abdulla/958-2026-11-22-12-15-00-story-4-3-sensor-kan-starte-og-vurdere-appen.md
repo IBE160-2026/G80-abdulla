@@ -27,3 +27,21 @@ Kjøre `bmad-build` for Story 4.3, den siste storyen i Epic 4 og v1: gjøre det 
 - Første oppstart fra null er ikke målt: Docker-bildene og Chromium lå på maskinen fra før, og `npm run dev` ble ikke startet for hånd i klonen.
 - `npm test` er ikke prøvd på macOS.
 - Når PR-en for Story 4.3 er flettet: sett `4-3-sensor-kan-starte-og-vurdere-appen` til `done` i `sprint-status.yaml`, og vurder om `epic-4` skal settes til `done` og retrospektivet kjøres (valgfritt).
+
+## 2026-11-22 kl. 12:35 — Ali Yousef Abdulla
+
+### Oppgave
+Flette PR #74 og sette Story 4.3 til `done`.
+
+### Plan
+- Flette PR #74 (brukerens ord), ny gren `chore/story-4-3-done` fra `main`.
+- Sette `4-3-sensor-kan-starte-og-vurdere-appen` til `done` i `sprint-status.yaml`, logge og sende det i en egen chore-PR.
+
+### Resultat
+- PR #74 flettet 2026-11-22 (flettecommit `2bdd5ba` på `main`). Issue #39 lukkes av `Closes #39`.
+- `sprint-status.yaml`: Story 4.3 satt til `done`. `epic-4` er ikke endret og står som `in-progress`, selv om 4.1, 4.2 og 4.3 alle er `done`.
+
+### Åpne punkter
+- Sett `epic-4` til `done` i `sprint-status.yaml`, og vurder retrospektivet (valgfritt). Alle tre storyene i Epic 4 er ferdige.
+
+**Oppdatering kl. 12:45:** Brukeren ba om å flette PR #75 og sette `epic-4` til `done`. `epic-4` er satt til `done` i `sprint-status.yaml` i samme PR, og punktet i `issues.md` er lukket. Retrospektivet for Epic 4 er ikke kjørt (valgfritt).
