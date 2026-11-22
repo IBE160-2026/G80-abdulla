@@ -1,14 +1,29 @@
 # LocalFix
 
-Live: https://g80-abdulla.vercel.app
-
 LocalFix er en webapp der studenter og ansatte på campus ved Høgskolen i Molde kan melde fra om problemer de ser, som ødelagte gatelys, søppel, hull i veien eller farlige fortau. Andre kan bekrefte at de har sett det samme, og en moderator følger saken fra **Ny** via **Under behandling** til **Løst**. KI foreslår kategori og en kort oppsummering når du registrerer et problem.
 
 Gruppeprosjekt (G80) i **IBE160 Programmering med KI** ved Høgskolen i Molde, høsten 2026.
 
+<p>
+  <img src="docs/skjermbilder/liste-360.png" alt="Lista over rapportene på en mobil, 360 px bred, med sortering, filterbrikker og rapportkort med kategori, status og hvor mange som har sett problemet" width="240">
+  <img src="docs/skjermbilder/detalj-moderator-1280.png" alt="Detaljsiden til rapporten «Slukkede gatelys på gangveien» på 1280 px, med bilde, beskrivelse og moderatorpanelet med statusknappene og «Skjul rapport»" width="560">
+</p>
+
+*Til venstre lista på mobil (360 px), til høyre detaljsiden med moderatorpanelet (1280 px). Begge viser testdataene.*
+
+- **Testdekning:** hvilke tester som dekker hvert krav, og hva som er sjekket for hånd, står i [docs/testdekning.md](docs/testdekning.md).
+- **Skjermopptak:** [docs/skjermbilder/kjerneflyt.webm](docs/skjermbilder/kjerneflyt.webm) viser kjerneflyten på halvannet minutt, uten lyd: logge inn, filtrere, bekrefte, registrere med KI-forslag og bilde, og som moderator sortere, endre status og skjule. Det er reserven hvis du ikke får startet Docker.
+
 ## Status
 
-🟡 **Implementeringen er i gang (Epic 3).** Epic 1 er ferdig: startpakken og lokal Supabase er på plass (Story 1.1), og det samme er testkommandoen (Story 1.2). Den lokale databasen har datamodellen, lesereglene, testbrukere og testrapporter (Story 1.3). Forsiden viser lista over rapportene, nyeste først (Story 1.4), og hvert kort åpner en detaljside med hele rapporten, når den sist ble oppdatert og hvor mange som har sett problemet (Story 1.5). Reglene for bilder er testet: den lokale bildelagringen har tre testbilder, og bare moderatoren kan lese bildet til en skjult rapport (Story 1.6). Detaljsiden viser bildet til rapporten, og i lista har kortene til rapportene med bilde et bildeikon (Story 1.7). I Epic 2 kan du opprette konto og logge inn med e-post og passord fra menyen i topplinja, og du kommer tilbake til siden du kom fra (Story 2.1). Når du er innlogget, kan du registrere en rapport med beskrivelse, kategori og sted fra «+»-knappen på lista (under 640 px) eller «Registrer problem» i topplinja (fra 640 px), og du kommer til rapporten med toasten «Rapporten er sendt inn» (Story 2.2). Når du forlater beskrivelsen, foreslår KI kategori og en kort oppsummering du kan endre, og hvis den ikke får til det, velger du kategori selv (Story 2.3). Du kan legge ved et bilde (JPEG, PNG eller WebP, maks 5 MB): serveren fjerner posisjon og andre metadata fra bildet og retter det, og bildet vises på rapporten og som ikon i lista (Story 2.4). KI-leverandøren er valgt med et testsett og et skript (Story 2.5): Cloudflare Workers AI med `gpt-oss-20b` traff 19 av 20 kategorier, ga gyldig svar hver gang og svarte på under 3 sekunder. Appen bruker fortsatt mock som standard, så du trenger ingen nøkkel for å kjøre den. I Epic 3 kan du filtrere lista på kategori og status og sortere den på «Nyeste» eller «Flest har sett» med brikkene og sorteringen over kortene (Story 3.1). Valget står i adressen, for eksempel `?category=lighting&status=new&sort=confirmations`, så en omlasting eller en delt lenke gir samme visning. Når du er innlogget, står «Mine rapporter» først i brikkeraden og viser bare rapportene du selv har registrert (`mine=true` i adressen), og den kan kombineres med kategori, status og sortering (Story 3.2). En besøkende ser ikke brikken. «Nullstill filter» fjerner også «Mine rapporter». Du kan bekrefte en annens rapport med «Jeg har også sett dette» på detaljsiden, én gang: telleren «N har sett dette» går opp med en gang, og rapporten klatrer på «Flest har sett» (Story 3.3). En besøkende sendes til innlogging og tilbake.
+✅ **v1 er ferdig: alle fire epicene er implementert og testet.**
+
+- **Epic 1, lista og detaljsiden:** startpakken, lokal Supabase med testdata, testkommandoen, lista over rapportene, detaljsiden og reglene for bilder.
+- **Epic 2, konto og registrering:** konto og innlogging, registrering med KI-forslag og bilde uten metadata, og valget av KI-leverandør med testsettet (SM-5).
+- **Epic 3, finne og bekrefte:** filtrering og sortering, «Mine rapporter» og «Jeg har også sett dette».
+- **Epic 4, moderering og sensor:** moderatoren endrer status og skjuler og viser rapporter, og README, testdekningen, skjermbildene og skjermopptaket er klare for sensor.
+
+Appen kjører bare lokalt, med oppdiktede testdata. Den er ikke satt i drift.
 
 ## Kom i gang
 
@@ -26,6 +41,8 @@ Lokal Supabase kjører i Docker, så uten Docker starter ikke appen.
    docker run hello-world
    ```
 
+Får du ikke Docker til å virke, viser [skjermopptaket](docs/skjermbilder/kjerneflyt.webm) kjerneflyten, og [docs/testdekning.md](docs/testdekning.md) viser hvordan hvert krav er testet.
+
 ### 2. Forutsetninger
 
 | Verktøy       | Versjon                                         | Sjekk              |
@@ -37,9 +54,30 @@ Lokal Supabase kjører i Docker, så uten Docker starter ikke appen.
 
 Supabase CLI trenger du ikke installere selv. Den er en devDependency (`supabase` 2.122.1) og kjøres med `npx supabase`.
 
+**Node 24, ikke 26.** Appen er bygd og testet på Node 24 LTS, både lokalt og i CI, som leser versjonen fra `.nvmrc`. `package.json` krever `^24.0.0`, og `.npmrc` har `engine-strict=true`, så `npm ci` stopper på en annen versjon i stedet for å installere avhengighetene på en Node-versjon de ikke er testet med. Node 26 er nyere, men appen er ikke testet på den. På Node 26 (eller 22) stopper `npm ci` med en melding som denne:
+
+```
+npm error code EBADENGINE
+npm error engine Unsupported engine
+npm error engine Not compatible with your version of node/npm: undefined
+npm error notsup Not compatible with your version of node/npm: undefined
+npm error notsup Required: {"node":"^24.0.0"}
+npm error notsup Actual:   {"node":"v26.…","npm":"…"}
+```
+
+Bytt da til Node 24 og kjør `npm ci` på nytt:
+
+- **Windows** med [nvm-windows](https://github.com/coreybutler/nvm-windows): `nvm install 24` og så `nvm use 24`.
+- **macOS, Linux og WSL** med [nvm](https://github.com/nvm-sh/nvm): `nvm install` og så `nvm use` i prosjektmappen. Begge leser `.nvmrc`.
+- Eller installer Node 24 LTS fra [nodejs.org](https://nodejs.org/en/download).
+
+`node --version` skal vise `v24`.
+
 ### 3. Start appen
 
 Kjør kommandoene fra en terminal. På Windows virker PowerShell, Git Bash og WSL.
+
+**Klon til en kort sti på Windows**, for eksempel `C:\dev`. Noen filer i repoet har lange stier, og i en mappe som allerede ligger dypt, stopper `git clone` med `Filename too long`.
 
 ```sh
 git clone https://github.com/IBE160-2026/G80-abdulla.git
@@ -60,7 +98,7 @@ cp .env.example .env
 npm run dev
 ```
 
-Åpne [http://localhost:3000](http://localhost:3000).
+Åpne [http://localhost:3000](http://localhost:3000). Lista viser åtte rapporter fra testdataene, nyeste først, som på skjermbildet øverst.
 
 **Første oppstart tar tid.** Første gang laster `npx supabase start` ned sju Docker-bilder fra `public.ecr.aws/supabase/`, til sammen omtrent 1,1 GB (omtrent 4 GB på disk etter utpakking). Det tar 3–5 minutter på en linje med 50–100 Mbit/s. På utviklermaskinen, med 2–5 Mbit/s, tok det omtrent 55 minutter. Senere oppstarter tok 37 sekunder, fordi bildene ligger lagret i Docker.
 
@@ -95,6 +133,26 @@ where id = (select id from auth.users where email = 'navn@localfix.test');
 
 Svaret skal være `UPDATE 1`. Står det `UPDATE 0`, finnes ikke e-postadressen, og ingen rolle er endret.
 
+### Bruke appen
+
+- **Lista** viser alle synlige rapporter, nyeste først. Hvert kort viser kategori, status, oppsummering eller beskrivelse og «N har sett dette», og åpner detaljsiden med hele rapporten, bildet og «Sist oppdatert».
+- **Filtrere og sortere:** brikkene over kortene filtrerer på kategori og status, og sorteringen bytter mellom «Nyeste» og «Flest har sett». Valget står i adressen, for eksempel `?category=lighting&status=new&sort=confirmations`, så en omlasting eller en delt lenke gir samme visning. Når du er innlogget, står «Mine rapporter» først i brikkeraden og viser bare rapportene du selv har registrert.
+- **Registrere:** «Registrer problem» i topplinja (fra 640 px) eller «+»-knappen på lista (under 640 px). Når du forlater beskrivelsen, foreslår KI-en kategori og en kort oppsummering du kan endre. Får den det ikke til, velger du kategori selv. Du kan legge ved et bilde (JPEG, PNG eller WebP, høyst 5 MB), og serveren fjerner posisjon og andre metadata fra bildet før det lagres.
+- **Bekrefte:** «Jeg har også sett dette» på detaljsiden til en annens rapport, én gang per rapport. Telleren går opp med én.
+
+En besøkende som prøver å registrere eller bekrefte, sendes til innlogging og tilbake.
+
+### Som moderator
+
+Logg inn som `moderator@localfix.test`. Moderatoren ser alt en vanlig bruker ser, og i tillegg:
+
+- **Skjulte rapporter** står blandet inn i lista, merket «Skjult» og med grå bakgrunn. Alle andre ser dem ikke, heller ikke den som sendte dem inn, og en direkte lenke gir 404. I testdataene er «Blinkende lys i trappa» skjult.
+- **Panelet «Moderator»** står nederst på detaljsiden til hver rapport, som på skjermbildet øverst. Det viser statusen og bare knappene til nabostatusene, så statusen flyttes ett steg om gangen: Ny ↔ Under behandling ↔ Løst. På en rapport som er Under behandling, er knappene «← Ny» og «Løst →». «Sist oppdatert» flyttes til tidspunktet for endringen, og andre ser den nye statusen neste gang de laster siden.
+- **«Skjul rapport»** står under statusknappene og åpner dialogen «Skjule rapporten?». «Skjul rapport» i dialogen skjuler rapporten, og «Avbryt» eller Escape lukker dialogen uten endring. Ingenting slettes.
+- **«Vis rapport»** står der i stedet når rapporten er skjult, og viser den igjen med en gang, uten dialog.
+
+Reglene håndheves i databasen, ikke bare i grensesnittet. En vanlig bruker som prøver å endre status eller skjule en rapport rett mot API-et, får 403.
+
 ### Stopp og start igjen
 
 ```sh
@@ -122,13 +180,34 @@ npm test
 | `npm run test:e2e`  | Bare Playwright, med `db reset` før bygget og flere `db reset` i prosjektet `reset`                                                                                  |
 | `npm run db:types`  | Genererer `shared/supabase/database.types.ts` fra den lokale databasen. Kjøres etter hver ny migrering, og fila committes                                                   |
 
-**Forventet tid:** Omtrent fem minutter. På utviklermaskinen tok `npm test` 4 minutter og 28 sekunder. Det meste av tiden går til `db reset` (rundt et halvt minutt hver gang: databasetestene, Playwright før bygget og fire ganger i prosjektet `reset`) og `next build`. Selve testene tar noen sekunder.
+**Forventet tid:** 10–15 minutter. Ved Story 4.2 tok `npm test` 14 minutter på utviklermaskinen og 8 minutter og 42 sekunder på en GitHub-kjører. Det meste av tiden går til Playwright-testene (rundt 280, én og én, i to skjermbredder), `db reset` (rundt et halvt minutt hver gang: databasetestene, Playwright før bygget og fire ganger i prosjektet `reset`) og `next build`.
 
 Første gang laster `npx supabase test db` ned Docker-bildet `supabase/pg_prove`, og `npx playwright install chromium` laster ned nettleseren. Brytes nedlastingen, kan kommandoen likevel avslutte uten feil. Kjør den da på nytt. Sier `npm test` at `chrome-headless-shell.exe` mangler, er det samme årsak.
 
 Utskriften viser antall tester som besto. `npx playwright show-report` åpner rapporten fra siste Playwright-kjøring.
 
 `npm test` tilbakestiller den lokale databasen, så data du har lagt inn selv mens du prøvde appen, forsvinner.
+
+Hvilke tester som dekker hvert krav (FR-1–FR-9, NFR-1–NFR-8 og SM-1–SM-7), hva som er sjekket for hånd, og hvor det er hull, står i [docs/testdekning.md](docs/testdekning.md).
+
+### Skjermbilder og skjermopptak
+
+Skjermbildene øverst og skjermopptaket i `docs/skjermbilder/` lages med Playwright fra testdataene. Skriptene er ikke en del av `npm test`, og de starter verken appen eller Supabase. Start appen i én terminal. Med et bygg i stedet for `npm run dev` går opptaket i jevnt tempo:
+
+```sh
+npx next build
+npx next start
+```
+
+Kjør så skriptene i en annen terminal, fra prosjektmappen:
+
+```sh
+node scripts/skjermbilde.mjs
+node scripts/opptak.mjs
+npx supabase db reset
+```
+
+Begge bruker [http://localhost:3000](http://localhost:3000). En annen adresse gis som argument, for eksempel `node scripts/skjermbilde.mjs http://localhost:3100`. `skjermbilde.mjs` lager `liste-360.png` og `detalj-moderator-1280.png` og endrer ingen data. `opptak.mjs` lager `kjerneflyt.webm` (1280 × 720, omtrent halvannet minutt) og endrer data: bruker1 bekrefter en rapport og registrerer en ny, og moderatoren flytter statusen og skjuler den. Derfor gir `npx supabase db reset` testdataene tilbake etterpå. Opptaket krever at appen har testdataene når det starter, og at KI-en er i mock-modus, som i `.env.example`.
 
 ### Miljøvariabler
 
@@ -185,6 +264,8 @@ De eksakte versjonene står i `package.json` og Stack-tabellen i [arkitekturen](
 | [docs/addendum.md](docs/addendum.md)                                                                                                                  | Konkurrentresearch og parkerte idéer                                                                                        |
 | [docs/prd.md](docs/prd.md)                                                                                                                            | Krav (FR-1 til FR-9), brukerreiser og suksessmetrikker                                                                       |
 | [docs/prd-addendum.md](docs/prd-addendum.md)                                                                                                          | Teknisk retning, tilgangskontroll og KI-testsett                                                                             |
+| [docs/testdekning.md](docs/testdekning.md)                                                                                                            | Hvilke tester som dekker hvert krav, og hva som er sjekket for hånd                                                          |
+| [docs/skjermbilder/](docs/skjermbilder/)                                                                                                              | Skjermbildene i README og skjermopptaket av kjerneflyten                                                                     |
 | [DESIGN.md](DESIGN.md)                                                                                                                                | Utseendet: fargetokens, typografi og komponenter. Ligger i roten, der designskillen Impeccable leser den                     |
 | [PRODUCT.md](PRODUCT.md)                                                                                                                              | Kort produktsammendrag for Impeccable, hentet fra PRD-en                                                                     |
 | [docs/ux/](docs/ux/)                                                                                                                                  | `EXPERIENCE.md` (oppførsel) og skisser i `mockups/`                                                                     |
