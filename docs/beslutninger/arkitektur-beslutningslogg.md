@@ -2,7 +2,7 @@
 scope: LocalFix v1: hele systemet
 purpose: Konsistenskontrakt for bygging av LocalFix (IBE160), bare spine
 altitude: initiative (hele systemet, greenfield)
-updated: 2026-11-22T14:05
+updated: 2026-11-22T15:50
 ---
 
 - (direction) (by user) Coaching-vei, bare spinen som leveranse (build substrate). Mål: konsistenskontrakt for LocalFix v1, IBE160-vurdering, solo-utvikler
@@ -71,3 +71,4 @@ updated: 2026-11-22T14:05
 - (change) 2026-11-19 (AD-16) To endringer er mer enn flytting, og begge er nødvendige for isolasjonen: `SiteHeader` tar innholdet til høyre som `actions` (slot) i stedet for å importere `NewReportLink` og `UserMenu`, og `ReportDetail` tar bekreftelsen som `children` i stedet for å importere `ConfirmSection`. `SORT_LABELS` flyttes fra `shared/report/labels.ts` til `features/rapporter/labels.ts`, siden bare lista bruker dem. Utseende og atferd er uendret
 - (event) 2026-11-19 (AD-16) Kjerneregelen står også i `epics.md` (Definisjon av ferdig) og i arkitekturspinen (AD-16, lagtabell, mappetre og kravtabell). Stiene i Story 1.1 til 3.3 og i `docs/implementation-artifacts/spec-*.md` er ikke rettet: de viser mappene slik de var da storyene ble bygd
 - (change) 2026-11-22 (Story 4.3, prosjekteierens valg) Vercel-linja («Live: …», lagt til i README 2026-11-18, `50e67a9`) er fjernet. README sier bare at appen kjører lokalt, slik PRD §6 og NFR-2 krever (v1 settes ikke i drift)
+- (event) 2026-11-22 (Story 2.5, oppfølging fra retro Epic 2, lest i leverandørenes dokumentasjon og ikke bekreftet i konsollene) Cloudflare Workers AI: gratisnivået har 10 000 Neurons per dag, nullstilles 00:00 UTC, og overforbruk gir feil, ikke regning. `@cf/openai/gpt-oss-20b` koster 18 182 Neurons per million inn-tokens og 27 273 per million ut-tokens, og står ikke blant modellene som fra 2026-07-28 krever Workers Paid (kimi-k2.6, kimi-k2.7-code, glm-5.2, og flere på prissiden). Betalingskort: Cloudflares produktside sier at det ikke trengs for å begynne gratis, men det er ikke bekreftet i kontoen. Inferenssted: ikke oppgitt i dokumentasjonen, så regionen er ukjent og må avklares før drift (PRD §8). Groq, gratis, `openai/gpt-oss-20b`: 30 forespørsler per minutt, 1 000 per dag, 8 000 tokens per minutt og 200 000 per dag. Mistral: ingen grenser publisert utenfor konsollen. Mistral er ikke valgt
