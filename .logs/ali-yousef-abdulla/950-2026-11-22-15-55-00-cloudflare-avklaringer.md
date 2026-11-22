@@ -55,3 +55,17 @@ Ta region-spørsmålet fra `epic-2-retro-item-7`: hvor kjører Cloudflare Worker
 ### Åpne punkter
 - Skal `epic-2-retro-item-7` settes til `done`? Alle punktene er ført med kilde, men Mistrals faktiske grenser er ikke lest fra konsollen (Mistral er ikke valgt).
 - Før drift (PRD §8): velg en leverandør med dokumentert region, eller godta at regionen er ukjent og si det til brukerne.
+
+## 2026-11-22 kl. 17:30 — Ali Yousef Abdulla
+
+### Oppgave
+Sette `epic-2-retro-item-7` til `done`, etter prosjekteierens ord.
+
+### Resultat
+- `sprint-status.yaml`: `epic-2-retro-item-7-…` er `done` (satt med `sprint_status.py`). PR #95 (region for Workers AI) er flettet (`ee24f25`).
+- `issues.md`: punktet om konsollavklaringene er lukket med forbehold om at Mistrals faktiske grenser ikke er lest fra konsollen (Mistral er ikke valgt). Det eldre punktet fra 2026-10-28 om Cloudflare, Groq, Mistral og Gemini står åpent med et notat: Gemini-grenser og EuroEval er ikke gjort og ikke nødvendige.
+- Alle action items fra Epic 1, 2 og 4 er `done`, unntatt `epic-4-retro-item-12` (README på en annen maskin, `in-progress`).
+
+### Åpne punkter
+- Region for Workers AI må vurderes før drift (PRD §8): velg en leverandør med dokumentert region, eller godta at regionen er ukjent og si det til brukerne.
+- Følg med på om `gpt-oss-20b` havner på Cloudflares liste over modeller som krever betalt plan.
