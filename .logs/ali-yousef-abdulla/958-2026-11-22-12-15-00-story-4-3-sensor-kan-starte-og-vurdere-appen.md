@@ -43,3 +43,5 @@ Flette PR #74 og sette Story 4.3 til `done`.
 
 ### Åpne punkter
 - Sett `epic-4` til `done` i `sprint-status.yaml`, og vurder retrospektivet (valgfritt). Alle tre storyene i Epic 4 er ferdige.
+
+**Oppdatering kl. 12:45:** Brukeren ba om å flette PR #75 og sette `epic-4` til `done`. `epic-4` er satt til `done` i `sprint-status.yaml` i samme PR, og punktet i `issues.md` er lukket. Retrospektivet for Epic 4 er ikke kjørt (valgfritt).
