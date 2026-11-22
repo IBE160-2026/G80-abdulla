@@ -40,7 +40,7 @@ Regel: Claude tar ikke et valg som står i PRD, UX eller arkitektur på egen hå
 Hver story går gjennom samme løkke:
 
 1. **Les storyen sammen.** Claude oppsummerer hva den krever og hvilke AD-er den berører. Jeg bekrefter eller presiserer.
-2. **Plan.** Claude foreslår filer og tester. Jeg godkjenner før koden skrives.
+2. **Plan.** Claude foreslår filer og tester. Jeg godkjenner før koden skrives. Krever et akseptansekriterium mine kontoer, nøkler eller konsoller (for eksempel Cloudflare-kontoen eller en nøkkel i `.env`), skriver Claude det som egne prosjekteieroppgaver i spec-en, med avtalt rekkefølge. Jeg gjør dem før storyen bygges, så storyen ikke står ferdig bygd mens kriteriet venter på meg (Story 2.5 sto i review i åtte dager).
 3. **Bygg.** `bmad-build` på en egen branch (`feat/<story>`). Små commits med beskrivende meldinger.
 4. **Test.** Vitest for logikk, Playwright for flyten, axe for tilgjengelighet. Storyen er ikke ferdig før testene består (AD-15). Før CI startes, leser Claude åpne punkter i `issues.md` som nevner ustabile tester, og sier fra hvis et av dem gjelder flyten storyen utvider. En ustabil test med et kjent rettelsesforslag rettes i den neste storyen som utvider samme test eller kjører CI på den, ikke bare føres i `issues.md`.
 5. **Gjennomgang.** `bmad-code-review` eller `/code-review` på diffen. Jeg leser funnene og bestemmer hva som rettes. Det som ble funnet og rettet, skrives i PR-beskrivelsen.
