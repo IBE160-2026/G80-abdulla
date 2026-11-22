@@ -23,7 +23,7 @@ Gruppeprosjekt (G80) i **IBE160 Programmering med KI** ved Høgskolen i Molde, h
 - **Epic 3, finne og bekrefte:** filtrering og sortering, «Mine rapporter» og «Jeg har også sett dette».
 - **Epic 4, moderering og sensor:** moderatoren endrer status og skjuler og viser rapporter, og README, testdekningen, skjermbildene og skjermopptaket er klare for sensor.
 
-Appen kjører bare lokalt, med oppdiktede testdata. Den er ikke satt i drift.
+**Offentlig demo:** [https://g80-abdulla.vercel.app](https://g80-abdulla.vercel.app). Demoen har de samme oppdiktede testdataene og testbrukerne som den lokale appen (se [Testbrukere](#testbrukere)), og KI-en er i mock-modus. Registrering av nye kontoer er slått av, så bare testbrukerne kan logge inn, og demoen tar ikke imot ekte personopplysninger. Alle som har lenken, kan logge inn med testbrukerne, så det andre skriver i demoen, kan du også se. Demoen er ikke appen satt i drift for ekte brukere: den kjører på Vercel og Supabase Cloud (eu-west-1, Irland) og følger `main`. Det som teller for vurderingen, er fortsatt den lokale appen etter stegene under.
 
 ## Kom i gang
 
@@ -120,7 +120,7 @@ I lista har kortene til de to synlige rapportene med bilde, «Slukkede gatelys p
 
 ### Logg inn
 
-Åpne menyen ☰ øverst til høyre og velg «Logg inn». Skriv inn en av e-postadressene i tabellen over og passordet `localfix-test`. Etterpå er du tilbake på siden du kom fra, og menyen viser e-postadressen din, «Logg ut» og, for `moderator@localfix.test`, merkelappen «Moderator». Du kan også opprette en ny konto med «Registrer konto» på innloggingssiden. Passordet må ha minst 6 tegn, og kontoen er innlogget med en gang, uten e-postbekreftelse. Glemt passord og sletting av konto finnes ikke i v1.
+Åpne menyen ☰ øverst til høyre og velg «Logg inn». Skriv inn en av e-postadressene i tabellen over og passordet `localfix-test`. Etterpå er du tilbake på siden du kom fra, og menyen viser e-postadressen din, «Logg ut» og, for `moderator@localfix.test`, merkelappen «Moderator». Lokalt kan du også opprette en ny konto med «Registrer konto» på innloggingssiden. I den offentlige demoen er registrering slått av, og skjemaet gir en feilmelding. Passordet må ha minst 6 tegn, og kontoen er innlogget med en gang, uten e-postbekreftelse. Glemt passord og sletting av konto finnes ikke i v1.
 
 v1 bruker bare oppdiktede testdata og behandler ingen personopplysninger. Kontoene, e-postadressene og rapporttekstene er oppdiktet, og domenet `localfix.test` finnes ikke. Testbildene er CC0-bilder fra Wikimedia Commons uten ansikter, lesbare bilskilt eller metadata. Kilde og lisens for hvert bilde står i [`supabase/KILDER-seed-images.md`](supabase/KILDER-seed-images.md). Registreringen godtar likevel hvilken som helst e-postadresse, så bruk en oppdiktet adresse, for eksempel på `localfix.test`, når du oppretter en konto lokalt.
 

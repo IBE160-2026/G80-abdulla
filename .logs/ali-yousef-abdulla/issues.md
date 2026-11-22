@@ -165,3 +165,8 @@
 - [ ] 2026-11-22 [epic-3-retrospektiv](944-2026-11-22-21-11-14-epic-3-retrospektiv.md) — trekk ut felles e2e-hjelpere (`shownReports`, `reportId`, `openForm`, `chooseCategory`, `expectAccessibleLayout`) til én fil i `e2e/` (`epic-3-retro-item-16`)
 - [ ] 2026-11-22 [epic-3-retrospektiv](944-2026-11-22-21-11-14-epic-3-retrospektiv.md) — før tilgjengelighetsdetaljene fra Epic 3 og fokus etter bekreftelse og statusendring inn i `EXPERIENCE.md` (begge kopier) og `ux-beslutningslogg.md`; brukeren bestemmer ordlyden (`epic-3-retro-item-17`, lukker `:61`)
 - [ ] 2026-11-22 [epic-3-retrospektiv](944-2026-11-22-21-11-14-epic-3-retrospektiv.md) — skriv prosessregelen om utsatte punkter som peker på en story og «utsett til neste gang» fra retroer i `docs/coaching-plan.md` (`epic-3-retro-item-18`)
+- [ ] 2026-11-22 [offentlig-demo](943-2026-11-22-22-25-09-offentlig-demo.md) — slett den personlige Supabase-tokenen `localfix-demo-cli` i dashbordet (Account → Access Tokens)
+- [ ] 2026-11-22 [offentlig-demo](943-2026-11-22-22-25-09-offentlig-demo.md) — vurder å rotere den hemmelige nøkkelen i Supabase-prosjektet `G80-abdulla` (5 tegn ble skrevet ut i økten)
+- [ ] 2026-11-22 [offentlig-demo](943-2026-11-22-22-25-09-offentlig-demo.md) — avgjør hva som skjer med de to kontoene fra den gamle Vercel-siden i `auth.users` i Supabase-prosjektet
+- [ ] 2026-11-22 [offentlig-demo](943-2026-11-22-22-25-09-offentlig-demo.md) — forhåndsvisninger av PR-er på Vercel bruker samme Supabase-database som demoen; vurder egne miljøvariabler eller å slå av forhåndsvisninger
+- [ ] 2026-11-22 [offentlig-demo](943-2026-11-22-22-25-09-offentlig-demo.md) — vurder nattlig tilbakestilling av demodataene (alle med lenken kan logge inn med testbrukerne og skrive og laste opp)
