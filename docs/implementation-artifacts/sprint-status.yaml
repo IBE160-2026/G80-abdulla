@@ -29,7 +29,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 # - Retrospective appends its action items to action_items; the status view surfaces open ones
 generated: 11-06-2026 20:57
-last_updated: 11-22-2026 12:43
+last_updated: 11-22-2026 13:17
 project: LocalFix
 project_key: NOKEY
 tracking_system: file-system
@@ -146,7 +146,7 @@ action_items:
       Legg til en e2e-test for toasten når setReportStatus eller setReportHidden svarer
       ok:false. Lukker issues.md:153 og :154."
     owner: "Ali Yousef Abdulla"
-    status: open
+    status: done
     ref: "docs/implementation-artifacts/epic-4-retro-2026-11-22.md"
   - id: "epic-4-retro-item-12-få-readme-prøvd-på-en-ren-maskin-en-anne"
     epic: 4
@@ -164,7 +164,7 @@ action_items:
       leses før CI startes; og beslutningsloggen oppdateres i samme PR når en story
       endrer EXPERIENCE.md, DESIGN.md, PRD-en eller arkitekturen."
     owner: "Ali Yousef Abdulla"
-    status: open
+    status: done
     ref: "docs/implementation-artifacts/epic-4-retro-2026-11-22.md"
   - id: "epic-4-retro-item-14-spec-rekonsiliering-før-én-linje-i-ux-be"
     epic: 4
