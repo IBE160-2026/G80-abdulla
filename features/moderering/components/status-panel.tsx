@@ -18,18 +18,20 @@ import { Card } from "@/shared/ui/card";
  * `outline`, fram som primærknapp, som `detalj.html`.
  *
  * Trykk sender `setReportStatus(reportId, status, to)`. Mens endringen lagres,
- * er knappene deaktivert. Den nye statusen kommer fra serveren: handlingen
+ * er knappene deaktivert med `aria-disabled` (ikke `disabled`, som ville tatt
+ * fokuset og sendt det til `body`, som i `hide-control.tsx`): trykk gjør
+ * ingenting. Den nye statusen kommer fra serveren: handlingen
  * revaliderer detaljsiden, og nye props synkes inn under rendering, som i
  * `confirm-section.tsx`, så statusmerket og «Sist oppdatert» over panelet
  * følger med. En feil gir en toast med meldingen fra `shared/lib/errors.ts`,
  * og ved `stale_state` viser siden statusen som gjelder nå.
  *
- * Knappesettet byttes etter endringen, og en knapp som blir deaktivert, mister
- * fokus. Derfor får første statusknapp fokus etter svaret, så fokus aldri ender
- * på `body`. Statusmerket ligger i `rapporter`, og panelet kan ikke nå det
- * uten å bryte slicegrensen. Knappene har indeksen som nøkkel, så den første
- * beholder fokus også når nye props kommer etter svaret. Statusteksten har
- * `role="status"` (en høflig live-region), så endringen leses opp.
+ * Knappesettet byttes etter endringen, og antallet knapper kan endres. Derfor
+ * får første statusknapp fokus etter svaret, så fokus aldri ender på `body`.
+ * Statusmerket ligger i `rapporter`, og panelet kan ikke nå det uten å bryte
+ * slicegrensen. Knappene har indeksen som nøkkel, så den første beholder fokus
+ * også når nye props kommer etter svaret. Statusteksten har `role="status"` (en
+ * høflig live-region), så endringen leses opp.
  *
  * Under statusknappene står skjul/vis-knappen på egen rad (`HideControl`,
  * Story 4.2), med `hidden` fra siden.
@@ -104,9 +106,9 @@ export function StatusPanel({
               variant={
                 STATUS_ORDER.indexOf(step.to) < STATUS_ORDER.indexOf(shown) ? "outline" : "default"
               }
-              disabled={saving}
+              aria-disabled={saving || undefined}
               onClick={() => onStep(step.to)}
-              className="min-h-11 flex-1 whitespace-normal px-3 text-[15px] font-semibold"
+              className="min-h-11 flex-1 whitespace-normal px-3 text-[15px] font-semibold aria-disabled:cursor-not-allowed aria-disabled:opacity-50"
             >
               {step.label}
             </Button>

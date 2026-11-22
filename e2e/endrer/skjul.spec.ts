@@ -8,8 +8,9 @@
 // uten dialog, med fokus på «Skjul rapport». status_changed_at står stille
 // hele veien. En nettverksfeil gir toast og ingen endring. Mens den lagrer, er
 // knappen aria-disabled og beholder fokus. En skjuling fra en annen fane
-// kommer inn i panelet ved neste revalidering. axe på den åpne dialogen, lista
-// med en skjult rapport og detaljsiden. Hver test lager sin egen rapport
+// kommer inn i panelet ved neste revalidering. En rapport som er borte når den
+// skal skjules, gir toast. axe på den åpne dialogen, lista med en skjult rapport
+// og detaljsiden. Hver test lager sin egen rapport
 // (REST, ikke seed), så testene kan kjøre i begge breddene mot samme database.
 // Rapportene blir liggende til neste `db reset`.
 import { randomUUID } from "node:crypto";
@@ -17,6 +18,7 @@ import { expect, test, type Browser, type Page } from "@playwright/test";
 import { expectNoSeriousA11yViolations } from "../a11y";
 import { createReportAs, readHiddenAs, setHiddenAs } from "../api";
 import { logIn } from "../auth";
+import { deleteReportRow } from "../db";
 import { tabTo } from "../keyboard";
 import { expectNoHorizontalScroll } from "../layout";
 
@@ -299,4 +301,39 @@ test("en nettverksfeil gir toast, rapporten er fortsatt synlig, og et nytt fors�
   await expect(showButton(page)).toBeFocused();
   await expect(hiddenBadge(page)).toBeVisible();
   expect((await readHiddenAs(MODERATOR, id))?.hidden).toBe(true);
+});
+
+test("en rapport som er borte når den skal skjules, gir toast, og fokus blir på «Skjul rapport»", async ({
+  page,
+}) => {
+  const summary = `Borte skjul ${randomUUID()}`;
+  const id = await createReportAs(BRUKER2, summary);
+  const url = `/rapporter/${id}`;
+  await logIn(page, MODERATOR, { next: url });
+  await expect(hideButton(page)).toBeVisible();
+
+  // Rapporten finnes ikke lenger (her slettet rett i databasen, siden ingen
+  // klient kan slette): handlingen får null rader og svarer report_not_found.
+  // Raden er laget av denne testen.
+  deleteReportRow(id);
+  expect(await readHiddenAs(MODERATOR, id)).toBeNull();
+
+  const cancel = dialog(page).getByRole("button", { name: "Avbryt", exact: true });
+  const confirm = dialog(page).getByRole("button", { name: "Skjul rapport", exact: true });
+  await tabTo(page, "button", "Skjul rapport", { max: 30 });
+  await page.keyboard.press("Enter");
+  await expect(cancel).toBeFocused();
+  await page.keyboard.press("Tab");
+  await expect(confirm).toBeFocused();
+  await page.keyboard.press("Enter");
+  await expect(
+    page.locator("[data-sonner-toast]").getByText("Fant ikke rapporten.", { exact: true }),
+  ).toBeVisible();
+  // Dialogen er lukket, knappen er aktiv igjen og har fokus, og ingenting er skjult.
+  await expect(dialog(page)).toHaveCount(0);
+  await expect(hideButton(page)).not.toHaveAttribute("aria-disabled", "true");
+  await expect(hideButton(page)).toBeFocused();
+  await expect(showButton(page)).toHaveCount(0);
+  await expect(hiddenBadge(page)).toHaveCount(0);
+  await expectNoSeriousA11yViolations(page);
 });

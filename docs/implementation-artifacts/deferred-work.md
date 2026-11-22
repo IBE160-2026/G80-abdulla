@@ -29,6 +29,8 @@
 - source_spec: `docs/implementation-artifacts/spec-4-2-skjule-og-vise-en-rapport.md`
   summary: Grenen der `setReportHidden` (og `setReportStatus` utenom `stale_state`) svarer `ok: false` og viser `toast.error(answer.error.message)` i panelet, er ikke testet i e2e.
   evidence: Verification Gap, gjennomgang 1 i Story 4.2. `forbidden` og `report_not_found` er vanskelige å utløse for en innlogget moderator i e2e. Handlingene er enhetstestet til svaret, men ingen test ser hva grensesnittet gjør med svaret.
+  resolution: 2026-11-22: `report_not_found` for begge handlingene er testet i e2e (`status.spec.ts` og `skjul.spec.ts`, rapporten slettes mens siden er åpen). `forbidden` er ikke utløst i e2e, men går gjennom samme toast og er enhetstestet i `errors.test.ts`. Se `spec-epic-4-retro-1-fokus-i-statuspanel-og-toast-test.md`.
 - source_spec: `docs/implementation-artifacts/spec-4-2-skjule-og-vise-en-rapport.md`
   summary: Statusknappene i `StatusPanel` (Story 4.1) bruker `disabled` under lagring, så fokus kan gå til `body` til svaret kommer. Vurder `aria-disabled` som i `HideControl` og `ConfirmSection`.
   evidence: Fantes før Story 4.2 (fra 4.1). Funnet under gjennomgangen av 4.2, der samme feil ble rettet i `HideControl`. Testen «knappene er deaktivert mens endringen lagres» i `status.spec.ts` sjekker ikke fokus mens POST-en holdes igjen.
+  resolution: 2026-11-22: `StatusPanel` bruker `aria-disabled`, og `status.spec.ts` sjekker fokus og at bare ett kall går ut mens POST-en holdes. Se `spec-epic-4-retro-1-fokus-i-statuspanel-og-toast-test.md`.
