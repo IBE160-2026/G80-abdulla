@@ -74,6 +74,10 @@ export async function expectNoSeriousA11yViolations(page: Page) {
   // var rotårsaken til at «en besøkende ser «Logg inn» i menyen …» i
   // innlogging.spec.ts var ustabil (epic-2-retro-item-6).
   await waitForAnimations(page);
+  // Etter en navigasjon på klientsiden settes tittelen litt etter at innholdet
+  // vises. Kjører axe før det, får vi et falskt brudd på `document-title`
+  // (CI på Story 4.3, `/?mine=true` i core-flow.spec.ts).
+  await page.waitForFunction(() => document.title.trim() !== "");
   const results = await new AxeBuilder({ page }).withTags(A11Y_TAGS).analyze();
   const serious = results.violations
     .filter((v) => v.impact === "serious" || v.impact === "critical")
