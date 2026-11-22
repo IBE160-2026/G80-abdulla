@@ -9,60 +9,33 @@
 // gir da ikke noe forslag), så et mock-forslag ikke endrer valget.
 import { randomUUID } from "node:crypto";
 import { expect, test, type Page } from "@playwright/test";
-import { expectNoSeriousA11yViolations } from "../a11y";
+import { expectAccessibleLayout, expectNoSeriousA11yViolations } from "../a11y";
 import { logIn, PASSWORD } from "../auth";
 import { expectNoHorizontalScroll } from "../layout";
+import {
+  category,
+  chooseCategory,
+  description,
+  isCreateReport,
+  location,
+  NEW_REPORT,
+  openForm,
+  submit,
+} from "../report-form";
 
-const NEW_REPORT = "/rapporter/ny";
 // Testordet som gir «ingen forslag» fra mock-adapteren.
 const NO_AI = "ingenforslag";
 const REMINDER =
   "Ikke skriv navn eller andre personopplysninger. Teksten sendes til en KI-tjeneste for å foreslå kategori.";
 const LOGIN_FOR_FORM = "/auth/login?next=%2Frapporter%2Fny";
 
-const description = (page: Page) => page.getByLabel("Beskrivelse", { exact: true });
-const location = (page: Page) => page.getByLabel("Lokasjon", { exact: true });
-const category = (page: Page) => page.getByRole("combobox", { name: "Kategori", exact: true });
-const submit = (page: Page) =>
-  page.getByRole("main").getByRole("button", { name: /^(Send inn|Sender …)$/ });
 const registerLink = (page: Page) =>
   page.getByRole("link", { name: "Registrer problem", exact: true });
 
 const isSmall = (page: Page) => (page.viewportSize()?.width ?? 0) < 640;
 
-// Kategoriene i den rekkefølgen lista viser dem.
-const CATEGORY_ORDER = ["Søppel", "Belysning", "Vei og fortau", "Skadeverk", "Annet"];
-
 /** Tekst på nøyaktig `n` tegn med testordet først. */
 const padded = (n: number) => `${NO_AI} ${"a".repeat(n - NO_AI.length - 1)}`;
-
-/** createReport har «location» i kroppen. Forslagskallet har bare teksten. */
-const isCreateReport = (request: { postData(): string | null }) =>
-  (request.postData() ?? "").includes('"location"');
-
-/** Velger en kategori med tastatur: åpner lista, piler og Enter. */
-async function chooseCategory(page: Page, label: string, downs: number) {
-  await category(page).focus();
-  await page.keyboard.press("Enter");
-  await expect(page.getByRole("listbox")).toBeVisible();
-  // Fokus flyttes til første valg når lista har åpnet. Piltastene før det
-  // går tapt.
-  await expect(page.getByRole("option", { name: "Søppel", exact: true })).toBeFocused();
-  // Ett trykk om gangen, og vent til neste valg har fokus.
-  for (let i = 1; i <= downs; i++) {
-    await page.keyboard.press("ArrowDown");
-    await expect(page.getByRole("option", { name: CATEGORY_ORDER[i], exact: true })).toBeFocused();
-  }
-  await page.keyboard.press("Enter");
-  await expect(page.getByRole("listbox")).toBeHidden();
-  await expect(category(page)).toHaveText(label);
-  await expect(category(page)).toBeFocused();
-}
-
-async function openForm(page: Page) {
-  await logIn(page, "bruker2@localfix.test", { next: NEW_REPORT });
-  await expect(page.getByRole("heading", { level: 1, name: "Ny rapport" })).toBeVisible();
-}
 
 test("en besøkende sendes til innlogging og er tilbake på skjemaet etterpå", async ({
   page,
@@ -147,21 +120,14 @@ test("topplinjelenka er skjult på skjemaet og på innloggingssidene", async ({ 
 test("skjemaet: fokus i beskrivelsen, påminnelsen, teller, og «Send inn» er deaktivert til feltene er fylt", async ({
   page,
 }) => {
+  // openForm sjekker også at beskrivelsesfeltet har fokus.
   await openForm(page);
-  await expect(description(page)).toBeFocused();
 
   // Påminnelsen er hele teksten fra Story 2.3, med setningen om KI-tjenesten.
   await expect(page.getByText(REMINDER, { exact: true })).toBeVisible();
   await expect(page.getByText(/KI-tjeneste/)).toHaveCount(1);
   await expect(location(page)).toHaveAttribute("placeholder", "F.eks. gangveien ved bygg A");
-  await expectNoSeriousA11yViolations(page);
-  await expectNoHorizontalScroll(page);
-  if (page.viewportSize()!.width === 360) {
-    await page.setViewportSize({ width: 320, height: 800 });
-    await expectNoSeriousA11yViolations(page);
-    await expectNoHorizontalScroll(page);
-    await page.setViewportSize({ width: 360, height: 800 });
-  }
+  await expectAccessibleLayout(page);
 
   // Feltene er 16 px og 44 px høye.
   for (const field of [description(page), location(page), category(page)]) {
@@ -244,14 +210,7 @@ test("tekst over grensen gir feil under feltet med en gang, holder knappen aktiv
   // Alt brukeren skrev, er beholdt.
   await expect(description(page)).toHaveValue(padded(1001));
   await expect(location(page)).toHaveValue("b".repeat(201));
-  await expectNoSeriousA11yViolations(page);
-  await expectNoHorizontalScroll(page);
-  if (page.viewportSize()!.width === 360) {
-    await page.setViewportSize({ width: 320, height: 800 });
-    await expectNoSeriousA11yViolations(page);
-    await expectNoHorizontalScroll(page);
-    await page.setViewportSize({ width: 360, height: 800 });
-  }
+  await expectAccessibleLayout(page);
 
   // Rettes beskrivelsen, forsvinner feilen uten nytt innsendingsforsøk. Neste
   // forsøk gir fokus til neste feil, lokasjonen.

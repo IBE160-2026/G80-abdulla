@@ -15,7 +15,7 @@
 // Rapportene blir liggende til neste `db reset`.
 import { randomUUID } from "node:crypto";
 import { expect, test, type Browser, type Page } from "@playwright/test";
-import { expectNoSeriousA11yViolations } from "../a11y";
+import { expectAccessibleLayout, expectNoSeriousA11yViolations } from "../a11y";
 import { createReportAs, readHiddenAs, setHiddenAs } from "../api";
 import { logIn } from "../auth";
 import { deleteReportRow } from "../db";
@@ -70,7 +70,6 @@ test("moderatoren skjuler med tastatur etter bekreftelse, og bare moderatoren se
   page,
   browser,
 }) => {
-  const narrow = test.info().project.name === "endrer-360";
   const summary = `Skjul ${randomUUID()}`;
   const id = await createReportAs(BRUKER2, summary);
   const url = `/rapporter/${id}`;
@@ -128,14 +127,7 @@ test("moderatoren skjuler med tastatur etter bekreftelse, og bare moderatoren se
   await expect(hiddenBadge(page)).toBeVisible();
   await expect(main(page).getByRole("button", { name: "Skjult rapport", exact: true })).toBeVisible();
   await expect(article(page)).toHaveCSS("background-color", HIDDEN_BG);
-  await expectNoSeriousA11yViolations(page);
-  await expectNoHorizontalScroll(page);
-  if (narrow) {
-    await page.setViewportSize({ width: 320, height: 800 });
-    await expectNoSeriousA11yViolations(page);
-    await expectNoHorizontalScroll(page);
-    await page.setViewportSize({ width: 360, height: 800 });
-  }
+  await expectAccessibleLayout(page);
 
   // Etter omlasting starter panelet fra serveren på «Vis rapport».
   await page.reload();

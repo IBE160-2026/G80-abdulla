@@ -5,8 +5,8 @@
 import { expect, test, type APIRequestContext, type Page } from "@playwright/test";
 import { expectNoSeriousA11yViolations } from "../a11y";
 import { expectNoHorizontalScroll } from "../layout";
+import { reportId } from "../list";
 
-const reportId = (n: number) => `20000000-0000-4000-8000-00000000000${n}`;
 const reportUrl = (n: number) => `/rapporter/${reportId(n)}`;
 
 // Forfatterne av seed-rapportene. De skal aldri sendes til nettleseren (AD-5).

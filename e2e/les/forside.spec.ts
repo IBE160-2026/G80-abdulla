@@ -1,11 +1,10 @@
 // Forsiden er rapportlista (Story 1.4), med bildeikonet på kortene til
 // rapportene som har bilde (Story 1.7). Testene leser seed-dataene i
 // supabase/seed.sql og endrer ingenting.
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 import { expectNoSeriousA11yViolations } from "../a11y";
 import { expectNoHorizontalScroll } from "../layout";
-
-const reportId = (n: number) => `20000000-0000-4000-8000-00000000000${n}`;
+import { cardLinks, reportId } from "../list";
 
 // De synlige seed-rapportene, nyeste først. Rapport 7 er skjult.
 // Teksten er summary, eller description når summary er NULL.
@@ -25,9 +24,6 @@ const AUTHOR_IDS = [
   "10000000-0000-4000-8000-000000000002",
   "10000000-0000-4000-8000-000000000003",
 ];
-
-const cardLinks = (page: Page) =>
-  page.getByRole("main").getByRole("listitem").getByRole("link");
 
 test("forsiden svarer 200, har topplinja, overskriften og ingen alvorlige axe-funn", async ({
   page,

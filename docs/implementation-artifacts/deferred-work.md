@@ -34,3 +34,6 @@
   summary: Statusknappene i `StatusPanel` (Story 4.1) bruker `disabled` under lagring, så fokus kan gå til `body` til svaret kommer. Vurder `aria-disabled` som i `HideControl` og `ConfirmSection`.
   evidence: Fantes før Story 4.2 (fra 4.1). Funnet under gjennomgangen av 4.2, der samme feil ble rettet i `HideControl`. Testen «knappene er deaktivert mens endringen lagres» i `status.spec.ts` sjekker ikke fokus mens POST-en holdes igjen.
   resolution: 2026-11-22: `StatusPanel` bruker `aria-disabled`, og `status.spec.ts` sjekker fokus og at bare ett kall går ut mens POST-en holdes. Se `spec-epic-4-retro-1-fokus-i-statuspanel-og-toast-test.md`.
+- source_spec: `docs/implementation-artifacts/spec-epic-3-retro-16-felles-e2e-hjelpere.md`
+  summary: `e2e/core-flow.spec.ts` skriver ut axe, breddesjekken og 320 px-blokken seks ganger i stedet for å bruke `expectAccessibleLayout` fra `e2e/a11y.ts`.
+  evidence: Blind Hunter i gjennomgangen av epic-3-retro-item-16 (`core-flow.spec.ts:95`, `:166`, `:241`, `:282`, `:319`, `:438`). Kjerneflyten er én lang test som kjører i begge endrer-prosjektene, så endringen bør kjøres og vurderes for seg, ikke sammen med ryddingen av hjelperne.

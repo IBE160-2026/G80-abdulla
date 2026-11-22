@@ -9,17 +9,19 @@
 // rapporter, så de ligger i endrer-prosjektene.
 import { randomUUID } from "node:crypto";
 import { expect, test, type Page, type Request } from "@playwright/test";
-import { expectNoSeriousA11yViolations } from "../a11y";
-import { logIn } from "../auth";
+import { expectAccessibleLayout } from "../a11y";
 import { expectNoHorizontalScroll } from "../layout";
+import {
+  category,
+  chooseCategory,
+  description,
+  isCreateReport,
+  location,
+  NEW_REPORT,
+  openForm,
+  submit,
+} from "../report-form";
 
-const NEW_REPORT = "/rapporter/ny";
-
-const description = (page: Page) => page.getByLabel("Beskrivelse", { exact: true });
-const location = (page: Page) => page.getByLabel("Lokasjon", { exact: true });
-const category = (page: Page) => page.getByRole("combobox", { name: "Kategori", exact: true });
-const submit = (page: Page) =>
-  page.getByRole("main").getByRole("button", { name: /^(Send inn|Sender …)$/ });
 const loading = (page: Page) => page.getByText("Finner kategori …", { exact: true });
 const aiTag = (page: Page) => page.getByText("Foreslått av KI", { exact: true });
 const noSuggestion = (page: Page) =>
@@ -32,29 +34,6 @@ const summaryText = (page: Page, text: string) =>
 const liveRegion = (page: Page) => page.locator('p[aria-live="polite"]');
 const main = (page: Page) => page.getByRole("main");
 
-const CATEGORY_ORDER = ["Søppel", "Belysning", "Vei og fortau", "Skadeverk", "Annet"];
-
-/** Velger en kategori med tastatur når lista er tom: åpner lista, piler og Enter. */
-async function chooseCategory(page: Page, label: string, downs: number) {
-  await category(page).focus();
-  await page.keyboard.press("Enter");
-  await expect(page.getByRole("listbox")).toBeVisible();
-  await expect(page.getByRole("option", { name: "Søppel", exact: true })).toBeFocused();
-  for (let i = 1; i <= downs; i++) {
-    await page.keyboard.press("ArrowDown");
-    await expect(page.getByRole("option", { name: CATEGORY_ORDER[i], exact: true })).toBeFocused();
-  }
-  await page.keyboard.press("Enter");
-  await expect(page.getByRole("listbox")).toBeHidden();
-  await expect(category(page)).toHaveText(label);
-}
-
-async function openForm(page: Page) {
-  await logIn(page, "bruker2@localfix.test", { next: NEW_REPORT });
-  await expect(page.getByRole("heading", { level: 1, name: "Ny rapport" })).toBeVisible();
-  await expect(description(page)).toBeFocused();
-}
-
 /**
  * Samler Server Action-kallene (POST til skjemasiden). `createReport` har feltet
  * «location» i kroppen, forslagskallet bare beskrivelsen.
@@ -64,8 +43,7 @@ function trackPosts(page: Page) {
   const creations: Request[] = [];
   page.on("request", (request) => {
     if (request.method() !== "POST" || new URL(request.url()).pathname !== NEW_REPORT) return;
-    const isCreation = (request.postData() ?? "").includes('"location"');
-    (isCreation ? creations : suggestions).push(request);
+    (isCreateReport(request) ? creations : suggestions).push(request);
   });
   return { suggestions, creations };
 }
@@ -85,18 +63,6 @@ async function holdFirstPost(page: Page) {
     await route.continue();
   });
   return release;
-}
-
-/** axe og breddesjekk, og også 320 px i 360-prosjektet. */
-async function expectAccessibleLayout(page: Page) {
-  await expectNoSeriousA11yViolations(page);
-  await expectNoHorizontalScroll(page);
-  if (page.viewportSize()!.width === 360) {
-    await page.setViewportSize({ width: 320, height: 800 });
-    await expectNoSeriousA11yViolations(page);
-    await expectNoHorizontalScroll(page);
-    await page.setViewportSize({ width: 360, height: 800 });
-  }
 }
 
 test("et forslag velger kategorien med pillen, leses opp og gir en oppsummering", async ({ page }) => {
