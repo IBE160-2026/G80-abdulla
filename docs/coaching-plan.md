@@ -2,7 +2,7 @@
 
 Plan for hvordan jeg bruker Claude Code som coach resten av prosjektet, fra epics og stories til ferdig app. Planleggingen (brief, PRD, UX, arkitektur) er ferdig. Det som gjenstår er kode, tester og README, og det er der kriterium 2–6 i sensorveiledningen avgjøres.
 
-Sist oppdatert: 2026-11-06
+Sist oppdatert: 2026-11-22
 
 ## Hvorfor coaching
 
@@ -42,10 +42,10 @@ Hver story går gjennom samme løkke:
 1. **Les storyen sammen.** Claude oppsummerer hva den krever og hvilke AD-er den berører. Jeg bekrefter eller presiserer.
 2. **Plan.** Claude foreslår filer og tester. Jeg godkjenner før koden skrives.
 3. **Bygg.** `bmad-build` på en egen branch (`feat/<story>`). Små commits med beskrivende meldinger.
-4. **Test.** Vitest for logikk, Playwright for flyten, axe for tilgjengelighet. Storyen er ikke ferdig før testene består (AD-15).
+4. **Test.** Vitest for logikk, Playwright for flyten, axe for tilgjengelighet. Storyen er ikke ferdig før testene består (AD-15). Før CI startes, leser Claude åpne punkter i `issues.md` som nevner ustabile tester, og sier fra hvis et av dem gjelder flyten storyen utvider. En ustabil test med et kjent rettelsesforslag rettes i den neste storyen som utvider samme test eller kjører CI på den, ikke bare føres i `issues.md`.
 5. **Gjennomgang.** `bmad-code-review` eller `/code-review` på diffen. Jeg leser funnene og bestemmer hva som rettes. Det som ble funnet og rettet, skrives i PR-beskrivelsen.
 6. **Prøv selv.** Jeg kjører appen og går gjennom flyten med mus og bare tastatur, på mobil- og skjermbredde.
-7. **PR og fletting.** PR med lenke til storyen, testsammendrag og funn fra gjennomgangen. Jeg fletter.
+7. **PR og fletting.** PR med lenke til storyen, testsammendrag og funn fra gjennomgangen. Har storyen endret `EXPERIENCE.md`, `DESIGN.md`, PRD-en eller arkitekturen, står det en linje i beslutningsloggen i `docs/beslutninger/` i samme PR, og Claude sjekker det før PR-en lages. Jeg fletter.
 8. **Logg.** Sesjonslogg, `issues.md` og eventuelle beslutninger.
 
 Spre arbeidet over flere uker. Helst noen stories hver uke, ikke alt rett før fristen (varseltegn i sensorveiledningen kapittel 5).
