@@ -2,7 +2,7 @@
 title: 'Story 4.3: Sensor kan starte og vurdere appen'
 type: 'chore'
 created: '2026-11-22'
-status: 'in-review'
+status: 'done'
 route: 'dispatch'
 review_loop_iteration: 1
 baseline_commit: 'ac82c4bb22e0bf5e9ae814f4436a4ff89acbfd92'
@@ -67,10 +67,10 @@ context:
 - [x] `docs/testdekning.md` -- tabellen over krav og tester: krav, kort tekst, testfiler og hva som er sjekket for hånd, pluss hvordan hver testtype kjøres. Hver testfil i tabellen må finnes -- AC 4.
 - [x] `README.md` -- statusen: alle fire epicene er ferdige. Nytt avsnitt «Som moderator»: panelet, statusstegene, skjule med bekreftelse og vise. Legg inn skjermbildet, lenken til `docs/testdekning.md`, lenken til opptaket, at du kloner til en kort sti på Windows, og teksten om Node 24 fra beslutningen. Fjern Vercel-linja. Avsnittet om data fra testene og personvern står fortsatt -- AR-16, P-2, NFR-3, NFR-7.
 - [x] `scripts/` + `docs/skjermbilder/kjerneflyt.webm` -- skjermopptaket med Playwright-video: kjerneflyten fra AD-15 i sakte tempo, under 3 minutter og helst under 10 MB. Kommandoen står i README.
-- [ ] Klonekjøringen (gjøres av hovedsesjonen etter review, når grenen er pushet, ikke av implementeringen) -- følg README i en tom mappe på kort sti (`git clone -b feat/story-4-3`, `npm ci`, `npx supabase start`, `cp .env.example .env`, `npm run dev` med seed i nettleseren, `npx playwright install chromium`, `npm test`). Sjekk at nøkkelen i `.env.example` er lik `npx supabase status`. Rett README og prøv på nytt -- SM-7.
-- [ ] CI (etter review, som over) -- kjør `npm-test.yml` med `workflow_dispatch` på grenen. Ta med antall og tid fra både klonen og CI i PR-en.
+- [x] Klonekjøringen (gjøres av hovedsesjonen etter review, når grenen er pushet, ikke av implementeringen) -- følg README i en tom mappe på kort sti (`git clone -b feat/story-4-3`, `npm ci`, `npx supabase start`, `cp .env.example .env`, `npm run dev` med seed i nettleseren, `npx playwright install chromium`, `npm test`). Sjekk at nøkkelen i `.env.example` er lik `npx supabase status`. Rett README og prøv på nytt -- SM-7.
+- [x] CI (etter review, som over) -- kjør `npm-test.yml` med `workflow_dispatch` på grenen. Ta med antall og tid fra både klonen og CI i PR-en.
 - [x] axe-tilstandene -- sjekk lista over tilstandene AD-15 krever, mot `e2e/`. Mangler en tilstand en skanning, legges den til i den nærmeste spec-en.
-- [ ] `issues.md` og `sprint-status.yaml` -- lukk punktene i Code Map med dato og henvisning, men bare de som er gjort. Linje 70 (W3) og 145 (kort sti) lukkes av README-endringen. Linje 71, 98 og 122 og retro-punktet lukkes av hovedsesjonen etter klonekjøringen.
+- [x] `issues.md` og `sprint-status.yaml` -- lukk punktene i Code Map med dato og henvisning, men bare de som er gjort. Linje 70 (W3) og 145 (kort sti) lukkes av README-endringen. Linje 71, 98 og 122 og retro-punktet lukkes av hovedsesjonen etter klonekjøringen.
 
 **Acceptance Criteria:**
 - Gitt README, når en sensor leser den, så finner hen alt som AR-16, P-2, NFR-3 og NFR-7 krever, et skjermbilde, en lenke til dekningstabellen og en lenke til opptaket, uten at noe strider mot hverandre.

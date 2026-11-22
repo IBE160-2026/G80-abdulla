@@ -180,7 +180,7 @@ npm test
 | `npm run test:e2e`  | Bare Playwright, med `db reset` før bygget og flere `db reset` i prosjektet `reset`                                                                                  |
 | `npm run db:types`  | Genererer `shared/supabase/database.types.ts` fra den lokale databasen. Kjøres etter hver ny migrering, og fila committes                                                   |
 
-**Forventet tid:** 10–15 minutter. Ved Story 4.2 tok `npm test` 14 minutter på utviklermaskinen og 8 minutter og 42 sekunder på en GitHub-kjører. Det meste av tiden går til Playwright-testene (rundt 280, én og én, i to skjermbredder), `db reset` (rundt et halvt minutt hver gang: databasetestene, Playwright før bygget og fire ganger i prosjektet `reset`) og `next build`.
+**Forventet tid:** 10–15 minutter. Ved Story 4.3 tok `npm test` 13 minutter og 30 sekunder i en ny klone på utviklermaskinen (Docker og Chromium var lastet ned fra før), og hele CI-jobben (med Docker-bilder og Chromium) tok 10 minutter og 52 sekunder på en GitHub-kjører, med 7,7 minutter i Playwright. Det meste av tiden går til Playwright-testene (rundt 280, én og én, i to skjermbredder), `db reset` (rundt et halvt minutt hver gang: databasetestene, Playwright før bygget og fire ganger i prosjektet `reset`) og `next build`.
 
 Første gang laster `npx supabase test db` ned Docker-bildet `supabase/pg_prove`, og `npx playwright install chromium` laster ned nettleseren. Brytes nedlastingen, kan kommandoen likevel avslutte uten feil. Kjør den da på nytt. Sier `npm test` at `chrome-headless-shell.exe` mangler, er det samme årsak.
 
