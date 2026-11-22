@@ -12,7 +12,7 @@ Gruppeprosjekt (G80) i **IBE160 Programmering med KI** ved Høgskolen i Molde, h
 *Til venstre lista på mobil (360 px), til høyre detaljsiden med moderatorpanelet (1280 px). Begge viser testdataene.*
 
 - **Testdekning:** hvilke tester som dekker hvert krav, og hva som er sjekket for hånd, står i [docs/testdekning.md](docs/testdekning.md).
-- **Skjermopptak:** [docs/skjermbilder/kjerneflyt.webm](docs/skjermbilder/kjerneflyt.webm) viser kjerneflyten på halvannet minutt, uten lyd: logge inn, filtrere, bekrefte, registrere med KI-forslag og bilde, og som moderator sortere, endre status og skjule. Det er reserven hvis du ikke får startet Docker.
+- **Skjermopptak:** [docs/skjermbilder/kjerneflyt.webm](docs/skjermbilder/kjerneflyt.webm) viser kjerneflyten på halvannet minutt, uten lyd (åpnes i Chrome, Firefox eller Edge): logge inn, filtrere, bekrefte, registrere med KI-forslag og bilde, og som moderator sortere, endre status og skjule. Det er reserven hvis du ikke får startet Docker.
 
 ## Status
 
@@ -54,7 +54,7 @@ Får du ikke Docker til å virke, viser [skjermopptaket](docs/skjermbilder/kjern
 
 Supabase CLI trenger du ikke installere selv. Den er en devDependency (`supabase` 2.122.1) og kjøres med `npx supabase`.
 
-**Node 24, ikke 26.** Appen er bygd og testet på Node 24 LTS, både lokalt og i CI, som leser versjonen fra `.nvmrc`. `package.json` krever `^24.0.0`, og `.npmrc` har `engine-strict=true`, så `npm ci` stopper på en annen versjon i stedet for å installere avhengighetene på en Node-versjon de ikke er testet med. Node 26 er nyere, men appen er ikke testet på den. På Node 26 (eller 22) stopper `npm ci` med en melding som denne:
+**Node 24, ikke 26.** Appen er bygd og testet på Node 24 LTS, både lokalt og i CI, som leser versjonen fra `.nvmrc`. `package.json` krever `^24.0.0`, og `.npmrc` har `engine-strict=true`, så `npm ci` stopper på en annen versjon i stedet for å installere avhengighetene på en Node-versjon de ikke er testet med. Node 26 er nyere, men appen er ikke testet på den. På Node 26 (eller 22) stopper `npm ci` med en melding som denne (forkortet):
 
 ```
 npm error code EBADENGINE
@@ -151,7 +151,7 @@ Logg inn som `moderator@localfix.test`. Moderatoren ser alt en vanlig bruker ser
 - **«Skjul rapport»** står under statusknappene og åpner dialogen «Skjule rapporten?». «Skjul rapport» i dialogen skjuler rapporten, og «Avbryt» eller Escape lukker dialogen uten endring. Ingenting slettes.
 - **«Vis rapport»** står der i stedet når rapporten er skjult, og viser den igjen med en gang, uten dialog.
 
-Reglene håndheves i databasen, ikke bare i grensesnittet. En vanlig bruker som prøver å endre status eller skjule en rapport rett mot API-et, får 403.
+Reglene håndheves i databasen, ikke bare i grensesnittet. En vanlig bruker som prøver å endre status eller skjule en rapport rett mot API-et, får 403, og en besøkende som ikke er logget inn, får 401.
 
 ### Stopp og start igjen
 
@@ -203,11 +203,12 @@ Kjør så skriptene i en annen terminal, fra prosjektmappen:
 
 ```sh
 node scripts/skjermbilde.mjs
+npx supabase db reset
 node scripts/opptak.mjs
 npx supabase db reset
 ```
 
-Begge bruker [http://localhost:3000](http://localhost:3000). En annen adresse gis som argument, for eksempel `node scripts/skjermbilde.mjs http://localhost:3100`. `skjermbilde.mjs` lager `liste-360.png` og `detalj-moderator-1280.png` og endrer ingen data. `opptak.mjs` lager `kjerneflyt.webm` (1280 × 720, omtrent halvannet minutt) og endrer data: bruker1 bekrefter en rapport og registrerer en ny, og moderatoren flytter statusen og skjuler den. Derfor gir `npx supabase db reset` testdataene tilbake etterpå. Opptaket krever at appen har testdataene når det starter, og at KI-en er i mock-modus, som i `.env.example`.
+Begge bruker [http://localhost:3000](http://localhost:3000). En annen adresse gis som argument, for eksempel `node scripts/skjermbilde.mjs http://localhost:3100`. `skjermbilde.mjs` lager `liste-360.png` og `detalj-moderator-1280.png` og endrer ingen rapportdata. `opptak.mjs` lager `kjerneflyt.webm` (1280 × 720, omtrent halvannet minutt) og endrer data: bruker1 bekrefter en rapport og registrerer en ny, og moderatoren flytter statusen og skjuler den. Derfor står `npx supabase db reset` både før og etter. Opptaket krever at appen har testdataene når det starter, og at KI-en er i mock-modus, som i `.env.example`.
 
 ### Miljøvariabler
 

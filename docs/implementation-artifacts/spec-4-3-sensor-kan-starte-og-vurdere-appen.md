@@ -4,7 +4,7 @@ type: 'chore'
 created: '2026-11-22'
 status: 'in-review'
 route: 'dispatch'
-review_loop_iteration: 0
+review_loop_iteration: 1
 baseline_commit: 'ac82c4bb22e0bf5e9ae814f4436a4ff89acbfd92'
 context:
   - '{project-root}/docs/implementation-artifacts/epic-4-context.md'
@@ -94,7 +94,7 @@ context:
 
 ## Review Triage Log
 
-Gjennomgang 1: Blind Hunter (13 funn), Edge Case Hunter (7) og Verification Gap (0 hull, 1 annet funn). Patchene er **ikke brukt ennå** (bruksgrensen ble nådd).
+Gjennomgang 1: Blind Hunter (13 funn), Edge Case Hunter (7) og Verification Gap (0 hull, 1 annet funn). Alle patchene er brukt (commit etter cdfe317). Etterpå: `npm run lint`, `npx tsc --noEmit` og `npm run test:unit` (84 filer, 1108 tester) grønne.
 
 - **VG-annet/BH1, low, patch:** `epic-4-context.md:26` sier «siden det ikke finnes CI», men `npm-test.yml` finnes. Leddet fjernes.
 - **BH2, false:** at `epic-4-context.md` er kortere, er tilsiktet (compile-reglene: ikke ta med det som kan leses av koden). Reglene som er tatt ut, står i koden og i arkitekturen.

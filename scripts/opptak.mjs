@@ -1,7 +1,7 @@
 // Lager skjermopptaket av kjerneflyten (Story 4.3), reserven i README for den
-// som ikke får startet Docker: docs/skjermbilder/kjerneflyt.webm. Flyten er
-// den samme som i e2e/core-flow.spec.ts (AD-15), i sakte tempo og uten tale,
-// med en tekstlinje nederst som sier hva som skjer. Elementet som trykkes,
+// som ikke får startet Docker: docs/skjermbilder/kjerneflyt.webm. Den viser en
+// del av flyten i e2e/core-flow.spec.ts (AD-15), med mus i stedet for tastatur,
+// i sakte tempo og uten tale, med en tekstlinje nederst som sier hva som skjer. Elementet som trykkes,
 // rammes inn rett før trykket. Opptaket er 1280 × 720 og under 3 minutter.
 //
 // Appen må kjøre med seed-dataene og med KI i mock-modus (standard i
@@ -21,7 +21,7 @@ import { chromium, expect as baseExpect } from "@playwright/test";
 // npm run dev bygger hver side første gang den åpnes, så ventetiden er lang.
 const expect = baseExpect.configure({ timeout: 30_000 });
 
-const BASE_URL = process.argv[2] ?? "http://localhost:3000";
+const BASE_URL = new URL(process.argv[2] ?? "http://localhost:3000").origin;
 const OUT = fileURLToPath(new URL("../docs/skjermbilder/", import.meta.url));
 // Testbildet til seed-rapport 3 (CC0, uten metadata, se supabase/KILDER-seed-images.md).
 const IMAGE = fileURLToPath(
@@ -231,6 +231,10 @@ try {
   if (video && complete) {
     await video.saveAs(`${OUT}kjerneflyt.webm`);
     console.log(`Lagret ${OUT}kjerneflyt.webm (${Math.round((Date.now() - started) / 1000)} s)`);
+  } else {
+    console.error(
+      "Opptaket ble ikke lagret. Kjør `npx supabase db reset`, sjekk at AI_PROVIDER=mock i .env, og prøv igjen.",
+    );
   }
   await browser.close();
   rmSync(workDir, { recursive: true, force: true });

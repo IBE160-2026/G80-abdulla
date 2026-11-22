@@ -23,7 +23,7 @@ Moderatoren følger opp rapportene: hen flytter statusen ett steg om gangen (Ny 
 - **Testene som må bestå:** Playwright i `e2e/`, pgTAP, Vitest, REST-testene og ytelsestesten (100 rapporter under 2 s, NFR-6). axe gir null `serious`/`critical` i alle tilstandene som skannes (se Technical Decisions). Ingen `skip` eller `fixme`.
 - **Dekningstabell:** i README eller en fil README lenker til, som viser hvilken test som dekker hvert av FR-1–FR-9, NFR-1–NFR-8 og SM-1–SM-7, og hva som er sjekket for hånd.
 - **Reserve uten Docker:** README lenker til et skjermopptak av kjerneflyten, under 3 minutter.
-- **Ferdig (hver story):** issue, egen branch, PR med `Closes #N`, alle tester og `npm run lint` grønne, ingen horisontal scrolling på 360 og 320 px, og testsammendraget (antall bestått og axe-funn) i PR-beskrivelsen, siden det ikke finnes CI. Endres en regel i PRD/arkitektur/UX, oppdateres dokumentet og beslutningsloggen i samme PR.
+- **Ferdig (hver story):** issue, egen branch, PR med `Closes #N`, alle tester og `npm run lint` grønne, ingen horisontal scrolling på 360 og 320 px, og testsammendraget (antall bestått og axe-funn) i PR-beskrivelsen. Endres en regel i PRD/arkitektur/UX, oppdateres dokumentet og beslutningsloggen i samme PR.
 
 ## Technical Decisions
 

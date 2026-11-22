@@ -6,7 +6,7 @@
 //
 // Appen må kjøre med seed-dataene (`npx supabase db reset` gir dem tilbake).
 // Skriptet starter ikke appen og kaller ikke Supabase CLI, og det endrer ingen
-// data: det logger bare inn som moderatoren.
+// rapportdata: det logger bare inn som moderatoren.
 //
 //   node scripts/skjermbilde.mjs                          mot port 3000 (npm run dev eller next start)
 //   node scripts/skjermbilde.mjs http://localhost:3100    mot en annen adresse
@@ -17,7 +17,7 @@ import { chromium, expect as baseExpect } from "@playwright/test";
 // npm run dev bygger hver side første gang den åpnes, så ventetiden er lang.
 const expect = baseExpect.configure({ timeout: 30_000 });
 
-const BASE_URL = process.argv[2] ?? "http://localhost:3000";
+const BASE_URL = new URL(process.argv[2] ?? "http://localhost:3000").origin;
 const OUT = fileURLToPath(new URL("../docs/skjermbilder/", import.meta.url));
 const REPORT_2 = "/rapporter/20000000-0000-4000-8000-000000000002";
 // Dev-indikatoren til Next (npm run dev) skal ikke med på bildet.

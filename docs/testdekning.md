@@ -1,6 +1,8 @@
 # Testdekning
 
-Tabellen viser hvilke tester som dekker hvert krav i [PRD-en](prd.md): FR-1–FR-9 (§4), NFR-1–NFR-8 (§7) og SM-1–SM-7 (§10). Kolonnen «Sjekket for hånd» sier hva som ikke er automatisert, og «Hull» betyr at kravet, eller en del av det, verken har en automatisk test eller er sjekket for hånd. Alle testene kjøres med `npm test` (se [README](../README.md#kjør-testene)).
+Tabellen viser hvilke tester som dekker hvert krav i [PRD-en](prd.md): FR-1–FR-9 (§4), NFR-1–NFR-8 (§7) og SM-1–SM-7 (§10). Kolonnen «Sjekket for hånd» sier hva som ikke er automatisert. «Hull» betyr at kravet, eller en del av det, ikke har en automatisk test. Er det sjekket for hånd i stedet, står det i samme celle. Alle testene unntatt `npm run eval:sm5` kjøres med `npm test` (se [README](../README.md#kjør-testene)).
+
+Sist oppdatert 2026-11-22, i Story 4.3.
 
 ## Testtypene
 
@@ -33,14 +35,14 @@ Tabellen viser hvilke tester som dekker hvert krav i [PRD-en](prd.md): FR-1–FR
 
 | Krav | Kort | Automatiske tester | Sjekket for hånd |
 | --- | --- | --- | --- |
-| NFR-1 | Kjerneflyten uten horisontal scrolling på mobil, nettbrett og desktop | `e2e/core-flow.spec.ts` (360, 320 og 1280 px), breddesjekken i de fleste spec-ene i `e2e/les/` og `e2e/endrer/`, `e2e/les/helpers.spec.ts` (selve sjekken) | **Hull:** ingen automatisk test i nettbrettbredde. Sjekket én gang 2026-11-22 med et engangsskript på 768 og 1024 px: lista med og uten filter, detaljsiden (også som moderator), skjemaet, innlogging og registrering hadde ingen horisontal scrolling |
-| NFR-2 | Kjørbar for sensor etter README, uten nøkler og betalte kontoer | `features/auth/seed-login.db.test.ts` (testbrukerne i README kan logge inn), `shared/lib/env.test.ts` (mock uten nøkkel, og feilen peker til README), `supabase/tests/testdata.sql`, `.github/workflows/npm-test.yml` (README-stegene på en ren GitHub-kjører) | Se SM-7 |
+| NFR-1 | Kjerneflyten uten horisontal scrolling på mobil, nettbrett og desktop | `e2e/core-flow.spec.ts` (360, 320 og 1280 px), breddesjekken (`e2e/layout.ts`) i `e2e/les/` (`bekreft-tilstander`, `detalj`, `filter`, `forside`, `innlogging`, `mine`) og `e2e/endrer/` (`bekreft`, `bilde`, `ki-forslag`, `ny-rapport`, `registrering`, `skjul`, `status`), `e2e/les/helpers.spec.ts` (selve sjekken) | **Hull:** ingen automatisk test i nettbrettbredde. Sjekket én gang 2026-11-22 med et engangsskript på 768 og 1024 px: lista med og uten filter, detaljsiden (også som moderator), skjemaet, innlogging og registrering hadde ingen horisontal scrolling |
+| NFR-2 | Kjørbar for sensor etter README, uten nøkler og betalte kontoer | `features/auth/seed-login.db.test.ts` (testbrukerne i README kan logge inn), `shared/lib/env.test.ts` (mock uten nøkkel, og feilen peker til README), `supabase/tests/testdata.sql`, `.github/workflows/npm-test.yml` (README-stegene på en ny Ubuntu-kjører hos GitHub, der Docker finnes fra før og Chromium installeres med `--with-deps`. Kjøres ved push til `ci/**` eller startet for hånd) | Se SM-7 |
 | NFR-3 | Ingen nøkler i repoet, `.env.example` har alle variablene | `shared/lib/env.test.ts` (variablene valideres ved oppstart) | `.env` og `.env.*` står i `.gitignore`. **Hull:** ingen automatisk søk etter nøkler i repoet, og ingen test som sammenligner `.env.example` med variablene i `shared/lib/env.ts` |
 | NFR-4 | Rettighetsreglene håndheves i databasen | `supabase/tests/skriving.sql`, `supabase/tests/vakter.sql` (hele skjemaet), `supabase/tests/lesing.sql`, `supabase/tests/bekreftelser.sql`, `supabase/tests/status.sql`, `supabase/tests/bilder.sql`, REST-testene i `features/**/*.db.test.ts` | – |
 | NFR-5 | Installerbar som PWA | `e2e/les/manifest.spec.ts` (manifest og ikoner) | **Hull:** å legge appen til på hjemskjermen på en telefon er ikke prøvd |
 | NFR-6 | Lista med 100 rapporter under 2 sekunder lokalt | `e2e/reset/liste.spec.ts` | – |
 | NFR-7 | Ingen betalte tjenester, språkmodellen har gratisnivå | **Hull:** ingen automatisk test | Alt kjører lokalt i Docker, og KI-en er i mock-modus uten nøkkel. SM-5 ble kjørt på gratisnivået til Cloudflare Workers AI (2026-11-18) |
-| NFR-8 | WCAG 2.2 AA: ingen alvorlige axe-funn, og kjerneflyten bare med tastatur | `e2e/core-flow.spec.ts` (hele flyten med tastatur og axe ved hvert steg), axe i lista, detaljsiden, skjemaet, innlogging og registrering i `e2e/les/` og `e2e/endrer/`, `e2e/les/helpers.spec.ts`, `e2e/les/keyboard.spec.ts` | **Hull:** axe finner bare en del av WCAG-bruddene, og appen er ikke testet med skjermleser |
+| NFR-8 | WCAG 2.2 AA: ingen alvorlige axe-funn, og kjerneflyten bare med tastatur | `e2e/core-flow.spec.ts` (hele flyten med tastatur og axe ved hvert steg), axe (`e2e/a11y.ts`) i `e2e/les/` (`bekreft-tilstander`, `detalj`, `detalj-innlogget`, `filter`, `forside`, `innlogging`, `mine`), `e2e/endrer/` (`bekreft`, `bilde`, `ki-forslag`, `ny-rapport`, `registrering`, `skjul`, `status`) og `e2e/reset/` (`bilde-mangler`, `liste`), `e2e/les/helpers.spec.ts`, `e2e/les/keyboard.spec.ts` | **Hull:** axe finner bare en del av WCAG-bruddene, og appen er ikke testet med skjermleser |
 
 ## Suksessmetrikker
 
@@ -52,4 +54,4 @@ Tabellen viser hvilke tester som dekker hvert krav i [PRD-en](prd.md): FR-1–FR
 | SM-4 | Filtrering og sortering gir forventet resultat på testdataene | `e2e/les/filter.spec.ts`, `e2e/les/mine.spec.ts` | – |
 | SM-5 | KI-en treffer minst 16 av 20 på testsettet | `evals/sm5/testset.test.ts` (20 beskrivelser, fire per kategori), `evals/sm5/score.test.ts`, `evals/sm5/report.test.ts`, `evals/sm5/language.test.ts`, `evals/sm5/run-helpers.test.ts` | `npm run eval:sm5` mot leverandøren, for hånd fordi den trenger en nøkkel: Cloudflare Workers AI med `gpt-oss-20b` traff 19 av 20 (2026-11-18, se README) |
 | SM-6 | Rapporten kan registreres når KI er av eller ikke svarer | `e2e/endrer/ki-forslag.spec.ts` (ingen forslag og feil i kallet), `features/registrering/ai/index.test.ts` (tidsavbrudd etter 5 s) | – |
-| SM-7 | En som ikke kjenner prosjektet, starter appen etter README på en ren maskin | `.github/workflows/npm-test.yml` (README-stegene og `npm test` på en ren GitHub-kjører) | README fulgt steg for steg på en ny klone i en tom mappe i Story 4.3. Resultatet står i PR-en som lukker issue #39 |
+| SM-7 | En som ikke kjenner prosjektet, starter appen etter README på en ren maskin | `.github/workflows/npm-test.yml` (README-stegene og `npm test` på en ny Ubuntu-kjører hos GitHub. Den har Docker fra før og installerer Chromium med `--with-deps`, så den viser ikke alt en sensor må installere selv. Kjøres ved push til `ci/**` eller startet for hånd) | README fulgt steg for steg på en ny klone i en tom mappe i Story 4.3. Resultatet står i PR-en som lukker issue #39 |
