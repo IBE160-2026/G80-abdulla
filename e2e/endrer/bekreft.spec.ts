@@ -116,6 +116,37 @@ test("en besøkende sendes til innlogging og tilbake, og bekrefter bare med tast
   expect(after.indexOf(id)).toBeGreaterThan(after.indexOf(SEED_2));
 });
 
+test("«←» etter en bekreftelse går tilbake til lista med filteret bevart", async ({ page }) => {
+  // Bekreftelsen revaliderer siden uten å bytte sti, og Next skriver da
+  // `history.state` på nytt uten dybden og forrige sti som `BackLink` lagret.
+  const summary = `Tilbake etter bekreftelse ${randomUUID()}`;
+  const id = await createReportAs("bruker1@localfix.test", summary);
+  await logIn(page, BRUKER2);
+  await page.goto("/?sort=confirmations");
+  await page.waitForLoadState("networkidle");
+  await main(page).getByRole("link", { name: new RegExp(summary) }).click();
+  await expect(page).toHaveURL(`/rapporter/${id}`);
+
+  // Venter til serveren har svart og siden er revalidert, så `history.state`
+  // er skrevet på nytt før «←» trykkes (ellers avhenger testen av tidspunktet).
+  await Promise.all([
+    page.waitForResponse(
+      (response) => response.request().method() === "POST" && response.url().endsWith(`/rapporter/${id}`),
+    ),
+    button(page, OPEN).click(),
+  ]);
+  await expect(counter(page)).toHaveText("2 har sett dette");
+  await expect(button(page, DONE)).toBeVisible();
+  await page.waitForLoadState("networkidle");
+
+  await page
+    .getByRole("banner")
+    .getByRole("link", { name: "Tilbake til lista", exact: true })
+    .click();
+  await expect(page).toHaveURL("/?sort=confirmations");
+  await expect(main(page).getByRole("link", { name: new RegExp(summary) })).toBeVisible();
+});
+
 test("forfatteren ser «Din rapport», og trykk gjør ingenting", async ({ page }) => {
   const summary = `Egen rapport ${randomUUID()}`;
   const id = await createReportAs("bruker1@localfix.test", summary);
