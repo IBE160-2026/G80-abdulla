@@ -8,6 +8,7 @@
 - source_spec: `docs/implementation-artifacts/spec-1-5-detaljsiden.md`
   summary: «←» på detaljsiden skal gå til lista, ikke tilbake i historikken, når forrige side i appen ikke er lista (for eksempel innloggingen eller skjemaet).
   evidence: `shared/layout/back-link.tsx` går tilbake i historikken når det finnes en side i appen før detaljsiden, uansett hvilken. I dag lenker bare lista til detaljsiden, men Story 2.2 (detaljsiden etter innsending) og Story 3.3 (innlogging og tilbake ved bekreftelse) gir andre forrige sider (edge-case-hunter E3, gjennomgang 1 i Story 1.5).
+  status: Løst i Epic 3 retro 15 (`spec-epic-3-retro-15-17-18-tilbakepil-og-rekonsiliering.md`). «←» går til lista når forrige side i appen ikke er lista, og e2e dekker innlogging og skjemaet som første side i fanen.
 
 - source_spec: `docs/implementation-artifacts/spec-1-5-detaljsiden.md`
   summary: En norsk `app/not-found.tsx` for URL-er som ikke finnes, for eksempel `/foo`, `/rapporter` og `/rapporter/<id>/x`.
@@ -16,6 +17,7 @@
 - source_spec: `docs/implementation-artifacts/spec-2-2-registrere-en-rapport.md`
   summary: «←» på detaljsiden etter innsending forlater appen eller gjør ingenting når skjemaet `/rapporter/ny` var første side i fanen (bokmerke, ny fane eller PWA-snarvei).
   evidence: Verifisert med e2e 2026-11-10 (ny fane, `/rapporter/ny` direkte, innsending, «←» gir `about:blank`). `router.replace` til detaljsiden overskriver `history.state`, så `shared/layout/back-link.tsx` regner dybden som forrige + 1 og kaller `router.back()`. Fra lista virker «←» riktig og er testet. Brukeren godtok begrensningen og utsatte den til Story 3.3, som må løse «←» generelt (innlogging og tilbake til detaljsiden, direkte lenker og skjemaet).
+  status: Løst i Epic 3 retro 15 (`spec-epic-3-retro-15-17-18-tilbakepil-og-rekonsiliering.md`). «←» går til lista når forrige side i appen ikke er lista, og e2e dekker innlogging og skjemaet som første side i fanen.
 
 ## Deferred from: code review of spec-2-5-velge-ki-leverandor-med-sm-5-testen (2026-11-16)
 
@@ -37,3 +39,11 @@
 - source_spec: `docs/implementation-artifacts/spec-epic-3-retro-16-felles-e2e-hjelpere.md`
   summary: `e2e/core-flow.spec.ts` skriver ut axe, breddesjekken og 320 px-blokken seks ganger i stedet for å bruke `expectAccessibleLayout` fra `e2e/a11y.ts`.
   evidence: Blind Hunter i gjennomgangen av epic-3-retro-item-16 (`core-flow.spec.ts:95`, `:166`, `:241`, `:282`, `:319`, `:438`). Kjerneflyten er én lang test som kjører i begge endrer-prosjektene, så endringen bør kjøres og vurderes for seg, ikke sammen med ryddingen av hjelperne.
+
+- source_spec: `docs/implementation-artifacts/spec-epic-3-retro-15-17-18-tilbakepil-og-rekonsiliering.md`
+  summary: «←» går til lista uten filtre i stedet for tilbake i historikken etter en handling som oppdaterer detaljsiden på samme sti (bekreft, statusendring, skjuling eller `router.refresh()`).
+  evidence: Nexts `HistoryUpdater` (`node_modules/next/dist/client/components/app-router.js`, linje 91–110) skriver `history.state` på nytt ved hver treoppdatering, uten egne felt, så `localfixDepth` og `localfixFrom` forsvinner. Effekten i `BackLink` kjører bare når stien endres, så `entryDepth()` er `undefined` ved klikket, og lenken går til `/`. Samme oppførsel som før rettelsen, ikke verifisert i nettleser. Fiks: hold dybde og forrige sti i en `ref` og bruk den når `history.state` mangler, eller skriv dem på nytt ved klikket (Edge Case Hunter, gjennomgang 1).
+
+- source_spec: `docs/implementation-artifacts/spec-epic-3-retro-15-17-18-tilbakepil-og-rekonsiliering.md`
+  summary: `docs/planning-artifacts/epics.md` sier fortsatt at «←» og nettleserens tilbakeknapp gjør det samme (linje 154, UX-DR4) og at Story 1.5 går «tilbake til lista, som med nettleserens tilbakeknapp» (linje 478).
+  evidence: `EXPERIENCE.md` (begge kopier) har fra Epic 3 retro 15 en ny regel: «←» går tilbake i historikken bare når forrige side er lista, ellers til lista. Å endre `epics.md` krever en linje i `epics-beslutningslogg.md`, og ordlyden er prosjekteierens (Blind Hunter, gjennomgang 1).

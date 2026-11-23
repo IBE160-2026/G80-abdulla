@@ -39,7 +39,7 @@ Regel: Claude tar ikke et valg som står i PRD, UX eller arkitektur på egen hå
 
 Hver story går gjennom samme løkke:
 
-1. **Les storyen sammen.** Claude oppsummerer hva den krever og hvilke AD-er den berører. Jeg bekrefter eller presiserer.
+1. **Les storyen sammen.** Claude oppsummerer hva den krever og hvilke AD-er den berører. Jeg bekrefter eller presiserer. Står det et utsatt punkt i `deferred-work.md` eller `issues.md` som peker på en navngitt story («må løses i Story N»), føres det inn i den storyens akseptansekriterier eller spec før storyen bygges. Claude sjekker dette når storyen leses.
 2. **Plan.** Claude foreslår filer og tester. Jeg godkjenner før koden skrives. Krever et akseptansekriterium mine kontoer, nøkler eller konsoller (for eksempel Cloudflare-kontoen eller en nøkkel i `.env`), skriver Claude det som egne prosjekteieroppgaver i spec-en, med avtalt rekkefølge. Jeg gjør dem før storyen bygges, så storyen ikke står ferdig bygd mens kriteriet venter på meg (Story 2.5 sto i review i åtte dager).
 3. **Bygg.** `bmad-build` på en egen branch (`feat/<story>`). Små commits med beskrivende meldinger.
 4. **Test.** Vitest for logikk, Playwright for flyten, axe for tilgjengelighet. Storyen er ikke ferdig før testene består (AD-15). Før CI startes, leser Claude åpne punkter i `issues.md` som nevner ustabile tester, og sier fra hvis et av dem gjelder flyten storyen utvider. En ustabil test med et kjent rettelsesforslag rettes i den neste storyen som utvider samme test eller kjører CI på den, ikke bare føres i `issues.md`.
@@ -55,7 +55,7 @@ Spre arbeidet over flere uker. Helst noen stories hver uke, ikke alt rett før f
 - README: forutsetninger med versjoner, kommandoer som kan kopieres, `.env.example`, testbrukere, hvordan testene kjøres, og skjermbilde.
 - Test README på en ren klone, kun etter oppskriften. Sensor bruker 15–20 minutter.
 - Avgjør KI-leverandør med SM-5-testsettet (PRD §11). Mock-modus må fortsatt virke uten nøkkel.
-- `bmad-retrospective` på hver epic, og en siste sensorsjekk mot alle sju kriteriene.
+- `bmad-retrospective` på hver epic, og en siste sensorsjekk mot alle sju kriteriene. Et funn en retro utsetter «til neste gang», blir et handlingspunkt i `action_items` i `sprint-status.yaml`, ikke bare en setning i retroen.
 
 ## Hva hver økt skal etterlate
 

@@ -4,6 +4,7 @@
 // vintertid (UTC+1) etter. Rapport 2, 3 og 7 (skjult) har bilde.
 import { expect, test, type APIRequestContext, type Page } from "@playwright/test";
 import { expectNoSeriousA11yViolations } from "../a11y";
+import { PASSWORD } from "../auth";
 import { expectNoHorizontalScroll } from "../layout";
 import { reportId } from "../list";
 
@@ -395,6 +396,31 @@ test("«←» etter direkte lenke, logoen og nettleserens tilbakeknapp går til 
   await expect(page).toHaveURL("/");
   await expect(page.getByRole("heading", { level: 1, name: "Rapporter" })).toBeVisible();
   expect(new URL(page.url()).origin).toBe(new URL(baseURL!).origin);
+});
+
+test("«←» etter innlogging fra bekreftknappen går til lista, ikke til innloggingen eller detaljsiden", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await page.waitForLoadState("networkidle");
+  await page.locator(`a[href="${reportUrl(2)}"]`).click();
+  await expect(page).toHaveURL(reportUrl(2));
+
+  // Besøkende sendes til innlogging og tilbake til detaljsiden med
+  // `router.replace`, som overskriver `history.state`.
+  await main(page).getByRole("button", { name: "Jeg har også sett dette", exact: true }).click();
+  await expect(page).toHaveURL(/\/auth\/login\?next=/);
+  await page.getByLabel("E-post", { exact: true }).fill("bruker2@localfix.test");
+  await page.getByLabel("Passord", { exact: true }).fill(PASSWORD);
+  await page.getByRole("button", { name: "Logg inn", exact: true }).click();
+  await expect(page).toHaveURL(reportUrl(2));
+  await expect(
+    page.getByRole("heading", { level: 1, name: "Slukkede gatelys på gangveien" }),
+  ).toBeVisible();
+
+  await backLink(page).click();
+  await expect(page).toHaveURL("/");
+  await expect(page.getByRole("heading", { level: 1, name: "Rapporter" })).toBeVisible();
 });
 
 test("Ctrl- eller Cmd-klikk på «←» åpner lista i en ny fane", async ({ page, context }) => {

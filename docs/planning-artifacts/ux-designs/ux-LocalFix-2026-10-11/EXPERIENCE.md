@@ -40,7 +40,7 @@ Skissene ligger i `mockups/`: `liste.html`, `registrer.html` og `detalj.html`. H
 | Ny rapport | Den flytende «+»-knappen på lista | Registrere et problem med KI-forslag | FR-3, FR-4 |
 | Logg inn / Registrer konto | Menyen i topplinja, eller automatisk når en besøkende prøver å registrere eller bekrefte | Konto og innlogging | FR-1 |
 
-Topplinja viser «LocalFix · Campus Molde» til venstre og en meny til høyre. På detaljsiden, og på 404-siden for en rapport, står «←» foran «LocalFix · Campus Molde», med `aria-label="Tilbake til lista"`. Mockupens «← Rapport» brukes ikke. Menyen åpnes med knappen ☰ (`aria-label="Meny"`, 44 × 44 px), som er lik for besøkende og innloggede. Den inneholder «Logg inn» eller e-postadressen din og «Logg ut». Appen lagrer ingen navn i v1, og e-postadressen vises bare for brukeren selv. Moderatoren ser i tillegg «Moderator» som en merkelapp i menyen. Det finnes ingen bunnmeny, og navigasjonen er bare ett nivå dyp: fra lista går du til en detaljside eller til skjemaet, og «←» tar deg tilbake.
+Topplinja viser «LocalFix · Campus Molde» til venstre og en meny til høyre. På detaljsiden, og på 404-siden for en rapport, står «←» foran «LocalFix · Campus Molde», med `aria-label="Tilbake til lista"`. Mockupens «← Rapport» brukes ikke. Menyen åpnes med knappen ☰ (`aria-label="Meny"`, 44 × 44 px), som er lik for besøkende og innloggede. Den inneholder «Logg inn» eller e-postadressen din og «Logg ut». Appen lagrer ingen navn i v1, og e-postadressen vises bare for brukeren selv. Moderatoren ser i tillegg «Moderator» som en merkelapp i menyen. Det finnes ingen bunnmeny, og navigasjonen er bare ett nivå dyp: fra lista går du til en detaljside eller til skjemaet, og «←» tar deg tilbake til lista.
 
 Alle flatene har en reise som ender der: UJ-1 i Ny rapport, UJ-2 i Rapportdetalj og UJ-3 i moderatorpanelet.
 
@@ -109,7 +109,7 @@ Her står oppførselen. Utseendet er beskrevet i `DESIGN.md.Components`.
 ## Interaction Primitives
 
 - Trykk og klikk er de eneste handlingene. Det er ingen sveip, ingen dra-og-slipp og ingen lange trykk.
-- «←» i topplinja og nettleserens tilbakeknapp gjør det samme: kommer du fra en side i appen, går «←» ett steg tilbake i historikken, så filtrene og rulleposisjonen i lista er bevart. Har du åpnet siden direkte, for eksempel fra en delt lenke, går «←» til lista. Uten JavaScript er «←» en vanlig lenke til lista.
+- «←» i topplinja går ett steg tilbake i historikken bare når forrige side i appen er lista, så filtrene og rulleposisjonen bevares. I alle andre tilfeller går den til lista: delt lenke, bokmerke, ny fane, innlogging og skjemaet etter innsending. Uten JavaScript er «←» en vanlig lenke til lista.
 - Lista viser alle synlige rapporter. Det er ingen «Vis flere» og ingen uendelig rulling i v1 (arkitekturen, NFR-6).
 - Statusendringer vises når siden lastes på nytt (PRD FR-8). Det er ingen sanntidsoppdatering.
 - Det finnes ingen funksjoner som bare virker med mus eller hover.
@@ -125,6 +125,9 @@ Her står kravene til oppførsel. Kontrast er beskrevet i `DESIGN.md`.
 - Menyknappen har `aria-label="Meny"`. I skjemaene for innlogging og registrering får et felt med feil `aria-invalid`, og en melding over knappen har `role="alert"`. Feilmeldingene har vanlig tekstfarge og et feilikon i `destructive`, fordi `destructive` har for lav kontrast til liten tekst.
 - Når KI-forslaget kommer, leser skjermleseren opp «Kategori foreslått: Belysning» via `aria-live="polite"`.
 - Endringer i telleren på bekreftknappen leses opp via `aria-live`.
+- Filtrene på lista ligger i gruppen «Filtrer rapportene» med to navngitte undergrupper, «Kategori» og «Status» (`role="group"` med `aria-label`). Antallet rapporter leses opp via `aria-live="polite"`. Tomtilstandene («Ingen rapporter matcher filteret.», «Du har ikke registrert noen rapporter ennå.») har `role="status"`.
+- Bekreftknappen bruker `aria-disabled`, ikke `disabled`, så den beholder fokus når den blir «Du har sett dette ✓». Telleren over den står i en `aria-live`-region.
+- Etter en statusendring flyttes fokus til første statusknapp i moderatorpanelet, og statusteksten har `role="status"`. Etter skjuling og visning går fokus til skjul/vis-knappen, og avbryter du dialogen, går fokus tilbake til «Skjul rapport».
 - Tab-rekkefølgen følger lesefølgen. Fokusringen arves fra shadcns `ring`.
 - Trykkflater er minst 44 × 44 px.
 - Bildet på detaljsiden har `alt="Bilde fra rapporten"`. Overskriften rett over sier hva rapporten gjelder, så den alternative teksten gjentar den ikke, og den lover ikke mer enn vi vet om bildet. Bildeikonet i lista har `role="img"` og `aria-label="Har bilde"`.
