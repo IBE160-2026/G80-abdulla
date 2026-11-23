@@ -151,7 +151,7 @@ Nummereringen følger PRD-en, så hver story kan spores tilbake dit.
   - Kortene har kantlinje, ikke skygge. Bare FAB-en har egen skygge.
 - **UX-DR4 Topplinje og navigasjon:**
   - Topplinja viser «LocalFix · Campus Molde». Menyen har «Logg inn», eller e-postadressen og «Logg ut», og merkelappen «Moderator» for moderatorer.
-  - «←» og nettleserens tilbakeknapp gjør det samme.
+  - «←» går ett steg tilbake i historikken bare når forrige side er lista, så filter og rulleposisjon bevares. Ellers går den til lista (EXPERIENCE.md, Interaction Primitives).
   - Fra 640 px erstattes FAB-en av knappen «Registrer problem» i topplinja.
   - Det finnes ingen bunnmeny.
 - **UX-DR5 Rapportkort:** Hele kortet er én lenke. Kategori står til venstre og statusmerket til høyre. Under står `summary ?? description` på maks to linjer, og nederst metadata som «N har sett dette · 2 dager siden». Har rapporten bilde, vises et bildeikon med `aria-label="Har bilde"`, aldri selve bildet.
@@ -475,7 +475,7 @@ slik at jeg vet om problemet er fulgt opp.
 
 **Gitt** detaljsiden
 **Når** brukeren trykker «←» i topplinja
-**Så** kommer hen tilbake til lista, som med nettleserens tilbakeknapp (UX-DR4)
+**Så** kommer hen tilbake til lista, og filter og rulleposisjon er bevart når hen kom fra lista (UX-DR4)
 
 **Gitt** detaljsiden
 **Når** en Playwright-test leser siden og RSC-nyttelasten
