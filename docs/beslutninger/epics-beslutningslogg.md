@@ -1,6 +1,6 @@
 ---
 topic: LocalFix epics og stories
-updated: 2026-11-06T20:48
+updated: 2026-11-23T15:10
 ---
 
 - (event) `bmad-create-epics-and-stories` kjørt 2026-11-06. Kilder: PRD og addendum, arkitekturspinen (final), `DESIGN.md` og `EXPERIENCE.md` etter PR #20, og personvernresearchen. Resultat: [epics.md](../planning-artifacts/epics.md)
@@ -28,3 +28,4 @@ updated: 2026-11-06T20:48
 - (note) Nye UI-tekster og ny oppførsel som ikke står i UX-dokumentene ennå: «nå» for tidspunkt under ett minutt (1.4), og fokus etter bekreftelse, statusendring og skjuling (3.3, 4.1, 4.2). `EXPERIENCE.md` oppdateres i PR-en for storyen, etter «Definisjon av ferdig»
 - (decision) 2026-11-10 (Epic 1-retro, punkt 2, godkjent av prosjekteier) Story 2.5 og Story 3.3, som er siste story i Epic 2 og Epic 3, får et eget akseptansekriterium om at README er fulgt steg for steg på en ny klone i en tom mappe, slik Story 4.3 har det. Kravet stod i «Definisjon av ferdig» for hver epic, men ble ikke gjort for Epic 1
 - (note) Resultat: 4 epics og 18 stories. Neste steg er `bmad-sprint-planning`, som sjekker om planen er klar og lager sprintstatus
+- (change) 2026-11-23 (Epic 3 retro 15 og 17, ordlyden følger EXPERIENCE.md) UX-DR4 og akseptansekriteriet om «←» i Story 1.5 er rettet: «←» går ett steg tilbake i historikken bare når forrige side er lista, ellers til lista. Før stod det at «←» og nettleserens tilbakeknapp gjør det samme. Se [ux-beslutningslogg.md](ux-beslutningslogg.md)

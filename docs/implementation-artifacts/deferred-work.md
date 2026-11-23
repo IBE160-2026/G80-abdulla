@@ -47,3 +47,4 @@
 - source_spec: `docs/implementation-artifacts/spec-epic-3-retro-15-17-18-tilbakepil-og-rekonsiliering.md`
   summary: `docs/planning-artifacts/epics.md` sier fortsatt at «←» og nettleserens tilbakeknapp gjør det samme (linje 154, UX-DR4) og at Story 1.5 går «tilbake til lista, som med nettleserens tilbakeknapp» (linje 478).
   evidence: `EXPERIENCE.md` (begge kopier) har fra Epic 3 retro 15 en ny regel: «←» går tilbake i historikken bare når forrige side er lista, ellers til lista. Å endre `epics.md` krever en linje i `epics-beslutningslogg.md`, og ordlyden er prosjekteierens (Blind Hunter, gjennomgang 1).
+  status: Løst i PR «docs: epics.md følger «←»-regelen» (2026-11-23). UX-DR4 (linje 154) og akseptansekriteriet i Story 1.5 (linje 478) er rettet, og `epics-beslutningslogg.md` har en linje.
