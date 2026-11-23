@@ -267,6 +267,28 @@ test("en gyldig innsending: trimmet tekst, toast, detaljsiden med «1 har sett d
   await expect(first).toContainText("Ny");
 });
 
+test("«←» etter innsending går til lista når skjemaet var første side i fanen", async ({
+  page,
+  context,
+}) => {
+  await logIn(page, "bruker2@localfix.test");
+  // En ny fane med innloggingen i økten, og skjemaet som første side i den,
+  // slik et bokmerke eller en PWA-snarvei åpner det. Før rettelsen (Epic 3
+  // retro 15) ga «←» etter innsending `about:blank`.
+  const tab = await context.newPage();
+  await tab.goto(NEW_REPORT);
+  await expect(tab.getByRole("heading", { level: 1, name: "Ny rapport" })).toBeVisible();
+  await description(tab).fill(`${NO_AI} Første side i fanen ${randomUUID()}`);
+  await location(tab).fill("Gangveien ved bygg A");
+  await chooseCategory(tab, "Vei og fortau", 2);
+  await submit(tab).click();
+  await expect(tab).toHaveURL(/\/rapporter\/[0-9a-f-]{36}$/);
+
+  await tab.getByRole("banner").getByRole("link", { name: "Tilbake til lista" }).click();
+  await expect(tab).toHaveURL("/");
+  await expect(tab.getByRole("heading", { level: 1, name: "Rapporter" })).toBeVisible();
+});
+
 test("dobbeltklikk på «Send inn» gir én rapport", async ({ page }) => {
   await openForm(page);
   const unique = randomUUID();

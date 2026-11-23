@@ -11,24 +11,37 @@ function entryDepth(): number | undefined {
 }
 
 /**
+ * Stien til siden før denne oppføringen, lagret i `history.state`
+ * (`localfixFrom`). `undefined` når den mangler eller ikke er kjent.
+ */
+function entryFrom(): string | undefined {
+  const from: unknown = window.history.state?.localfixFrom;
+  return typeof from === "string" ? from : undefined;
+}
+
+/**
  * «←» i topplinja på detaljsiden og 404-siden under /rapporter/ (beslutningen
- * om topplinja i Story 1.5). Kommer brukeren fra en side i appen, går lenken
- * ett steg tilbake i historikken, som nettleserens tilbakeknapp, så
- * rulleposisjonen og filtrene i URL-en blir bevart. Ellers, for eksempel ved
- * en delt lenke, går den til lista. Uten JavaScript er den en vanlig lenke
- * til `/`.
+ * om topplinja i Story 1.5, rettet i Epic 3 retro 15). Er siden før lista, går
+ * lenken ett steg tilbake i historikken, som nettleserens tilbakeknapp, så
+ * rulleposisjonen og filtrene i URL-en blir bevart. I alle andre tilfeller
+ * går den til lista: en delt lenke, et bokmerke, en ny fane, innloggingen og
+ * skjemaet etter innsending. Uten JavaScript er den en vanlig lenke til `/`.
  *
  * Hver historikkoppføring får sin egen dybde, `localfixDepth` i
  * `history.state`: 0 for den første siden i appen og forrige dybde + 1 for
- * hver ny side. Dybden følger oppføringen, så den er riktig også etter
- * nettleserens tilbake- og fram-knapp. Mangler den, for eksempel fordi Next
- * har skrevet over `history.state`, går lenken til `/`. Komponenten står
- * alltid i topplinja, så forrige dybde overlever klientnavigasjon.
+ * hver ny side, og stien til forrige side, `localfixFrom`. Begge følger
+ * oppføringen, så de er riktige også etter nettleserens tilbake- og
+ * fram-knapp. Mangler dybden, for eksempel fordi `router.replace` har skrevet
+ * over `history.state`, settes begge på nytt ut fra siden brukeren kom fra, og
+ * da er det siden som ble erstattet (skjemaet eller innloggingen), ikke lista.
+ * Komponenten står alltid i topplinja, så forrige sti overlever
+ * klientnavigasjon.
  */
 export function BackLink() {
   const pathname = usePathname();
   const router = useRouter();
   const lastDepth = useRef<number | null>(null);
+  const lastPath = useRef<string | null>(null);
 
   useEffect(() => {
     let depth = entryDepth();
@@ -36,11 +49,16 @@ export function BackLink() {
       depth = lastDepth.current === null ? 0 : lastDepth.current + 1;
       // Beholder Next sine felt (__NA og treet) i oppføringen.
       window.history.replaceState(
-        { ...window.history.state, localfixDepth: depth },
+        {
+          ...window.history.state,
+          localfixDepth: depth,
+          localfixFrom: lastPath.current ?? undefined,
+        },
         "",
       );
     }
     lastDepth.current = depth;
+    lastPath.current = pathname;
   }, [pathname]);
 
   if (!pathname.startsWith("/rapporter/")) return null;
@@ -56,7 +74,7 @@ export function BackLink() {
     ) {
       return;
     }
-    if ((entryDepth() ?? 0) > 0) {
+    if ((entryDepth() ?? 0) > 0 && entryFrom() === "/") {
       event.preventDefault();
       router.back();
     }

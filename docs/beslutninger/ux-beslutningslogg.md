@@ -1,6 +1,6 @@
 ---
 topic: LocalFix UX
-updated: 2026-11-22T14:05
+updated: 2026-11-23T14:45
 ---
 
 - (event) Create startet; kilder: product-brief.md og prd.md (2026-10-11). Faglærer ba om skisser av registreringsskjema, liste og detaljside; mobile-first; designkriteriet teller 10 %
@@ -73,3 +73,4 @@ updated: 2026-11-22T14:05
 - (change) 2026-11-10 EXPERIENCE.md (begge kopier): ny merknad for Story 2.3, hele påminnelsen i raden «Beskrivelsesfelt», låsen ved manuelt valg i «Kategorivalg» og feltet med teller og feil i raden «KI-oppsummering». Skissen registrer.html viser allerede hele påminnelsen
 - (decision) (Skjuling) 2026-11-21 (Story 4.2, godkjent av prosjekteier) «Skjul rapport» åpner en bekreftelsesdialog med tittelen «Skjule rapporten?», teksten «Rapporten blir borte for alle andre, også for den som sendte den inn. Ingenting slettes, og du kan vise den igjen.» og knappene «Avbryt» og «Skjul rapport». Dialogen åpner med fokus på «Avbryt». «Vis rapport» trenger ingen bekreftelse
 - (change) 2026-11-21 EXPERIENCE.md (begge kopier): ny merknad for Story 4.2, dialogen, fokus etter skjuling og visning, og den grå merkelappen «Skjult» med grå bakgrunn for moderatoren i lista og på detaljsiden
+- (change) 2026-11-23 EXPERIENCE.md (begge kopier): «←» går til lista når forrige side ikke er lista, og tilgjengelighetsdetaljene fra Epic 3 og 4 (grupper, aria-live, role=status, fokus etter bekreftelse, statusendring og skjuling) er ført inn (Epic 3 retro 15 og 17)
