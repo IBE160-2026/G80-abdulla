@@ -8,14 +8,18 @@
  * som er et annet nettsted.
  *
  * Svaret er stien slik URL-parseren normaliserer den, så tegnene som ble
- * fjernet, aldri sendes videre til `redirect()`.
+ * fjernet, aldri sendes videre til `redirect()`. Normaliseringen fjerner også
+ * punktsegmenter, så `/..//evil.example` har samme opprinnelse, men gir stien
+ * `//evil.example`, som nettleseren leser som et annet nettsted. En normalisert
+ * sti som starter med `//`, gir derfor `/`.
  */
 export function safeNextPath(next: string | null, origin: string): string {
   if (!next) return "/";
   try {
     const url = new URL(next, origin);
     if (url.origin !== origin) return "/";
-    return `${url.pathname}${url.search}${url.hash}`;
+    const path = `${url.pathname}${url.search}${url.hash}`;
+    return path.startsWith("//") ? "/" : path;
   } catch {
     return "/";
   }

@@ -75,6 +75,43 @@ test("en e-postadresse som er i bruk, gir feil ved e-postfeltet", async ({ page 
   await expectNoHorizontalScroll(page);
 });
 
+test("et svar uten sesjon fra signUp gir «Noe gikk galt», og brukeren kan prøve igjen", async ({
+  page,
+}) => {
+  // Etterligner at e-postbekreftelse er slått på: Supabase svarer med brukeren,
+  // men uten sesjon (kodereview av gruppe C, verifikasjonsgap).
+  const email = `uten-sesjon-${randomUUID()}@localfix.test`;
+  await page.route("**/auth/v1/signup**", (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        id: randomUUID(),
+        aud: "authenticated",
+        role: "",
+        email,
+        phone: "",
+        confirmation_sent_at: new Date().toISOString(),
+        app_metadata: { provider: "email", providers: ["email"] },
+        user_metadata: {},
+        identities: [],
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      }),
+    }),
+  );
+
+  await page.goto("/auth/sign-up");
+  await emailField(page).fill(email);
+  await passwordField(page).fill(PASSWORD);
+  await submitButton(page).click();
+
+  await expect(page.getByText("Noe gikk galt. Prøv igjen.", { exact: true })).toBeVisible();
+  await expect(page).toHaveURL("/auth/sign-up");
+  await expect(submitButton(page)).toBeEnabled();
+  await expectNoSeriousA11yViolations(page);
+});
+
 test("et passord på 5 tegn gir feil ved passordfeltet uten kall til Supabase", async ({
   page,
 }) => {
