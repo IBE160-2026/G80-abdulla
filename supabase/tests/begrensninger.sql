@@ -1,6 +1,7 @@
 -- Begrensningene i datamodellen (AD-4): CHECK på tekst og lengde, at
 -- handle_new_user alltid gir role = 'user', og ON DELETE RESTRICT.
--- Kjøres som postgres, siden klienten ikke har skrivegrants ennå.
+-- Kjøres som postgres med vilje: testen gjelder reglene i tabellene, ikke
+-- grantene til klienten (dem tester skriving.sql, bekreftelser.sql og status.sql).
 begin;
 \ir hjelpere.psql
 
