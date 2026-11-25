@@ -38,6 +38,34 @@ test("forfatteren av den skjulte rapporten 7 får 404 og ingen signert lenke", a
   ).toBeVisible();
 });
 
+// Layouten sender bare e-posten og om brukeren er moderator til menyen (AD-3,
+// AD-5). Id-en til den innloggede brukeren skal aldri stå i HTML-en eller
+// RSC-nyttelasten. Kodereview av gruppe A: de andre lekkasjetestene er anonyme,
+// så `viewer` er `null` der.
+const BRUKER1_ID = "10000000-0000-4000-8000-000000000002";
+
+for (const path of ["/", "/rapporter/20000000-0000-4000-8000-000000000001"]) {
+  test(`id-en til den innloggede brukeren står ikke i HTML eller RSC på ${path}`, async ({
+    page,
+  }) => {
+    await logIn(page, "bruker1@localfix.test");
+
+    const html = await page.request.get(path);
+    expect(html.status(), "status for HTML-en").toBe(200);
+    const rsc = await page.request.get(path, { headers: { RSC: "1" } });
+    expect(rsc.status(), "status for RSC-nyttelasten").toBe(200);
+    for (const [name, response] of [
+      ["HTML-en", html],
+      ["RSC-nyttelasten", rsc],
+    ] as const) {
+      const body = await response.text();
+      // Kontroll: menyen får e-posten, så brukeren er faktisk med i svaret.
+      expect(body, `${name} har e-posten`).toContain("bruker1@localfix.test");
+      expect(body, name).not.toContain(BRUKER1_ID);
+    }
+  });
+}
+
 test("moderatoren ser bildet på den skjulte rapporten 7 og ikonet på kortet", async ({
   page,
 }) => {

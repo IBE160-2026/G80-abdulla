@@ -25,8 +25,10 @@ export const metadata: Metadata = {
  * spec-en for Story 1.5). Komponenten får bare den signerte lenken, aldri
  * bildestien (Story 1.7). `getViewer()` gir om brukeren er innlogget (Story
  * 3.3), så bekreftknappen vet om en besøkende skal til innlogging, og om
- * brukeren er moderator (Story 4.1). Den leses etter rapporten, så en 404
- * aldri gir et kall til Auth. Siden setter sammen slicene: `ReportDetail`
+ * brukeren er moderator (Story 4.1). Siden leser den etter rapporten, så en
+ * 404 gir ingen egne kall fra siden. `RootLayout` leser den uansett på hver
+ * forespørsel, og `getViewer` er i `cache()`, så kallet deles. Siden setter
+ * sammen slicene: `ReportDetail`
  * (rapporter) får `ConfirmSection` (bekreftelser) og, bare for moderatoren,
  * `StatusPanel` (moderering) som `children`, med status og `hidden` (Story
  * 4.2). Panelet er bare grensesnittet: databasen avgjør hvem som kan endre

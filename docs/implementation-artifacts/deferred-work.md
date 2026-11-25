@@ -55,3 +55,21 @@
   summary: En historikkoppføring som Next har skrevet over uten våre felt (revalidering på samme sti) og som så besøkes på nytt med tilbake-knappen, får feil stempel i `BackLink`, så «←» kan gi `router.back()` ut av appen.
   evidence: Effekten i `shared/layout/back-link.tsx` regner en oppføring uten dybde som ny (forrige dybde + 1, forrige sti fra siden brukeren kom fra). Eksempel: bokmerke til detaljsiden (dybde 0), statusendring (oppføringen skrives over), logoen til lista, tilbake-knappen, «←» gir `router.back()` til feil oppføring. Samme oppførsel som før endringen, ikke verifisert i nettleser. Fiks: skriv dybde og forrige sti tilbake i oppføringen rett etter at Next har skrevet den over, for eksempel ved å pakke `history.replaceState`, eller gi hver oppføring en id i `sessionStorage` (Blind Hunter og Edge Case Hunter, inline gjennomgang 1).
   status: Godtatt for v1 (2026-11-25, prosjekteieren). Problemet er reelt (en e2e-test med detaljsiden som første side i en ny fane, bekreftelse, logoen til lista, tilbake-knappen og «←» ga `about:blank` på dagens kode), men sjelden: det krever at detaljsiden var første side i fanen, at siden ble oppdatert uten å bytte sti, og at brukeren gikk til lista og tilbake med nettleserens knapp før «←». Løsningene (pakke inn `history.replaceState`, eller Navigation API med `sessionStorage`) er enten avhengige av Nexts interne rekkefølge eller gir to kodeveier. Testen er kastet, ingen kodeendring.
+
+## Deferred from: code review of v1, gruppe A: app/, shared/, proxy.ts og next.config.ts (2026-11-25)
+
+- source_spec: none (reviewet mot `docs/planning-artifacts/epics.md`)
+  summary: `updateSession` i `shared/supabase/proxy.ts` har ingen try/catch rundt `supabase.auth.getClaims()`.
+  evidence: Ikke verifisert (maybe-false, ville vært medium: en innlogget bruker får 500 på alle sider hvis `getClaims` kaster i stedet for å returnere `{ error }`). `GoTrueClient.getClaims` returnerer feil som data for `AuthError`, men kaster andre feil videre, og det er uklart om en feilet JWKS-henting blir en `AuthError`. Besøkende uten sesjon rammes ikke. Avgjøres med en test i `proxy.test.ts` der `getClaims` kaster, og ved å se hva proxyen svarer.
+- source_spec: none (reviewet mot `docs/planning-artifacts/epics.md`)
+  summary: `e2e/les/manifest.spec.ts` sjekker bare ikonene i manifestet, ikke `display`, `start_url`, navn eller at et `maskable`-ikon finnes.
+  evidence: Verification gap (verdi lav). Å fjerne `display: "standalone"` i `app/manifest.ts` feiler ingen test. En liten utvidelse av den eksisterende testen lukker det.
+- source_spec: none (reviewet mot `docs/planning-artifacts/epics.md`)
+  summary: Ingen test importerer rot-`proxy.ts` eller sjekker `config.matcher`.
+  evidence: Verification gap (verdi lav). `proxy.test.ts` kjører bare `updateSession`. Et ødelagt matcher-uttrykk ville stoppet fornyelsen av sesjonen uten at noen test feiler. En enhetstest som sjekker matcheren mot `/`, `/rapporter/<id>`, `/auth/login` og mot `_next/static` og bildefiler lukker det.
+- source_spec: none (reviewet mot `docs/planning-artifacts/epics.md`)
+  summary: `app/error.tsx` er bare testet med en håndgitt `retry`, aldri som ekte feilgrense i e2e.
+  evidence: Verification gap (verdi lav). Enhetstesten dekker markup og klikk. Å tvinge en serverfeil i e2e (for eksempel med `reset`-prosjektet) er dyrt, så det er utsatt. Next 16.4.5 har `retry` i typene (`error-boundary.d.ts`), så propnavnet er ikke i tvil.
+- source_spec: none (reviewet mot `docs/planning-artifacts/epics.md`)
+  summary: Fargen per status i `StatusBadge` (`new`, `in_progress`, `resolved`) er ikke testet.
+  evidence: Verification gap (verdi lav). `report-card.test.ts` sjekker bare den skjulte tilstanden og etiketten. Byttes klassene for «Ny» og «Løst», består alle tester. En tabelltest med `renderToStaticMarkup` i stil med `report-card.test.ts` lukker det.

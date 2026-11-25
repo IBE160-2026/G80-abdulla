@@ -14,8 +14,9 @@ const norm = (p: string) => p.replaceAll("\\", "/");
 
 const files = globSync("{features,shared}/**/*.{ts,tsx}", { cwd: ROOT }).map(norm);
 
-// Statiske og dynamiske importer, og vi.mock/vi.importActual med en sti.
-const SPECIFIER = /(?:from\s*|import\s*\(\s*|vi\.(?:mock|importActual|doMock)\s*\(\s*)["']([^"']+)["']/g;
+// Statiske og dynamiske importer, sideeffekt-importer (`import "x"`) og
+// vi.mock/vi.importActual med en sti.
+const SPECIFIER = /(?:from\s*|\bimport\s*|import\s*\(\s*|vi\.(?:mock|importActual|doMock)\s*\(\s*)["']([^"']+)["']/g;
 
 /** Stien fra rota uten filendelse, eller null for pakker (`react`, `next/link`). */
 function resolveTarget(file: string, specifier: string): string | null {
