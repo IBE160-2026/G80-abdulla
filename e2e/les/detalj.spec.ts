@@ -299,6 +299,28 @@ test("404-siden har ingen alvorlige axe-funn", async ({ page }) => {
   await expectNoSeriousA11yViolations(page);
 });
 
+// Appens egen 404 for URL-er som ikke finnes: norsk tekst, lenke til lista og
+// ingen «←» i topplinja (også under /rapporter/).
+for (const path of ["/foo", "/rapporter", `${reportUrl(1)}/x`, "/rapporter/ny/x"]) {
+  test(`${path} gir 404 med «Fant ikke siden.», lenke til lista og uten «←»`, async ({ page }) => {
+    const response = await page.goto(path);
+    expect(response?.status()).toBe(404);
+    await expect(page.getByRole("heading", { level: 1, name: "Fant ikke siden." })).toBeVisible();
+    await expect(
+      main(page).getByRole("link", { name: "Tilbake til lista", exact: true }),
+    ).toHaveAttribute("href", "/");
+    await expect(backLink(page)).toHaveCount(0);
+    await expect(page.getByText("This page could not be found")).toHaveCount(0);
+    await expectNoHorizontalScroll(page);
+  });
+}
+
+test("appens 404-side har ingen alvorlige axe-funn", async ({ page }) => {
+  await page.goto("/foo");
+  await expect(page.getByRole("heading", { level: 1, name: "Fant ikke siden." })).toBeVisible();
+  await expectNoSeriousA11yViolations(page);
+});
+
 test("detaljsiden sender ikke forfatterne eller bildestien, caches ikke og har ikke lista sine Skeleton-kort", async ({
   request,
 }) => {
