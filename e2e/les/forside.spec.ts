@@ -206,3 +206,15 @@ test("bildeikonet «Har bilde» står sist i metadatalinja på kortene for rappo
     WITH_IMAGE.length,
   );
 });
+
+// Minimum av sikkerhetsheadere fra next.config.ts (kodereview av gruppe A):
+// på lista, på en 404 og på manifestet. Ingen CSP i v1.
+for (const path of ["/", "/foo", "/manifest.webmanifest"]) {
+  test(`${path} har sikkerhetsheadere og ikke X-Powered-By`, async ({ request }) => {
+    const headers = (await request.get(path)).headers();
+    expect(headers["x-frame-options"]).toBe("DENY");
+    expect(headers["x-content-type-options"]).toBe("nosniff");
+    expect(headers["referrer-policy"]).toBe("strict-origin-when-cross-origin");
+    expect(headers["x-powered-by"]).toBeUndefined();
+  });
+}
