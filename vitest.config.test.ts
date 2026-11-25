@@ -44,6 +44,33 @@ test("med sm5 tar prosjektet bare evals/**/*.eval.ts", async () => {
   expect(project.test.include).toEqual(["evals/**/*.eval.ts"]);
 });
 
+test("--project=sm5 slår også på sm5-prosjektet", async () => {
+  const project = await sm5Project(["run", "--project=sm5"], "test");
+  expect(project.test.include).toEqual(["evals/**/*.eval.ts"]);
+});
+
+test("et filnavnfilter som heter sm5 slår ikke på sm5-prosjektet og sender ingenting til en leverandør", async () => {
+  // `vitest run sm5` og `-t sm5` er filter, ikke prosjektvalg (kodereview av gruppe F).
+  vi.stubEnv("AI_API_KEY", "hemmelig-nøkkel");
+  for (const argv of [["run", "sm5"], ["run", "-t", "sm5"], ["run", "--project", "unit", "sm5"]]) {
+    const project = await sm5Project(argv, "test");
+    expect(project.test.include, argv.join(" ")).toEqual([]);
+    expect(project.test.env, argv.join(" ")).toEqual({});
+  }
+});
+
+test("med sm5 leses verdiene fra .env.<modus>, og variabler i skallet vinner over fila", async () => {
+  // `.env.example` ligger i rota, så modusen «example» finnes. Fila har
+  // AI_PROVIDER=mock og en lokal Supabase-adresse.
+  const fromFile = (await sm5Project(["run", "--project", "sm5", "--mode", "example"], "example")).test.env;
+  expect(fromFile.AI_PROVIDER).toBe("mock");
+  expect(fromFile.NEXT_PUBLIC_SUPABASE_URL).toMatch(/^http:\/\/127\.0\.0\.1:\d+$/);
+
+  vi.stubEnv("AI_PROVIDER", "openai");
+  const fromShell = (await sm5Project(["run", "--project", "sm5", "--mode", "example"], "example")).test.env;
+  expect(fromShell.AI_PROVIDER).toBe("openai");
+});
+
 test("med sm5 får prosjektet bare AI_*- og NEXT_PUBLIC_*-verdier, også fra skallet", async () => {
   vi.stubEnv("AI_LOCALFIX_CANARY", "ja");
   vi.stubEnv("NEXT_PUBLIC_LOCALFIX_CANARY", "ja");

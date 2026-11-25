@@ -43,6 +43,11 @@ jobs:
       - name: npm ci
         run: npm ci
 
+      # Arkitekturreglene (AD-3, AD-16, no-restricted-imports) håndheves av
+      # ESLint, og `npm test` kjører den ikke. Billig, så den står først.
+      - name: npm run lint
+        run: npm run lint
+
       - name: Start lokal Supabase
         run: npx supabase start
 

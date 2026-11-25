@@ -93,15 +93,19 @@ export async function expectNoSeriousA11yViolations(page: Page) {
 
 /**
  * axe og breddesjekk på siden, og i 360-prosjektet også på 320 px (WCAG 1.4.10).
- * Bredden settes tilbake til 360 px etterpå.
+ * Bredden settes tilbake til 360 px etterpå, også når en sjekk på 320 px feiler,
+ * så senere steg i samme test ikke blir stående på 320 px.
  */
 export async function expectAccessibleLayout(page: Page) {
   await expectNoSeriousA11yViolations(page);
   await expectNoHorizontalScroll(page);
-  if (page.viewportSize()!.width === 360) {
+  if (page.viewportSize()?.width === 360) {
     await page.setViewportSize({ width: 320, height: 800 });
-    await expectNoSeriousA11yViolations(page);
-    await expectNoHorizontalScroll(page);
-    await page.setViewportSize({ width: 360, height: 800 });
+    try {
+      await expectNoSeriousA11yViolations(page);
+      await expectNoHorizontalScroll(page);
+    } finally {
+      await page.setViewportSize({ width: 360, height: 800 });
+    }
   }
 }

@@ -167,6 +167,7 @@ test("kjerneflyten med tastatur", async ({ page }) => {
     await expect(image).toBeVisible();
     await expectNoSeriousA11yViolations(page);
     await expectNoHorizontalScroll(page);
+    await page.setViewportSize({ width: 360, height: 800 });
   }
 
   // Story 2.1: tilbake til lista, åpne menyen, velg «Logg inn» og logg inn

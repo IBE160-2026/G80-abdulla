@@ -85,3 +85,15 @@
 - source_spec: none (reviewet mot `docs/planning-artifacts/epics.md`)
   summary: `signup_disabled`, `over_email_send_rate_limit`, `email_not_confirmed` og `user_banned` gir den generelle «Noe gikk galt. Prøv igjen.» i `features/auth/auth-errors.ts`.
   evidence: Reell men lav. Registrering er slått av i den offentlige demoen, så den som prøver, får bare den generelle meldingen (README sier at skjemaet gir en feilmelding). Egne tekster endrer feilmatrisen som er spesifisert i `EXPERIENCE.md`, så ordlyden er prosjekteierens å bestemme, for eksempel «Registrering er ikke åpen i denne versjonen.» for `signup_disabled`.
+
+## Deferred from: code review of v1, gruppe E og F: e2e/, evals/, scripts/, .github/ og konfig (2026-11-25)
+
+- source_spec: none (reviewet mot `docs/planning-artifacts/epics.md`)
+  summary: Feilgrenen i `waitForAnimations` (`e2e/a11y.ts`), som kaster «Animasjonene ble ikke ferdige på 10000 ms: <element> (<navn>)», er ikke testet.
+  evidence: Verification gap (verdi lav). `e2e/les/helpers.spec.ts` dekker bare en animasjon som blir ferdig og en uendelig som ignoreres. Brytes `running`-funksjonen, melder hjelperen «ingen funnet ved feilen», og alle tester består. En ekte test må vente ut tidsavbruddet på 10 s.
+- source_spec: none (reviewet mot `docs/planning-artifacts/epics.md`)
+  summary: `register()` i `instrumentation.ts`, som kaller `serverEnv()` ved oppstart, har ingen test.
+  evidence: Verification gap (verdi lav). Fjernes kallet, består alle enhets-, db- og e2e-tester, og en ugyldig `.env` viser seg først ved første KI-kall i stedet for ved oppstart. En enhetstest på tre linjer som kaller `register()` med `AI_PROVIDER=openai` uten `AI_API_KEY` (skal kaste) og med mock (skal fullføre) lukker det.
+- source_spec: none (reviewet mot `docs/planning-artifacts/epics.md`)
+  summary: Koblingen i `evals/sm5/run.eval.ts` (`assertModeMatchesProvider` med `import.meta.env.MODE`, pausen og rapporten) dekkes av ingen test som kjøres vanlig.
+  evidence: Verification gap (verdi lav). `run-helpers.test.ts` tester hjelperne hver for seg, men sm5-prosjektet er tomt uten `sm5` i kommandoen. Fjernes `assertModeMatchesProvider`-linja, består alle tester. Verktøyet kjøres for hånd, og mock-advarselen står først og sist i rapporten, så feilen er synlig for den som leser.

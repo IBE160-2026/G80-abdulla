@@ -225,7 +225,15 @@ test("«Logg ut» logger bare ut denne nettleseren", async ({ page, browser, bas
 });
 
 test("en fremmed next sender brukeren til lista", async ({ page }) => {
-  for (const next of ["//evil.example", "/\\evil.example", "https://evil.example"]) {
+  for (const next of [
+    "//evil.example",
+    "/\\evil.example",
+    "https://evil.example",
+    // Punktsegmenter som normaliseres til //host (kodereview av gruppe C).
+    "/..//evil.example",
+    "/.//evil.example",
+    "/%2e%2e//evil.example",
+  ]) {
     await logIn(page, BRUKER1, { next, expectedUrl: "/" });
     await expect(page.getByRole("heading", { level: 1, name: "Rapporter" })).toBeVisible();
   }
