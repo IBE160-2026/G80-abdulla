@@ -79,3 +79,9 @@
 - source_spec: none (reviewet mot `docs/planning-artifacts/epics.md`)
   summary: `prepareImage` gjenkoder bildet, og en fil nær 5 MiB kan bli større enn grensen etter gjenkoding og gi `too_large`, vist som «Bildet kan ikke brukes …» etter at skjemaet og signatursjekken slapp det gjennom.
   evidence: Reell men sjelden (verdi lav): docblocken i `features/registrering/image-process.ts` sier det selv, og `epics.md` (Story 2.4) krever at en fil på nøyaktig 5 MiB godtas. Fiksen krever et valg (nedskalering, lavere kvalitet i et nytt forsøk, eller å godta begrensningen), så den er ikke utvetydig. Avgjøres med en test med et JPEG på cirka 4,9 MiB som gjenkodes med `quality: 90`.
+
+## Deferred from: code review of v1, gruppe C: features/auth, bekreftelser, moderering og rapporter (2026-11-25)
+
+- source_spec: none (reviewet mot `docs/planning-artifacts/epics.md`)
+  summary: `signup_disabled`, `over_email_send_rate_limit`, `email_not_confirmed` og `user_banned` gir den generelle «Noe gikk galt. Prøv igjen.» i `features/auth/auth-errors.ts`.
+  evidence: Reell men lav. Registrering er slått av i den offentlige demoen, så den som prøver, får bare den generelle meldingen (README sier at skjemaet gir en feilmelding). Egne tekster endrer feilmatrisen som er spesifisert i `EXPERIENCE.md`, så ordlyden er prosjekteierens å bestemme, for eksempel «Registrering er ikke åpen i denne versjonen.» for `signup_disabled`.

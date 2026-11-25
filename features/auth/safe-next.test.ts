@@ -29,6 +29,24 @@ test("adresser til andre nettsteder gir /", () => {
   }
 });
 
+test("punktsegmenter som normaliseres til //host, gir /", () => {
+  for (const next of [
+    "/..//evil.example",
+    "/.//evil.example",
+    "/a/..//evil.example",
+    "/%2e%2e//evil.example",
+    "/a/%2e%2e//evil.example",
+    "/..//evil.example?x=1#y",
+  ]) {
+    expect(safeNextPath(next, ORIGIN), next).toBe("/");
+  }
+});
+
+test("punktsegmenter som gir en vanlig sti, normaliseres uten å endre opprinnelsen", () => {
+  expect(safeNextPath("/a/../rapporter/123", ORIGIN)).toBe("/rapporter/123");
+  expect(safeNextPath("/./rapporter", ORIGIN)).toBe("/rapporter");
+});
+
 test("tab og linjeskift som nettleseren fjerner, gir ikke et annet nettsted", () => {
   for (const next of ["/\t/evil.example", "/\n/evil.example", "/\r/evil.example"]) {
     expect(safeNextPath(next, ORIGIN), JSON.stringify(next)).toBe("/");
