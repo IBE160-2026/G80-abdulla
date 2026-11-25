@@ -102,6 +102,7 @@ Her står oppførselen. Utseendet er beskrevet i `DESIGN.md.Components`.
 | Innsending feiler | Ny rapport | En destructive-toast: «Kunne ikke sende inn. Prøv igjen.» Alt brukeren har fylt inn, beholdes. |
 | Skjult rapport (moderator) | Lista og detalj | Grå merkelapp «Skjult» og grå bakgrunn. «Vis rapport» står i panelet. |
 | Skjult rapport (alle andre enn moderator, også rapportøren) | Direkte lenke og «Mine rapporter» | Rapporten er borte fra lista og fra «Mine rapporter». En direkte lenke gir 404-siden: «Fant ikke rapporten.» og en lenke tilbake til lista. Rapportøren får ingen melding i v1 (FR-9). |
+| URL som ikke finnes | Alle ukjente stier, for eksempel `/foo`, `/rapporter` og `/rapporter/<id>/x` | Appens egen 404-side: «Fant ikke siden.» og en lenke «Tilbake til lista». Ingen «←» i topplinja, siden det ikke er en rapport. |
 | Bildet mangler | Detalj | Finnes ikke bildet i lagringen, eller kan lenken til det ikke lages, vises siden som for en rapport uten bilde, uten feilmelding og uten feilside. |
 | Feil ved lasting | Alle sider | «Noe gikk galt. Prøv igjen.», knappen «Prøv igjen», som henter siden på nytt, og en lenke «Tilbake til lista». Rapporttekst og feilmeldinger fra databasen vises aldri. |
 | Ikke tilgang (API 403) | Moderatorhandling | Skal ikke skje i grensesnittet. Skjer det likevel, vises en toast: «Du har ikke tilgang til dette.» |

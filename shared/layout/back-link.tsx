@@ -20,8 +20,9 @@ function entryFrom(): string | undefined {
 }
 
 /**
- * «←» i topplinja på detaljsiden og 404-siden under /rapporter/ (beslutningen
- * om topplinja i Story 1.5, rettet i Epic 3 retro 15). Er siden før lista, går
+ * «←» i topplinja på detaljsiden og 404-siden for en rapport, begge på
+ * /rapporter/<id> (beslutningen om topplinja i Story 1.5, rettet i Epic 3
+ * retro 15). Appens egen 404 for ukjente URL-er har den ikke. Er siden før lista, går
  * lenken ett steg tilbake i historikken, som nettleserens tilbakeknapp, så
  * rulleposisjonen og filtrene i URL-en blir bevart. I alle andre tilfeller
  * går den til lista: en delt lenke, et bokmerke, en ny fane, innloggingen og
@@ -67,7 +68,9 @@ export function BackLink() {
     lastPath.current = pathname;
   }, [pathname]);
 
-  if (!pathname.startsWith("/rapporter/")) return null;
+  // Bare på /rapporter/<én del>: detaljsiden, 404-siden for en rapport og
+  // skjemaet. Dypere stier (/rapporter/<id>/x) er ukjente og gir appens 404.
+  if (!/^\/rapporter\/[^/]+$/.test(pathname)) return null;
 
   function handleClick(event: MouseEvent<HTMLAnchorElement>) {
     // Ctrl-, Cmd-, Shift- og Alt-klikk og midtklikk åpner lista som vanlig.

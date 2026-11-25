@@ -13,6 +13,7 @@
 - source_spec: `docs/implementation-artifacts/spec-1-5-detaljsiden.md`
   summary: En norsk `app/not-found.tsx` for URL-er som ikke finnes, for eksempel `/foo`, `/rapporter` og `/rapporter/<id>/x`.
   evidence: De gir Nexts engelske 404, og under `/rapporter/` står «←» i topplinja. Problemet fantes før Story 1.5 for alle ukjente URL-er (blind-hunter B2, edge-case-hunter E8).
+  status: Løst 2026-11-25 (`spec-norsk-404-side.md`). `app/not-found.tsx` gir «Fant ikke siden.» og lenken «Tilbake til lista», og `BackLink` viser «←» bare på `/rapporter/<id>` og skjemaet.
 
 - source_spec: `docs/implementation-artifacts/spec-2-2-registrere-en-rapport.md`
   summary: «←» på detaljsiden etter innsending forlater appen eller gjør ingenting når skjemaet `/rapporter/ny` var første side i fanen (bokmerke, ny fane eller PWA-snarvei).
