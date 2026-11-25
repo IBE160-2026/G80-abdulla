@@ -213,8 +213,8 @@ select is(
   'opplastingen i egen mappe ble lagret'
 );
 
--- CHECK og UNIQUE på reports.image_path (som postgres, siden klienten ikke
--- har INSERT på reports ennå).
+-- CHECK og UNIQUE på reports.image_path (som postgres med vilje: testen gjelder
+-- reglene i tabellen, ikke grantene til klienten).
 create function pg_temp.ny_rapport(author uuid, path text)
 returns void
 language sql
