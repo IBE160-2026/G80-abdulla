@@ -31,33 +31,39 @@ function entryFrom(): string | undefined {
  * `history.state`: 0 for den første siden i appen og forrige dybde + 1 for
  * hver ny side, og stien til forrige side, `localfixFrom`. Begge følger
  * oppføringen, så de er riktige også etter nettleserens tilbake- og
- * fram-knapp. Mangler dybden, for eksempel fordi `router.replace` har skrevet
- * over `history.state`, settes begge på nytt ut fra siden brukeren kom fra, og
- * da er det siden som ble erstattet (skjemaet eller innloggingen), ikke lista.
- * Komponenten står alltid i topplinja, så forrige sti overlever
- * klientnavigasjon.
+ * fram-knapp. Mangler dybden når stien endres, for eksempel fordi
+ * `router.replace` har skrevet over `history.state`, settes begge på nytt ut
+ * fra siden brukeren kom fra, og da er det siden som ble erstattet (skjemaet
+ * eller innloggingen), ikke lista.
+ *
+ * Next skriver også `history.state` på nytt uten egne felt når siden
+ * oppdateres uten å bytte sti (bekreftelse, statusendring, skjuling,
+ * `router.refresh()`), og da kjører ikke effekten. Derfor holder komponenten
+ * dybden og forrige sti for den gjeldende oppføringen i refs og bruker dem
+ * ved klikket når `history.state` mangler dem. Komponenten står alltid i
+ * topplinja, så refs og forrige sti overlever klientnavigasjon.
  */
 export function BackLink() {
   const pathname = usePathname();
   const router = useRouter();
   const lastDepth = useRef<number | null>(null);
+  const lastFrom = useRef<string | undefined>(undefined);
   const lastPath = useRef<string | null>(null);
 
   useEffect(() => {
     let depth = entryDepth();
+    let from = entryFrom();
     if (depth === undefined) {
       depth = lastDepth.current === null ? 0 : lastDepth.current + 1;
+      from = lastPath.current ?? undefined;
       // Beholder Next sine felt (__NA og treet) i oppføringen.
       window.history.replaceState(
-        {
-          ...window.history.state,
-          localfixDepth: depth,
-          localfixFrom: lastPath.current ?? undefined,
-        },
+        { ...window.history.state, localfixDepth: depth, localfixFrom: from },
         "",
       );
     }
     lastDepth.current = depth;
+    lastFrom.current = from;
     lastPath.current = pathname;
   }, [pathname]);
 
@@ -74,7 +80,12 @@ export function BackLink() {
     ) {
       return;
     }
-    if ((entryDepth() ?? 0) > 0 && entryFrom() === "/") {
+    // Next har skrevet over `history.state` uten våre felt (revalidering på
+    // samme sti): refs har dybden og forrige sti for den gjeldende oppføringen.
+    const stampedDepth = entryDepth();
+    const depth = stampedDepth ?? lastDepth.current;
+    const from = stampedDepth === undefined ? lastFrom.current : entryFrom();
+    if ((depth ?? 0) > 0 && from === "/") {
       event.preventDefault();
       router.back();
     }
