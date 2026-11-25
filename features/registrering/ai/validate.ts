@@ -14,8 +14,16 @@ export const AI_INPUT_MAX = 2000;
 
 /** Kutter teksten til `AI_INPUT_MAX` tegn, talt som kodepunkter. */
 export function clipInput(text: string): string {
-  const chars = [...text];
-  return chars.length <= AI_INPUT_MAX ? text : chars.slice(0, AI_INPUT_MAX).join("");
+  if (text.length <= AI_INPUT_MAX) return text;
+  // Kutter først på lengden, så en svært lang tekst (høyst body-grensen på
+  // Server Actions) ikke spres til en tabell. Et kodepunkt er høyst to
+  // UTF-16-enheter, så 2 × AI_INPUT_MAX enheter rommer alltid de første
+  // AI_INPUT_MAX kodepunktene.
+  const maxUnits = AI_INPUT_MAX * 2;
+  const chars = [...text.slice(0, maxUnits)];
+  return text.length <= maxUnits && chars.length <= AI_INPUT_MAX
+    ? text
+    : chars.slice(0, AI_INPUT_MAX).join("");
 }
 
 const CATEGORY_CODES: readonly string[] = Constants.public.Enums.report_category;

@@ -1,6 +1,6 @@
 // Vakttester for skjemaet og KI-forslagene (Story 2.3): forslag og oppsummering
-// vises alltid som ren tekst (ingen dangerouslySetInnerHTML i app/ og
-// features/), og komponenter importerer aldri ai/, men kaller bare
+// vises alltid som ren tekst (ingen dangerouslySetInnerHTML i app/, features/
+// og shared/), og komponenter importerer aldri ai/, men kaller bare
 // Server Actions, så nøkkel og leverandørkode aldri havner i klientkoden.
 import { globSync, readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -25,8 +25,8 @@ test("vakttesten finner kildefilene", () => {
   expect(files).toContain("features/registrering/actions.ts");
 });
 
-test("ingen fil i app/ eller features/ bruker dangerouslySetInnerHTML", () => {
-  const breaches = sources("{app,features}/**/*.{ts,tsx,js,jsx}").filter((file) =>
+test("ingen fil i app/, features/ eller shared/ bruker dangerouslySetInnerHTML", () => {
+  const breaches = sources("{app,features,shared}/**/*.{ts,tsx,js,jsx}").filter((file) =>
     /dangerouslySetInnerHTML/.test(read(file)),
   );
   expect(breaches, "filer med dangerouslySetInnerHTML").toEqual([]);

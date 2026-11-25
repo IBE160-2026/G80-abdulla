@@ -148,6 +148,18 @@ describe("clipInput", () => {
     expect([...clipInput("😀".repeat(2500))]).toHaveLength(2000);
   });
 
+  test("grensen går ved kodepunkter, ikke UTF-16-enheter", () => {
+    // 2000 emoji er 4000 enheter og er uendret. Ett til kuttes til 2000.
+    expect(clipInput("😀".repeat(2000))).toBe("😀".repeat(2000));
+    expect(clipInput("😀".repeat(2001))).toBe("😀".repeat(2000));
+    expect(clipInput("😀".repeat(1500))).toBe("😀".repeat(1500));
+  });
+
+  test("en svært lang tekst kuttes til 2000 tegn", () => {
+    const long = "a".repeat(6_000_000);
+    expect(clipInput(long)).toBe("a".repeat(2000));
+  });
+
   test("kortere tekst er uendret", () => {
     expect(clipInput("a".repeat(2000))).toBe("a".repeat(2000));
     expect(clipInput("Hull i veien")).toBe("Hull i veien");

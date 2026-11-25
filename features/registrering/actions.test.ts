@@ -42,15 +42,20 @@ vi.mock("@/shared/supabase/auth", () => ({ requireUser, getViewer }));
 
 // Bildebehandlingen er den ekte `prepareImage`, med mindre en test slår på
 // sharpUnavailable, som etterligner at sharp ikke lar seg laste på serveren.
-const imageProcess = vi.hoisted(() => ({ sharpUnavailable: false }));
+const imageProcess = vi.hoisted(() => ({
+  sharpUnavailable: false,
+  throws: null as Error | null,
+}));
 vi.mock("@/features/registrering/image-process", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/features/registrering/image-process")>();
   return {
     ...actual,
     prepareImage: (file: Blob) =>
-      imageProcess.sharpUnavailable
-        ? Promise.resolve({ ok: false as const, reason: "unavailable" as const })
-        : actual.prepareImage(file),
+      imageProcess.throws
+        ? Promise.reject(imageProcess.throws)
+        : imageProcess.sharpUnavailable
+          ? Promise.resolve({ ok: false as const, reason: "unavailable" as const })
+          : actual.prepareImage(file),
   };
 });
 
@@ -109,6 +114,7 @@ beforeEach(() => {
   uploadError = null;
   removeCalls = 0;
   imageProcess.sharpUnavailable = false;
+  imageProcess.throws = null;
   result = { data: [{ id: ID }], error: null };
   throwOnCreate = false;
   signedIn = true;
@@ -449,6 +455,15 @@ describe("createReport med bilde", () => {
     uploadError = { message: "hemmelig sti", statusCode: "500" };
     await createReport({ ...valid, image: await file("hemmelig-navn.png") });
     expect(loggedText()).not.toMatch(/hemmelig|u1\/|\.jpg|\.png/);
+  });
+
+  test("en feil fra bildebehandlingen gir invalid_image, og meldingen med filnavnet logges ikke", async () => {
+    imageProcess.throws = new Error("kunne ikke lese hemmelig-navn.jpg");
+    expect(await createReport({ ...valid, image: await file("hemmelig-navn.jpg") })).toEqual(invalid);
+    expect(errorLog).toHaveBeenCalledWith("createReport", "bilde_ukjent");
+    expect(loggedText()).not.toMatch(/hemmelig|\.jpg/);
+    expect(uploads).toHaveLength(0);
+    expect(inserted).toHaveLength(0);
   });
 });
 

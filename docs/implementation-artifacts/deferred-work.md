@@ -73,3 +73,9 @@
 - source_spec: none (reviewet mot `docs/planning-artifacts/epics.md`)
   summary: Fargen per status i `StatusBadge` (`new`, `in_progress`, `resolved`) er ikke testet.
   evidence: Verification gap (verdi lav). `report-card.test.ts` sjekker bare den skjulte tilstanden og etiketten. Byttes klassene for «Ny» og «Løst», består alle tester. En tabelltest med `renderToStaticMarkup` i stil med `report-card.test.ts` lukker det.
+
+## Deferred from: code review of v1, gruppe B: features/registrering (2026-11-25)
+
+- source_spec: none (reviewet mot `docs/planning-artifacts/epics.md`)
+  summary: `prepareImage` gjenkoder bildet, og en fil nær 5 MiB kan bli større enn grensen etter gjenkoding og gi `too_large`, vist som «Bildet kan ikke brukes …» etter at skjemaet og signatursjekken slapp det gjennom.
+  evidence: Reell men sjelden (verdi lav): docblocken i `features/registrering/image-process.ts` sier det selv, og `epics.md` (Story 2.4) krever at en fil på nøyaktig 5 MiB godtas. Fiksen krever et valg (nedskalering, lavere kvalitet i et nytt forsøk, eller å godta begrensningen), så den er ikke utvetydig. Avgjøres med en test med et JPEG på cirka 4,9 MiB som gjenkodes med `quality: 90`.
