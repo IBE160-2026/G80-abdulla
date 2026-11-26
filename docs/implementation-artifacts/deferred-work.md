@@ -61,18 +61,23 @@
 - source_spec: none (reviewet mot `docs/planning-artifacts/epics.md`)
   summary: `updateSession` i `shared/supabase/proxy.ts` har ingen try/catch rundt `supabase.auth.getClaims()`.
   evidence: Ikke verifisert (maybe-false, ville vært medium: en innlogget bruker får 500 på alle sider hvis `getClaims` kaster i stedet for å returnere `{ error }`). `GoTrueClient.getClaims` returnerer feil som data for `AuthError`, men kaster andre feil videre, og det er uklart om en feilet JWKS-henting blir en `AuthError`. Besøkende uten sesjon rammes ikke. Avgjøres med en test i `proxy.test.ts` der `getClaims` kaster, og ved å se hva proxyen svarer.
+  status: Løst 2026-11-26 (`spec-testhull-code-review-gruppe-a.md`). `shared/supabase/proxy-feil.test.ts` (falsk klient) viste at `updateSession` slapp et kast fra `getClaims()` videre som avvist løfte. `updateSession` logger nå bare feilnavnet og lar forespørselen gå videre med den fornyede kapselen (feiler åpent). Om den ekte `GoTrueClient.getClaims` kaster i stedet for å gi `{ error }` (for eksempel ved feilet JWKS-henting), er ikke vist, bare at proxyen tåler det om den gjør det.
 - source_spec: none (reviewet mot `docs/planning-artifacts/epics.md`)
   summary: `e2e/les/manifest.spec.ts` sjekker bare ikonene i manifestet, ikke `display`, `start_url`, navn eller at et `maskable`-ikon finnes.
   evidence: Verification gap (verdi lav). Å fjerne `display: "standalone"` i `app/manifest.ts` feiler ingen test. En liten utvidelse av den eksisterende testen lukker det.
+  status: Løst 2026-11-26. `app/manifest.test.ts` sjekker `display`, `start_url`, navn, språk, farger, ikonfilene i `public/` og `maskable`-ikonet.
 - source_spec: none (reviewet mot `docs/planning-artifacts/epics.md`)
   summary: Ingen test importerer rot-`proxy.ts` eller sjekker `config.matcher`.
   evidence: Verification gap (verdi lav). `proxy.test.ts` kjører bare `updateSession`. Et ødelagt matcher-uttrykk ville stoppet fornyelsen av sesjonen uten at noen test feiler. En enhetstest som sjekker matcheren mot `/`, `/rapporter/<id>`, `/auth/login` og mot `_next/static` og bildefiler lukker det.
+  status: Løst 2026-11-26. `shared/supabase/proxy-matcher.test.ts` sjekker matcheren mot sider, `_next/static`, `_next/image`, favicon, manifest, ikoner og bildefiler, og at `proxy()` gir svaret fra `updateSession`.
 - source_spec: none (reviewet mot `docs/planning-artifacts/epics.md`)
   summary: `app/error.tsx` er bare testet med en håndgitt `retry`, aldri som ekte feilgrense i e2e.
   evidence: Verification gap (verdi lav). Enhetstesten dekker markup og klikk. Å tvinge en serverfeil i e2e (for eksempel med `reset`-prosjektet) er dyrt, så det er utsatt. Next 16.4.5 har `retry` i typene (`error-boundary.d.ts`), så propnavnet er ikke i tvil.
+  status: Delvis løst 2026-11-26. Typetest mot Nexts `ErrorComponent` i `app/error.test.ts`, så propnavnet `retry` ikke kan drive vekk. Den ekte feilgrensen i e2e (en feil i lista via en SQL-fixture i reset-prosjektet) er fortsatt utsatt.
 - source_spec: none (reviewet mot `docs/planning-artifacts/epics.md`)
   summary: Fargen per status i `StatusBadge` (`new`, `in_progress`, `resolved`) er ikke testet.
   evidence: Verification gap (verdi lav). `report-card.test.ts` sjekker bare den skjulte tilstanden og etiketten. Byttes klassene for «Ny» og «Løst», består alle tester. En tabelltest med `renderToStaticMarkup` i stil med `report-card.test.ts` lukker det.
+  status: Løst 2026-11-26. `shared/report/status-badge.test.ts` sjekker etikett og klasser per status.
 
 ## Deferred from: code review of v1, gruppe B: features/registrering (2026-11-25)
 
@@ -118,3 +123,6 @@
 - source_spec: `docs/implementation-artifacts/spec-brukermeny-som-apne-lukkepanel.md`
   summary: DESIGN.md (alle tre kopier, linje 111) lister shadcn-komponentene Dialog, Sheet og DropdownMenu som «brukes slik shadcn leverer dem», men verken Dialog, Sheet eller DropdownMenu finnes i repoet (AlertDialog, Select og Sonner gjør).
   evidence: Review (Edge Case Hunter), verdi lav, dokumentasjon. Lista var upresis før menyen byttet ut DropdownMenu. Bør rettes til komponentene som faktisk brukes, i alle kopier samtidig.
+- source_spec: `docs/implementation-artifacts/spec-testhull-code-review-gruppe-a.md`
+  summary: `getViewer()` i `shared/supabase/auth.ts` (kalt fra `app/layout.tsx`) har ingen try/catch rundt `supabase.auth.getUser()`, så et kast som ikke er `AuthError` gir fortsatt feilsiden på alle sider, selv om proxyen nå feiler åpent.
+  evidence: Review (Edge Case Hunter), verdi lav. `getUser` gir `AuthError` som data og kaster bare andre feil (nettverk, lagring). Rammer bare innloggede brukere med sesjonskapsel. Avgjøres med en test i `auth.test.ts` der `getUser` kaster, og en beslutning om hva siden skal vise (som besøkende, eller feilsiden).

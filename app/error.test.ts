@@ -7,7 +7,8 @@ import {
   type ReactNode,
 } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { expect, test, vi } from "vitest";
+import type { ErrorComponent, ErrorInfo } from "next/dist/client/components/error-boundary";
+import { expect, expectTypeOf, test, vi } from "vitest";
 import ErrorPage from "./error";
 
 type Props = { children?: ReactNode; onClick?: () => void };
@@ -41,4 +42,16 @@ test("«Prøv igjen» kaller retry én gang", () => {
   expect(button?.props.children).toBe("Prøv igjen");
   button!.props.onClick!();
   expect(retry).toHaveBeenCalledTimes(1);
+});
+
+// Typetest mot Nexts egen feilkomponent (gap fra code review v1 gruppe A,
+// deferred-work.md). Next sender `error`, `reset` og `retry`, og siden bruker
+// bare `retry`. Skulle Next gi propen et annet navn, eller siden be om en prop
+// Next ikke sender, feiler typesjekken i Vitest (typecheck er på for app/**).
+// At en ekte feilgrense fanger en feil, er ikke testet her (e2e, utsatt).
+test("ErrorPage passer til Nexts ErrorComponent og ber bare om props Next sender", () => {
+  expectTypeOf(ErrorPage).toExtend<ErrorComponent>();
+  expectTypeOf<keyof Parameters<typeof ErrorPage>[0]>().toExtend<keyof ErrorInfo>();
+  expectTypeOf<Parameters<typeof ErrorPage>[0]>().toHaveProperty("retry");
+  expectTypeOf<ErrorInfo>().toHaveProperty("retry").toEqualTypeOf<() => void>();
 });
