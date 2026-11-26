@@ -9,8 +9,8 @@ import type { Report } from "@/shared/supabase/types";
  * Rapportlista (UX-DR6, UX-DR16): antallet, teksten om avkortet liste og
  * kortene i en `ul`. En tom liste gir tomtilstanden uten antall: «Ingen
  * rapporter matcher filteret.» med «Nullstill filter» når et filter er aktivt
- * (Story 3.1). Bare «Mine rapporter» aktiv gir «Du har ikke registrert noen
- * rapporter ennå.» med «Registrer problem» (Story 3.2), ellers beskjeden om
+ * (Story 3.1). Bare «Mine rapporter» aktiv gir «Du har ingen rapporter å
+ * vise.» med «Registrer problem» (Story 3.2), ellers beskjeden om
  * at det ikke finnes rapporter ennå.
  */
 export function ReportList({
@@ -40,11 +40,13 @@ export function ReportList({
   }
 
   // Bare «Mine rapporter» er aktiv og brukeren har ingen rapporter (Story 3.2).
+  // Teksten er nøytral, for den gjelder også når alle brukerens rapporter er
+  // skjult: RLS skjuler dem for forfatteren, og FR-9 sier ingen melding i v1.
   if (reports.length === 0 && params.mine) {
     return (
       <div className="flex flex-col items-center gap-4 py-12 text-center">
         <p role="status" className="text-muted-foreground">
-          Du har ikke registrert noen rapporter ennå.
+          Du har ingen rapporter å vise.
         </p>
         <Button asChild className="h-11 px-6 text-base">
           <Link href="/rapporter/ny">Registrer problem</Link>
