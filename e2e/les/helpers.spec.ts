@@ -75,7 +75,7 @@ test("expectAccessibleLayout feiler på en side som bare er for bred på 320 px,
   await page.setContent(html(`<div style="min-width: 330px">Passer på 360 px</div>`));
   await expectNoHorizontalScroll(page);
   await expect(expectAccessibleLayout(page)).rejects.toThrow(
-    /scrollWidth d+ px er større enn clientWidth d+ px/,
+    /scrollWidth \d+ px er større enn clientWidth \d+ px/,
   );
   expect(page.viewportSize()).toEqual({ width: 360, height: 800 });
 });
