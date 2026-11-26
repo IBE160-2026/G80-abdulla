@@ -5,22 +5,27 @@ import { useEffect, useRef } from "react";
 import { Button } from "@/shared/ui/button";
 import {
   checkImageFile,
+  checkImageType,
   IMAGE_ACCEPT,
   IMAGE_HINT,
   IMAGE_MESSAGES,
-  withinPixelLimit,
 } from "@/features/registrering/image-input";
+import { shrinkImage } from "@/features/registrering/image-resize";
 
 /**
  * Valget av bilde i skjemaet for en ny rapport (FR-3, UX-DR10, Story 2.4).
  * «Legg til bilde» åpner kamera eller bildebibliotek på mobil (`accept` uten
- * `capture`), og teksten under er `IMAGE_HINT`. En fil som er tom, har feil
- * type eller er over 5 MiB (`checkImageFile`), eller som nettleseren ikke kan
- * lese eller har for store dimensjoner, avvises med en gang med en melding
- * under feltet. Et avvist valg erstatter ikke et bilde som allerede er valgt.
- * Et gyldig bilde vises som forhåndsvisning med «Fjern bilde», som får fokus.
- * Fjernes bildet, går fokus tilbake til «Legg til bilde». Serveren sjekker alt
- * på nytt (`prepareImage`).
+ * `capture`), og teksten under er `IMAGE_HINT`. En fil som er tom eller har
+ * feil type (`checkImageType`), avvises med en gang med en melding under
+ * feltet. Ellers leses bildet, og er det over 4 MiB eller lengste side over
+ * 2048 px, gjøres det mindre i nettleseren (`shrinkImage`, beslutningen
+ * 2026-11-26). Kan nettleseren ikke lese bildet, eller er resultatet over 5 MiB
+ * (`checkImageFile`), avvises det også. Forhåndsvisningen og innsendingen
+ * bruker bildet slik det er etter skaleringen. Et avvist valg erstatter ikke et
+ * bilde som allerede er valgt, og velges et nytt bilde mens det forrige
+ * skaleres, gjelder bare det siste. Et gyldig bilde vises som forhåndsvisning
+ * med «Fjern bilde», som får fokus. Fjernes bildet, går fokus tilbake til
+ * «Legg til bilde». Serveren sjekker alt på nytt (`prepareImage`).
  *
  * Forhåndsvisningen bruker en object-URL som lages og frigjøres i en effekt,
  * så den også virker når React kjører effekter to ganger i utvikling.
@@ -42,6 +47,7 @@ export function ImageField({
   const focusAddAfterRemove = useRef(false);
   const focusRemoveAfterPick = useRef(false);
   const addRef = useRef<HTMLButtonElement>(null);
+  const latestPick = useRef(0);
 
   useEffect(() => {
     const element = previewRef.current;
@@ -72,36 +78,37 @@ export function ImageField({
     if (error && !image) addRef.current?.focus();
   }, [error, image]);
 
-  function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
+  async function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     // Tømmer feltet, så samme fil kan velges igjen etter at den er fjernet.
     event.target.value = "";
     if (!file) return;
 
-    const problem = checkImageFile(file);
+    // Typen sjekkes før bildet leses og skaleres. Et avvist valg tar ikke over
+    // fra et gyldig bilde som fortsatt leses.
+    const problem = checkImageType(file);
     if (problem) {
       onError(IMAGE_MESSAGES[problem]);
       return;
     }
 
-    // Nettleseren må kunne lese bildet, og målene må være innenfor grensen.
-    const probe = new Image();
-    const url = URL.createObjectURL(file);
-    probe.onload = () => {
-      URL.revokeObjectURL(url);
-      if (!withinPixelLimit(probe.naturalWidth, probe.naturalHeight)) {
-        onError(IMAGE_MESSAGES.dimensions);
-        return;
-      }
-      onError(undefined);
-      focusRemoveAfterPick.current = true;
-      onImage(file);
-    };
-    probe.onerror = () => {
-      URL.revokeObjectURL(url);
+    const pick = ++latestPick.current;
+    const prepared = await shrinkImage(file);
+    // Et nyere valg har tatt over mens dette bildet ble lest.
+    if (pick !== latestPick.current) return;
+    if (!prepared) {
       onError(IMAGE_MESSAGES.unreadable);
-    };
-    probe.src = url;
+      return;
+    }
+    // Fila som sendes, må også være innenfor 5 MiB-grensen.
+    const rejected = checkImageFile(prepared);
+    if (rejected) {
+      onError(IMAGE_MESSAGES[rejected]);
+      return;
+    }
+    onError(undefined);
+    focusRemoveAfterPick.current = true;
+    onImage(prepared);
   }
 
   const describedBy = ["image-hint", error ? "image-error" : undefined]

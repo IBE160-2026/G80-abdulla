@@ -60,11 +60,14 @@ test("ingen komponent importerer features/registrering/image-process eller sharp
   expect(breaches, "komponenter som importerer sharp eller features/registrering/image-process").toEqual([]);
 });
 
-test("bildefeltet bruker bare features/registrering/image-input, og skjemaet bruker ImageField", () => {
+test("bildefeltet bruker bare image-input og image-resize, og skjemaet bruker ImageField", () => {
   const field = read("features/registrering/components/image-field.tsx");
   expect(field).toMatch(/from "@\/features\/registrering\/image-input"/);
+  expect(field).toMatch(/from "@\/features\/registrering\/image-resize"/);
   expect(field).not.toMatch(/image-process|sharp/);
   expect(field).not.toMatch(/\bcapture\s*=/);
+  // Skaleringen i nettleseren bruker canvas, aldri serverens bildebehandling.
+  expect(read("features/registrering/image-resize.ts")).not.toMatch(/image-process|sharp/);
   expect(read("features/registrering/components/report-form.tsx")).toMatch(
     /from "@\/features\/registrering\/components\/image-field"/,
   );

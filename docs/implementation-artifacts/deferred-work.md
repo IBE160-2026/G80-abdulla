@@ -97,3 +97,18 @@
 - source_spec: none (reviewet mot `docs/planning-artifacts/epics.md`)
   summary: Koblingen i `evals/sm5/run.eval.ts` (`assertModeMatchesProvider` med `import.meta.env.MODE`, pausen og rapporten) dekkes av ingen test som kjøres vanlig.
   evidence: Verification gap (verdi lav). `run-helpers.test.ts` tester hjelperne hver for seg, men sm5-prosjektet er tomt uten `sm5` i kommandoen. Fjernes `assertModeMatchesProvider`-linja, består alle tester. Verktøyet kjøres for hånd, og mock-advarselen står først og sist i rapporten, så feilen er synlig for den som leser.
+
+## Deferred from: code review of `docs/implementation-artifacts/spec-bilder-skaleres-ned-i-nettleseren.md` (2026-11-26)
+
+- source_spec: `docs/implementation-artifacts/spec-bilder-skaleres-ned-i-nettleseren.md`
+  summary: Ingen tilbakemelding mens et stort bilde skaleres: «Send inn» står aktiv, og feltet viser ingen «Gjør bildet mindre …».
+  evidence: Reell, men moderat (verdi lav til middels). Skaleringen tar rundt ett sekund på en telefon med 12 MP, og forhåndsvisningen kommer først etterpå. Å vise en statustekst i `ImageField` er en kopitekst prosjekteieren må velge, og å sperre «Send inn» krever ny prop fra `ReportForm`. Før endringen fantes en mindre utgave av samme vindu (`Image.onload`).
+- source_spec: `docs/implementation-artifacts/spec-bilder-skaleres-ned-i-nettleseren.md`
+  summary: `createImageBitmap` leser hele bildet før det skaleres, så et bilde på 48–50 MP kan gi minnefeil på en telefon og meldingen «Fila er ikke et gyldig bilde.».
+  evidence: Maybe-false, ville vært middels eller høy hvis sant (hovedbrukeren er en telefon). Avgjøres ved å velge et 48 MP-bilde på en ekte iPhone eller Android. En mulig løsning er `resizeWidth`/`resizeHeight` i `createImageBitmap`, men det må samspille med `imageOrientation`.
+- source_spec: `docs/implementation-artifacts/spec-bilder-skaleres-ned-i-nettleseren.md`
+  summary: Skaleringen i nettleseren er bare testet i Chromium (Playwright har bare Desktop Chrome), ikke i Safari eller Firefox.
+  evidence: Eksisterende begrensning i testoppsettet. Safari før 17 kaster trolig `TypeError` for `imageOrientation: "from-image"`; `shrinkImage` sender da fila uendret. Bør prøves for hånd på iOS.
+- source_spec: `docs/implementation-artifacts/spec-bilder-skaleres-ned-i-nettleseren.md`
+  summary: Tre verifikasjonshull: (1) «Bildet er for stort.» etter skalering er bare enhetstestet, (2) to valg etter hverandre der det første fortsatt skaleres (`latestPick`) har ingen test, (3) serverens grense på nøyaktig 5 MiB gjennom `bodySizeLimit` har ikke lenger en e2e-test, siden skjemaet ikke kan sende mer enn 4 MiB.
+  evidence: Verification gap (verdi lav). (1) kan bare nås med et bilde med mye støy og er nesten umulig å lage. (2) er en tidsfølsom test som lett blir ustabil. (3) krever en direkte POST til Server Action-endepunktet; `bodySizeLimit` kan ellers endres uten at noen test feiler.

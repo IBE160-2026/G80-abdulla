@@ -1,13 +1,15 @@
 // Legge ved et bilde (Story 2.4, FR-3, UX-DR10, AD-9, P-1): «Legg til bilde» med
 // teksten om ansikter og bilskilt, forhåndsvisning og «Fjern bilde», feil fil
-// avvist med en gang ved feltet (tom, feil type, ikke et bilde, for stor, for
-// store dimensjoner), innsending av et bilde på nøyaktig 5 MiB (grensen for
-// forespørselsstørrelse), EXIF fjernet fra den lagrede fila og bildet rettet
-// etter orienteringen, bildet på detaljsiden og ikonet i lista, at en feilet
-// innsending beholder bildet, og at serverens avvisning vises ved feltet. axe og
-// breddesjekk på 360, 320 og 1280 px. Alle bilder lages med sharp
-// (e2e/test-images.ts), og GPS-koordinatene er oppdiktet. Testene lager
-// rapporter og bilder, så de ligger i endrer-prosjektene.
+// avvist med en gang ved feltet (tom, feil type, ikke et bilde), store bilder
+// gjort mindre i nettleseren før de velges (over 4 MiB, lengste side over
+// 2048 px, over 40 megapiksler og med EXIF-orientering, beslutningen
+// 2026-11-26), innsending av et bilde på nøyaktig 4 MiB uendret, EXIF fjernet
+// fra den lagrede fila og bildet rettet etter orienteringen, bildet på
+// detaljsiden og ikonet i lista, at en feilet innsending beholder bildet, og at
+// serverens avvisning vises ved feltet. axe og breddesjekk på 360, 320 og
+// 1280 px. Alle bilder lages med sharp (e2e/test-images.ts), og
+// GPS-koordinatene er oppdiktet. Testene lager rapporter og bilder, så de
+// ligger i endrer-prosjektene.
 import { randomUUID } from "node:crypto";
 import { expect, test, type Page } from "@playwright/test";
 import sharp from "sharp";
@@ -15,15 +17,25 @@ import {
   EXIF_WORDS,
   gif,
   hugePng,
-  jpegAtLimit,
+  jpegAtResizeThreshold,
   jpegOverLimit,
   jpegWithExif,
   plainJpeg,
+  transparentPng,
 } from "@/e2e/test-images";
+import { IMAGE_RESIZE_THRESHOLD_BYTES } from "@/shared/lib/limits";
 import { expectAccessibleLayout } from "../a11y";
-import { category, description, location, NEW_REPORT, openForm, submit } from "../report-form";
+import {
+  category,
+  description,
+  location,
+  NEW_REPORT,
+  openForm,
+  submit,
+} from "../report-form";
 
-const HINT = "Unngå ansikter og bilskilt på bildet. JPEG, PNG eller WebP, maks 5 MB.";
+const HINT =
+  "Unngå ansikter og bilskilt på bildet. JPEG, PNG eller WebP. Store bilder gjøres mindre før de sendes.";
 
 const addButton = (page: Page) => page.getByRole("button", { name: "Legg til bilde", exact: true });
 const removeButton = (page: Page) => page.getByRole("button", { name: "Fjern bilde", exact: true });
@@ -37,6 +49,37 @@ const detailImage = (page: Page) =>
 /** Velger en fil i filfeltet, slik et valg i filvelgeren gjør. */
 async function pick(page: Page, name: string, mimeType: string, buffer: Buffer) {
   await fileInput(page).setInputFiles({ name, mimeType, buffer });
+}
+
+/** Målene til bildet i forhåndsvisningen, slik nettleseren leste det. */
+const previewSize = (page: Page) =>
+  preview(page).evaluate((img: HTMLImageElement) => [img.naturalWidth, img.naturalHeight]);
+
+/**
+ * Sender inn skjemaet, venter på detaljsiden og gir antall byte i forespørselen
+ * med rapporten, så testen ser om bildet ble sendt uendret eller skalert.
+ * Med en fil i kroppen gir Chromium ingen `postData()`, og `sizes()` oppgir 0
+ * byte. Derfor kjennes forespørselen igjen på `multipart/form-data` (forslagskallet
+ * er ren tekst), og størrelsen leses fra `content-length`.
+ */
+async function submitReport(page: Page): Promise<number> {
+  const request = page.waitForRequest(
+    (r) => r.method() === "POST" && (r.headers()["content-type"] ?? "").startsWith("multipart/form-data"),
+  );
+  await submit(page).click();
+  const bytes = Number((await (await request).allHeaders())["content-length"] ?? 0);
+  await expect(page).toHaveURL(/\/rapporter\/[0-9a-f-]{36}$/, { timeout: 30_000 });
+  return bytes;
+}
+
+/** Den lagrede fila, hentet med den signerte lenken på detaljsiden. Alltid en JPEG her. */
+async function storedJpeg(page: Page): Promise<Buffer> {
+  await expect(detailImage(page)).toBeVisible();
+  const src = await detailImage(page).getAttribute("src");
+  const response = await page.request.get(src!);
+  expect(response.status()).toBe(200);
+  expect(response.headers()["content-type"]).toBe("image/jpeg");
+  return response.body();
 }
 
 /** Fyller beskrivelse (mock-forslag: «hull» gir Vei og fortau) og lokasjon. */
@@ -119,20 +162,6 @@ test.describe("feil fil avvises med en gang, med melding ved feltet", () => {
         buffer: Buffer.from("ikke et bilde"),
       }),
       message: "Fila er ikke et gyldig bilde.",
-    },
-    {
-      name: "5 MiB + 1 byte",
-      file: async () => ({ name: "stor.jpg", mimeType: "image/jpeg", buffer: await jpegOverLimit() }),
-      message: "Bildet er for stort. Maks 5 MB.",
-    },
-    {
-      name: "et bilde med svært store dimensjoner",
-      file: async () => ({
-        name: "enormt.png",
-        mimeType: "image/png",
-        buffer: await hugePng(9000, 9000),
-      }),
-      message: "Bildet har for store dimensjoner.",
     },
   ];
 
@@ -217,22 +246,98 @@ test("rapporten sendes med bilde: EXIF er borte, bildet er rettet, og lista og d
   await expect(card.locator("img")).toHaveCount(0);
 });
 
-test("et bilde på nøyaktig 5 MiB går gjennom innsendingen", async ({ page }) => {
+test("et bilde på nøyaktig 4 MiB sendes uendret og går gjennom innsendingen", async ({ page }) => {
   await openForm(page);
-  const unique = randomUUID();
-  await fillReport(page, unique);
-  const image = await jpegAtLimit();
-  expect(image.length).toBe(5_242_880);
-  await pick(page, "nesten-for-stort.jpg", "image/jpeg", image);
+  await fillReport(page, randomUUID());
+  const image = await jpegAtResizeThreshold();
+  expect(image.length).toBe(IMAGE_RESIZE_THRESHOLD_BYTES);
+  await pick(page, "akkurat-under.jpg", "image/jpeg", image);
   await expect(preview(page)).toBeVisible();
   await expect(imageError(page)).toHaveCount(0);
 
-  await submit(page).click();
-  await expect(page).toHaveURL(/\/rapporter\/[0-9a-f-]{36}$/, { timeout: 30_000 });
-  await expect(detailImage(page)).toBeVisible();
-  await expect
-    .poll(() => detailImage(page).evaluate((img: HTMLImageElement) => img.naturalWidth))
-    .toBeGreaterThan(0);
+  // Hele fila er med i forespørselen, så bildet er ikke skalert.
+  expect(await submitReport(page)).toBeGreaterThan(IMAGE_RESIZE_THRESHOLD_BYTES);
+  const stored = await storedJpeg(page);
+  const metadata = await sharp(stored).metadata();
+  expect([metadata.width, metadata.height]).toEqual([40, 20]);
+});
+
+test.describe("store bilder gjøres mindre i nettleseren før de velges", () => {
+  test("en fil over 5 MiB blir en liten JPEG og lagres", async ({ page }) => {
+    await openForm(page);
+    await fillReport(page, randomUUID());
+    await pick(page, "fra-telefonen.jpg", "image/jpeg", await jpegOverLimit());
+    await expect(preview(page)).toBeVisible();
+    await expect(imageError(page)).toHaveCount(0);
+    await expect.poll(() => previewSize(page)).toEqual([40, 20]);
+
+    expect(await submitReport(page)).toBeLessThan(IMAGE_RESIZE_THRESHOLD_BYTES);
+    const metadata = await sharp(await storedJpeg(page)).metadata();
+    expect([metadata.width, metadata.height]).toEqual([40, 20]);
+  });
+
+  test("4000 × 3000 blir 2048 × 1536", async ({ page }) => {
+    await openForm(page);
+    await fillReport(page, randomUUID());
+    await pick(page, "stort.jpg", "image/jpeg", await plainJpeg(4000, 3000));
+    await expect(preview(page)).toBeVisible({ timeout: 15_000 });
+    await expect(imageError(page)).toHaveCount(0);
+    await expect.poll(() => previewSize(page)).toEqual([2048, 1536]);
+    await expectAccessibleLayout(page);
+
+    await submitReport(page);
+    const metadata = await sharp(await storedJpeg(page)).metadata();
+    expect([metadata.width, metadata.height]).toEqual([2048, 1536]);
+  });
+
+  test("en PNG over 40 megapiksler avvises ikke, men blir en JPEG på 2048 × 1536", async ({
+    page,
+  }) => {
+    await openForm(page);
+    await fillReport(page, randomUUID());
+    await pick(page, "enormt.png", "image/png", await hugePng(8000, 6000));
+    await expect(preview(page)).toBeVisible({ timeout: 15_000 });
+    await expect(imageError(page)).toHaveCount(0);
+    await expect.poll(() => previewSize(page)).toEqual([2048, 1536]);
+
+    await submitReport(page);
+    const metadata = await sharp(await storedJpeg(page)).metadata();
+    expect(metadata.format).toBe("jpeg");
+    expect([metadata.width, metadata.height]).toEqual([2048, 1536]);
+  });
+
+  test("en gjennomsiktig PNG får hvit bakgrunn, ikke svart", async ({ page }) => {
+    await openForm(page);
+    await fillReport(page, randomUUID());
+    // 2100 px bred er over 2048 px, så bildet skaleres og blir en JPEG.
+    await pick(page, "utklipp.png", "image/png", await transparentPng(2100, 100));
+    await expect(preview(page)).toBeVisible({ timeout: 15_000 });
+    await expect.poll(() => previewSize(page)).toEqual([2048, 98]);
+
+    await submitReport(page);
+    const { data } = await sharp(await storedJpeg(page)).raw().toBuffer({ resolveWithObject: true });
+    // Første piksel (R, G, B) er hvit, ikke svart.
+    expect([...data.subarray(0, 3)].every((value) => value >= 250)).toBe(true);
+  });
+
+  test("orientering 6: et stort bilde skaleres stående og lagres uten EXIF", async ({ page }) => {
+    await openForm(page);
+    await fillReport(page, randomUUID());
+    // 3000 × 2000 med orientering 6 står som 2000 × 3000, og blir 1365 × 2048.
+    const original = await jpegWithExif({ width: 3000, height: 2000, orientation: 6 });
+    for (const word of EXIF_WORDS) expect(original.includes(Buffer.from(word))).toBe(true);
+    await pick(page, "staaende.jpg", "image/jpeg", original);
+    await expect(preview(page)).toBeVisible({ timeout: 15_000 });
+    await expect.poll(() => previewSize(page)).toEqual([1365, 2048]);
+
+    await submitReport(page);
+    const stored = await storedJpeg(page);
+    const metadata = await sharp(stored).metadata();
+    expect([metadata.width, metadata.height]).toEqual([1365, 2048]);
+    expect(metadata.exif).toBeUndefined();
+    expect(metadata.orientation).toBeUndefined();
+    for (const word of EXIF_WORDS) expect(stored.includes(Buffer.from(word)), word).toBe(false);
+  });
 });
 
 test("uten bilde lagres rapporten uten bildeikon", async ({ page }) => {
