@@ -62,8 +62,9 @@ const FIELD =
  * forslag. Velg kategori selv.», og rapporten kan sendes uten oppsummering.
  * Alt fra KI-en vises som ren tekst.
  *
- * Bilde (Story 2.4, FR-3, UX-DR10): `ImageField` er valgfritt og avviser feil
- * fil med en gang. Bildet sendes med `createReport`, og serveren sjekker og
+ * Bilde (Story 2.4, FR-3, UX-DR10): `ImageField` er valgfritt, avviser feil
+ * fil med en gang og gjør store bilder mindre før de velges. Bildet sendes med
+ * `createReport`, og serveren sjekker og
  * renser det på nytt. Avvises det likevel (`invalid_image`), står meldingen ved
  * bildefeltet. Alle andre feil gir toasten, og skjemaet beholder alt, også bildet.
  *

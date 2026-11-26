@@ -4,7 +4,7 @@
 // importerer aldri denne filen.
 import { crc32, createDeflate } from "node:zlib";
 import sharp from "sharp";
-import { IMAGE_MAX_BYTES } from "@/shared/lib/limits";
+import { IMAGE_MAX_BYTES, IMAGE_RESIZE_THRESHOLD_BYTES } from "@/shared/lib/limits";
 
 /** En posisjon midt i Oslofjorden. Oppdiktet, ikke et ekte sted. */
 export const FAKE_GPS = {
@@ -24,6 +24,18 @@ const plain = (width: number, height: number) => ({
 /** En gyldig JPEG uten metadata. */
 export function plainJpeg(width = 40, height = 20): Promise<Buffer> {
   return sharp(plain(width, height)).jpeg().toBuffer();
+}
+
+/**
+ * En PNG der hver piksel er helt gjennomsiktig (alfa 0). Brukes til å se at
+ * skjemaet tegner et skalert bilde på hvit bakgrunn, så det ikke blir svart.
+ */
+export function transparentPng(width = 2100, height = 100): Promise<Buffer> {
+  return sharp({
+    create: { width, height, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } },
+  })
+    .png()
+    .toBuffer();
 }
 
 /**
@@ -49,8 +61,11 @@ export async function jpegOfSize(size: number): Promise<Buffer> {
   return Buffer.concat([jpeg, Buffer.alloc(size - jpeg.length)]);
 }
 
-/** Nøyaktig grensen, og én byte over. */
-export const jpegAtLimit = () => jpegOfSize(IMAGE_MAX_BYTES);
+/**
+ * Nøyaktig terskelen der skjemaet begynner å skalere (sendes uendret), og én
+ * byte over 5 MiB-grensen (skaleres i skjemaet, avvises av serveren).
+ */
+export const jpegAtResizeThreshold = () => jpegOfSize(IMAGE_RESIZE_THRESHOLD_BYTES);
 export const jpegOverLimit = () => jpegOfSize(IMAGE_MAX_BYTES + 1);
 
 /** En gyldig GIF. Nettleseren kan vise den, men appen godtar ikke formatet. */

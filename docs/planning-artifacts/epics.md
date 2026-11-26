@@ -26,7 +26,7 @@ Nummereringen følger PRD-en, så hver story kan spores tilbake dit.
 - **FR-3 Registrere rapport:** En innlogget bruker kan registrere en rapport med beskrivelse, lokasjon, kategori og valgfritt bilde.
   - Beskrivelse, lokasjon og kategori er påkrevd. Beskrivelsen kan være opptil 1000 tegn og lokasjonen opptil 200, og brudd avvises med en tydelig feilmelding.
   - En rapport uten bilde lagres.
-  - Bilder over 5 MB, eller i andre formater enn JPEG, PNG og WebP, avvises.
+  - Bilder i andre formater enn JPEG, PNG og WebP avvises. Store bilder gjøres mindre i nettleseren før de sendes, og et bilde som fortsatt er over 5 MB, avvises.
   - Skjemaet har en påminnelse om å unngå ansikter og bilskilt på bildet, og om å unngå personopplysninger i beskrivelsen.
   - Etter innsending vises rapporten med status **Ny**.
 - **FR-4 KI-forslag for kategori og oppsummering:** KI-en foreslår kategori og en kort oppsummering før innsending.
@@ -167,7 +167,7 @@ Nummereringen følger PRD-en, så hver story kan spores tilbake dit.
   - **Kategori:** påkrevd. KI-forslaget velges automatisk med pillen «Foreslått av KI», som forsvinner når brukeren velger selv. KI-en overskriver ikke et valg brukeren har gjort.
   - **KI-oppsummering:** vises som lesetekst med «Endre», maks 300 tegn.
   - **Lokasjon:** påkrevd, maks 200 tegn, med plassholderen «F.eks. gangveien ved bygg A».
-  - **Bilde:** «Legg til bilde» med forhåndsvisning og mulighet til å fjerne bildet. Påminnelsen om ansikter og bilskilt står under knappen. For store bilder og feil format avvises med en gang.
+  - **Bilde:** «Legg til bilde» med forhåndsvisning og mulighet til å fjerne bildet. Under knappen står «Unngå ansikter og bilskilt på bildet. JPEG, PNG eller WebP. Store bilder gjøres mindre før de sendes.» Feil format avvises med en gang. Et bilde over 4 MiB eller med lengste side over 2048 px gjøres mindre i nettleseren (JPEG, lengste side høyst 2048 px, rettet etter orienteringen) før det vises og sendes, og er det fortsatt over 5 MiB, avvises det med «Bildet er for stort.» (beslutningen 2026-11-26).
   - **«Send inn»:** deaktivert til beskrivelse, lokasjon og kategori er fylt inn, og mens KI-en jobber, med mindre brukeren har valgt kategori selv. Viser «Sender …» under innsending. Etterpå går brukeren til detaljsiden og får toasten «Rapporten er sendt inn».
 - **UX-DR11 KI-tilstander:**
   - Forslaget hentes bare når brukeren går ut av beskrivelsesfeltet, og bare når teksten har minst 10 tegn og er endret siden forrige forslag.
@@ -730,18 +730,22 @@ slik at moderatoren og andre ser hva problemet gjelder.
 
 **Gitt** skjemaet for ny rapport
 **Når** brukeren trykker «Legg til bilde»
-**Så** åpnes kamera eller bildebibliotek på mobil, og under knappen står «Unngå ansikter og bilskilt på bildet. JPEG, PNG eller WebP, maks 5 MB.» (FR-3, UX-DR10)
+**Så** åpnes kamera eller bildebibliotek på mobil, og under knappen står «Unngå ansikter og bilskilt på bildet. JPEG, PNG eller WebP. Store bilder gjøres mindre før de sendes.» (FR-3, UX-DR10)
 **Og** brukeren ser bildet før innsending og kan fjerne det igjen
 
-**Gitt** en fil over 5 MB, i et annet format enn JPEG, PNG eller WebP, eller som ikke er et gyldig bilde
+**Gitt** en fil i et annet format enn JPEG, PNG eller WebP, eller som ikke er et gyldig bilde
 **Når** brukeren velger den
 **Så** avvises den med en gang med en feilmelding ved feltet
 **Og** Server Action og bucketen avviser den samme fila, så regelen gjelder også utenom skjemaet (AD-9, NFR-4)
 
+**Gitt** et bilde over 4 MiB, eller med lengste side over 2048 px (også over 40 megapiksler)
+**Når** brukeren velger det
+**Så** gjøres det mindre i nettleseren (JPEG, rettet etter EXIF-orienteringen, lengste side høyst 2048 px) før det vises og sendes, og beskjeden «Bildet er for stort.» kommer bare hvis resultatet fortsatt er over 5 MB (beslutningen 2026-11-26)
+
 **Gitt** grensen på 5 MB
 **Når** den sjekkes i skjemaet, i Server Action og i bucketen
 **Så** betyr den 5 × 1024 × 1024 byte alle tre steder, en fil på nøyaktig grensen godtas, og én byte mer avvises
-**Og** en tom fil og et bilde med svært store dimensjoner avvises, uten at serveren går tom for minne
+**Og** en tom fil og et bilde med svært store dimensjoner avvises av serveren, uten at den går tom for minne
 **Og** filendelsen i stien kommer fra bildetypen serveren fant i fila, ikke fra filnavnet
 
 **Gitt** et bilde på nesten 5 MB

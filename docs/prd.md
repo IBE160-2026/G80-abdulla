@@ -124,7 +124,7 @@ En innlogget bruker kan registrere en rapport med beskrivelse, lokasjon (tekst e
 - En rapport uten beskrivelse, lokasjon eller kategori blir avvist med en tydelig feilmelding.
 - Beskrivelse og lokasjon har en øvre lengde, og lengre tekst blir avvist med en tydelig feilmelding [ANTAGELSE: 1000 tegn for beskrivelse og 200 for lokasjon].
 - En rapport uten bilde blir lagret.
-- Bilder over en fast grense, eller i andre filformater enn de tillatte, blir avvist [ANTAGELSE: 5 MB, JPEG/PNG/WebP].
+- Bilder i andre filformater enn de tillatte blir avvist. Store bilder gjøres mindre i nettleseren før de sendes, og et bilde som fortsatt er over en fast grense, blir avvist [ANTAGELSE: 5 MB, JPEG/PNG/WebP].
 - Brukeren får en kort påminnelse om å unngå ansikter og bilskilt før opplasting.
 - Skjemaet minner også om å unngå personopplysninger i beskrivelsen (§8).
 - Etter innsending vises rapporten i lista med status **Ny**.
@@ -286,7 +286,7 @@ Mot-metrikkene kan først måles når appen settes i drift. V1 kjøres bare loka
 
 ## 12. Antagelsesindeks
 
-- FR-3: Grensen for bilder er 5 MB, og tillatte formater er JPEG, PNG og WebP.
+- FR-3: Grensen for bilder er 5 MB, og tillatte formater er JPEG, PNG og WebP. Skjemaet gjør et bilde over 4 MiB eller med lengste side over 2048 px mindre før det sendes (avgjort 2026-11-26).
 - FR-3: Beskrivelsen kan være opptil 1000 tegn og lokasjonen opptil 200 tegn.
 - FR-4: KI-kallet får tidsavbrudd etter 5 sekunder.
 - FR-4: Oppsummeringen kan være opptil 300 tegn.

@@ -29,3 +29,14 @@ export const IMAGE_MAX_BYTES = 5 * 1024 * 1024;
 
 /** Mest bredde × høyde i piksler. Verner serveren mot svært store bilder. */
 export const MAX_IMAGE_PIXELS = 40_000_000;
+
+/**
+ * Skjemaet gjør et bilde mindre før det sendes når fila er over
+ * `IMAGE_RESIZE_THRESHOLD_BYTES` (4 MiB) eller lengste side er over
+ * `IMAGE_RESIZE_MAX_SIDE` (2048 px). Det skalerte bildet er en JPEG med lengste
+ * side høyst 2048 px. 4 MiB er under `IMAGE_MAX_BYTES` og under 4,5 MB, som
+ * Vercel etter dokumentasjonen tillater i en forespørsel. Serveren bruker ikke
+ * disse tallene: grensen der er fortsatt `IMAGE_MAX_BYTES`.
+ */
+export const IMAGE_RESIZE_MAX_SIDE = 2048;
+export const IMAGE_RESIZE_THRESHOLD_BYTES = 4 * 1024 * 1024;
