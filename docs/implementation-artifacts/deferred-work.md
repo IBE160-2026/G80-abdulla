@@ -112,3 +112,9 @@
 - source_spec: `docs/implementation-artifacts/spec-bilder-skaleres-ned-i-nettleseren.md`
   summary: Tre verifikasjonshull: (1) «Bildet er for stort.» etter skalering er bare enhetstestet, (2) to valg etter hverandre der det første fortsatt skaleres (`latestPick`) har ingen test, (3) serverens grense på nøyaktig 5 MiB gjennom `bodySizeLimit` har ikke lenger en e2e-test, siden skjemaet ikke kan sende mer enn 4 MiB.
   evidence: Verification gap (verdi lav). (1) kan bare nås med et bilde med mye støy og er nesten umulig å lage. (2) er en tidsfølsom test som lett blir ustabil. (3) krever en direkte POST til Server Action-endepunktet; `bodySizeLimit` kan ellers endres uten at noen test feiler.
+- source_spec: `docs/implementation-artifacts/spec-brukermeny-som-apne-lukkepanel.md`
+  summary: «Logg ut» i brukermenyen har ingen feilhåndtering: panelet lukkes før `signOut`, og feiler kallet (nettverk), får brukeren ingen beskjed og et ubehandlet avvist løfte.
+  evidence: Eksisterte før endringen (Radix lukket også menyen ved valg, og `signOut` var uten try/catch). Review (Edge Case Hunter og Blind Hunter), verdi lav. Må avgjøres hva brukeren skal se (for eksempel en toast «Kunne ikke logge ut. Prøv igjen.») og testes med et blokkert kall til `/auth/v1/logout`.
+- source_spec: `docs/implementation-artifacts/spec-brukermeny-som-apne-lukkepanel.md`
+  summary: DESIGN.md (alle tre kopier, linje 111) lister shadcn-komponentene Dialog, Sheet og DropdownMenu som «brukes slik shadcn leverer dem», men verken Dialog, Sheet eller DropdownMenu finnes i repoet (AlertDialog, Select og Sonner gjør).
+  evidence: Review (Edge Case Hunter), verdi lav, dokumentasjon. Lista var upresis før menyen byttet ut DropdownMenu. Bør rettes til komponentene som faktisk brukes, i alle kopier samtidig.

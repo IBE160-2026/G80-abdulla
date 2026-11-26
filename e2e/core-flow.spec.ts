@@ -16,6 +16,7 @@
 import { randomUUID } from "node:crypto";
 import { expect, test } from "@playwright/test";
 import { expectNoSeriousA11yViolations } from "./a11y";
+import { menuButton, menuPanel } from "./auth";
 import { plainJpeg } from "./test-images";
 import { tabTo } from "./keyboard";
 import { expectNoHorizontalScroll } from "./layout";
@@ -180,12 +181,13 @@ test("kjerneflyten med tastatur", async ({ page }) => {
 
   await tabTo(page, "button", "Meny", { max: 5 });
   await page.keyboard.press("Enter");
-  await expect(page.getByRole("menuitem", { name: "Logg inn", exact: true })).toBeFocused();
+  // Fokus blir på knappen, og Tab går inn i panelet.
+  await page.keyboard.press("Tab");
+  await expect(menuPanel(page).getByRole("link", { name: "Logg inn", exact: true })).toBeFocused();
   await page.keyboard.press("Enter");
   await expect(page).toHaveURL("/auth/login?next=%2F");
   await expect(page.getByRole("heading", { level: 1, name: "Logg inn" })).toBeVisible();
-  // Menyen tones ut når den lukkes. axe venter til den er borte.
-  await expect(page.getByRole("menu")).toBeHidden();
+  await expect(menuPanel(page)).toBeHidden();
   await expectNoSeriousA11yViolations(page);
   await expectNoHorizontalScroll(page);
 
@@ -202,9 +204,10 @@ test("kjerneflyten med tastatur", async ({ page }) => {
   // derfra. Shift+Tab går opp til menyknappen i topplinja.
   await tabTo(page, "button", "Meny", { max: 15, reverse: true });
   await page.keyboard.press("Enter");
-  const menu = page.getByRole("menu");
+  const menu = menuPanel(page);
   await expect(menu.getByText(email, { exact: true })).toBeVisible();
-  await expect(page.getByRole("menuitem", { name: "Logg ut", exact: true })).toBeFocused();
+  await page.keyboard.press("Tab");
+  await expect(menu.getByRole("button", { name: "Logg ut", exact: true })).toBeFocused();
   await expectNoSeriousA11yViolations(page);
   await expectNoHorizontalScroll(page);
   await page.keyboard.press("Escape");
@@ -381,22 +384,20 @@ test("kjerneflyten med tastatur", async ({ page }) => {
   // tastatur. Begge prosjektene bruker moderatoren, men hver sin rapport.
   await tabTo(page, "button", "Meny", { max: 20, reverse: true });
   await page.keyboard.press("Enter");
-  await expect(page.getByRole("menuitem", { name: "Logg ut", exact: true })).toBeFocused();
+  await page.keyboard.press("Tab");
+  await expect(menuPanel(page).getByRole("button", { name: "Logg ut", exact: true })).toBeFocused();
   await page.keyboard.press("Enter");
   await expect(page).toHaveURL("/");
   await expect(listHeading).toBeVisible();
-  // Menyen er lukket, og fokus står på menyknappen eller et sted før den.
-  await expect(page.getByRole("menu")).toBeHidden();
-  const menuButton = page.getByRole("banner").getByRole("button", { name: "Meny", exact: true });
-  const menuFocused = await menuButton.evaluate((element) => element === document.activeElement);
-  if (!menuFocused) await tabTo(page, "button", "Meny", { max: 5 });
+  // Panelet er lukket, og fokus er på menyknappen (valget gir fokus tilbake).
+  await expect(menuPanel(page)).toBeHidden();
+  await expect(menuButton(page)).toBeFocused();
   await page.keyboard.press("Enter");
-  await expect(page.getByRole("menuitem", { name: "Logg inn", exact: true })).toBeFocused();
+  await page.keyboard.press("Tab");
+  await expect(menuPanel(page).getByRole("link", { name: "Logg inn", exact: true })).toBeFocused();
   await page.keyboard.press("Enter");
   await expect(page).toHaveURL("/auth/login?next=%2F");
-  // Menyen tones ut og gir fokus tilbake til menyknappen når den er borte, så
-  // Tab venter til den er lukket (se openMenu i auth.ts).
-  await expect(page.getByRole("menu")).toBeHidden();
+  await expect(menuPanel(page)).toBeHidden();
   await tabTo(page, "textbox", "E-post", { max: 5 });
   await page.keyboard.type("moderator@localfix.test");
   await page.keyboard.press("Tab");

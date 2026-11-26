@@ -4,8 +4,8 @@
 // Registrering som lager kontoer, ligger i e2e/endrer/registrering.spec.ts.
 // Testene logger inn og ut, men endrer ingen data i appen.
 import { expect, test, type Page } from "@playwright/test";
-import { expectNoSeriousA11yViolations, waitForAnimations } from "../a11y";
-import { logIn, menuButton, openMenu, PASSWORD } from "../auth";
+import { expectNoSeriousA11yViolations } from "../a11y";
+import { logIn, menuButton, menuPanel, openMenu, PASSWORD } from "../auth";
 import { tabTo } from "../keyboard";
 import { expectNoHorizontalScroll } from "../layout";
 
@@ -50,20 +50,16 @@ test("en besøkende ser «Logg inn» i menyen og er tilbake på siden etter innl
   expect(box.height).toBeGreaterThanOrEqual(44);
 
   const menu = await openMenu(page);
-  await expect(menu.getByRole("menuitem")).toHaveText(["Logg inn"]);
+  await expect(menu.getByRole("link")).toHaveText(["Logg inn"]);
   await expect(menu.getByText("Moderator")).toHaveCount(0);
-  // offsetHeight, fordi menyen skaleres mens den åpnes.
-  expect(
-    await menu.getByRole("menuitem").evaluate((item: HTMLElement) => item.offsetHeight),
-  ).toBeGreaterThanOrEqual(44);
+  expect((await menu.getByRole("link").boundingBox())!.height).toBeGreaterThanOrEqual(44);
   await expectNoSeriousA11yViolations(page);
 
-  await menu.getByRole("menuitem", { name: "Logg inn" }).click();
+  await menu.getByRole("link", { name: "Logg inn" }).click();
   await expect(page).toHaveURL(`/auth/login?next=${encodeURIComponent(REPORT_1)}`);
   await expect(page.getByRole("heading", { level: 1, name: "Logg inn" })).toBeVisible();
   await expect(page).toHaveTitle("Logg inn · LocalFix");
-  // Menyen tones ut når den lukkes. axe venter til den er borte.
-  await expect(page.getByRole("menu")).toBeHidden();
+  await expect(menuPanel(page)).toBeHidden();
   await expectA11yAtAllWidths(page);
 
   // Mellomrom rundt e-postadressen fjernes før kallet.
@@ -77,7 +73,8 @@ test("en besøkende ser «Logg inn» i menyen og er tilbake på siden etter innl
 
   const loggedIn = await openMenu(page);
   await expect(loggedIn.getByText(BRUKER1, { exact: true })).toBeVisible();
-  await expect(loggedIn.getByRole("menuitem")).toHaveText(["Logg ut"]);
+  await expect(loggedIn.getByRole("button")).toHaveText(["Logg ut"]);
+  expect((await loggedIn.getByRole("button").boundingBox())!.height).toBeGreaterThanOrEqual(44);
   await expect(loggedIn.getByText("Moderator")).toHaveCount(0);
   await expectNoSeriousA11yViolations(page);
 });
@@ -89,7 +86,7 @@ test("moderatoren ser e-postadressen sin, «Moderator» og «Logg ut» i menyen"
   const menu = await openMenu(page);
   await expect(menu.getByText(MODERATOR, { exact: true })).toBeVisible();
   await expect(menu.getByText("Moderator", { exact: true })).toBeVisible();
-  await expect(menu.getByRole("menuitem")).toHaveText(["Logg ut"]);
+  await expect(menu.getByRole("button")).toHaveText(["Logg ut"]);
   await expect(menu.getByText(BRUKER1)).toHaveCount(0);
   await expectNoSeriousA11yViolations(page);
   await expectNoHorizontalScroll(page);
@@ -101,53 +98,109 @@ test("«Logg ut» med tastatur viser lista med «Logg inn» i menyen", async ({ 
 
   await tabTo(page, "button", "Meny", { max: 10 });
   await page.keyboard.press("Enter");
-  const logOut = page.getByRole("menuitem", { name: "Logg ut", exact: true });
+  // Fokus blir på knappen, og Tab går inn i panelet.
+  await expect(menuButton(page)).toHaveAttribute("aria-expanded", "true");
+  await expect(menuButton(page)).toBeFocused();
+  await page.keyboard.press("Tab");
+  const logOut = menuPanel(page).getByRole("button", { name: "Logg ut", exact: true });
   await expect(logOut).toBeFocused();
   await page.keyboard.press("Enter");
 
   await expect(page).toHaveURL("/");
   await expect(page.getByRole("heading", { level: 1, name: "Rapporter" })).toBeVisible();
+  await expect(menuPanel(page)).toBeHidden();
   const menu = await openMenu(page);
-  await expect(menu.getByRole("menuitem")).toHaveText(["Logg inn"]);
+  await expect(menu.getByRole("link")).toHaveText(["Logg inn"]);
   await expect(menu.getByText("bruker2@localfix.test")).toHaveCount(0);
 
   // Sesjonen er borte også på serveren: en ny innlasting viser en besøkende.
   await page.reload();
-  await expect((await openMenu(page)).getByRole("menuitem")).toHaveText(["Logg inn"]);
+  await expect((await openMenu(page)).getByRole("link")).toHaveText(["Logg inn"]);
 });
 
-// Regresjonstest for de to ustabile testene over (epic-2-retro-item-6). Menyen
-// tones inn og ut på 150 ms. Her senkes alle animasjoner til en tidel av
-// farten, så det blir 1,5 s, som på en treg CI-maskin, og begge kappløpene
-// skjer hver gang: axe mens menyen tones inn, og en ny meny som åpnes mens den
-// gamle fortsatt tones ut etter «Logg ut».
-test("menyen tones inn og ut uten at axe eller openMenu tar feil, også med trege animasjoner", async ({
+test("panelet lukkes med Escape, klikk utenfor og Tab ut, og knappen viser om det er åpent", async ({
   page,
 }) => {
-  await logIn(page, BRUKER1);
-  // CDP finnes bare i Chromium. Alle prosjektene i playwright.config.ts er
-  // Desktop Chrome, og «Definisjon av ferdig» tillater ikke at tester i e2e/
-  // hoppes over, så testen har ingen nettleservakt. newCDPSession feiler
-  // tydelig ellers.
-  const cdp = await page.context().newCDPSession(page);
-  await cdp.send("Animation.enable");
-  await cdp.send("Animation.setPlaybackRate", { playbackRate: 0.1 });
+  await page.goto(REPORT_1);
+  const button = menuButton(page);
+  await expect(button).toHaveAttribute("aria-expanded", "false");
+  await expect(menuPanel(page)).toHaveCount(0);
 
-  // Uten ventingen i axe-hjelperen gir inntoningen falske kontrastbrudd på
-  // e-postadressen og menypunktet.
-  const menu = await openMenu(page);
-  await expect(menu.getByText(BRUKER1, { exact: true })).toBeVisible();
-  await expectNoSeriousA11yViolations(page);
+  // Enter åpner, og et nytt trykk lukker.
+  await openMenu(page);
+  await button.press("Enter");
+  await expect(button).toHaveAttribute("aria-expanded", "false");
+  await expect(menuPanel(page)).toHaveCount(0);
 
-  // Uten ventingen i openMenu blir den gamle menyen, som tones ut, tatt for
-  // den nye, og den er borte når animasjonene er ferdige.
-  await menu.getByRole("menuitem", { name: "Logg ut", exact: true }).click();
+  // Escape fra panelet lukker og gir fokus tilbake til knappen.
+  await openMenu(page);
+  await page.keyboard.press("Tab");
+  await expect(menuPanel(page).getByRole("link")).toBeFocused();
+  await page.keyboard.press("Escape");
+  await expect(menuPanel(page)).toHaveCount(0);
+  await expect(button).toBeFocused();
+
+  // Klikk utenfor lukker.
+  await openMenu(page);
+  await page.getByRole("heading", { level: 1 }).click();
+  await expect(menuPanel(page)).toHaveCount(0);
+  await expect(button).toHaveAttribute("aria-expanded", "false");
+
+  // Escape virker også når fokus er på body etter et klikk på tekst i panelet.
+  await openMenu(page);
+  await menuPanel(page).click({ position: { x: 4, y: 4 } });
+  await expect(menuPanel(page)).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(menuPanel(page)).toHaveCount(0);
+  await expect(button).toBeFocused();
+
+  // Mellomrom åpner også.
+  await button.focus();
+  await page.keyboard.press("Space");
+  await expect(button).toHaveAttribute("aria-expanded", "true");
+  await page.keyboard.press("Space");
+  await expect(button).toHaveAttribute("aria-expanded", "false");
+
+  // Tab ut av panelet lukker.
+  await openMenu(page);
+  await page.keyboard.press("Tab");
+  await expect(menuPanel(page).getByRole("link")).toBeFocused();
+  await page.keyboard.press("Tab");
+  await expect(menuPanel(page)).toHaveCount(0);
+  await expect(button).toHaveAttribute("aria-expanded", "false");
+});
+
+test("panelet lukkes når siden byttes med tilbake i nettleseren", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("main").getByRole("link").first().click();
+  await expect(page).toHaveURL(/\/rapporter\/[0-9a-f-]+$/);
+  await openMenu(page);
+  // Topplinja står igjen når siden byttes uten ny innlasting.
+  await page.goBack();
   await expect(page).toHaveURL("/");
-  await expect(page.getByRole("heading", { level: 1, name: "Rapporter" })).toBeVisible();
-  const visitorMenu = await openMenu(page);
-  await waitForAnimations(page);
-  await expect(visitorMenu).toBeVisible();
-  await expect(visitorMenu.getByRole("menuitem")).toHaveText(["Logg inn"]);
+  await expect(menuPanel(page)).toHaveCount(0);
+  await expect(menuButton(page)).toHaveAttribute("aria-expanded", "false");
+});
+
+test("panelet er åpent uten serious axe-brudd og uten horisontal scrolling ved 1280, 360 og 320 px", async ({
+  page,
+}) => {
+  await logIn(page, MODERATOR, { next: REPORT_1 });
+  const original = page.viewportSize()!;
+  for (const width of new Set([original.width, 360, 320])) {
+    await page.setViewportSize({ width, height: original.height });
+    const menu = await openMenu(page);
+    await expect(menu.getByText(MODERATOR, { exact: true })).toBeVisible();
+    // Panelet ligger innenfor skjermen.
+    const box = (await menu.boundingBox())!;
+    expect(box.x).toBeGreaterThanOrEqual(0);
+    expect(box.x + box.width).toBeLessThanOrEqual(width);
+    await expectNoSeriousA11yViolations(page);
+    await expectNoHorizontalScroll(page);
+    await menuButton(page).press("Escape");
+    await expect(menuPanel(page)).toHaveCount(0);
+  }
+  await page.setViewportSize(original);
 });
 
 test("next under /auth/ sender brukeren til lista, så skjemaet ikke står fast", async ({
@@ -160,7 +213,7 @@ test("next under /auth/ sender brukeren til lista, så skjemaet ikke står fast"
 test("«Logg inn» i menyen tar med spørringen i next", async ({ page }) => {
   await page.goto("/?category=waste");
   const menu = await openMenu(page);
-  await expect(menu.getByRole("menuitem", { name: "Logg inn" })).toHaveAttribute(
+  await expect(menu.getByRole("link", { name: "Logg inn" })).toHaveAttribute(
     "href",
     "/auth/login?next=%2F%3Fcategory%3Dwaste",
   );
@@ -205,12 +258,12 @@ test("«Logg ut» logger bare ut denne nettleseren", async ({ page, browser, bas
     await logIn(page, BRUKER1);
     await logIn(otherPage, BRUKER1);
 
-    await (await openMenu(page)).getByRole("menuitem", { name: "Logg ut" }).click();
+    await (await openMenu(page)).getByRole("button", { name: "Logg ut" }).click();
     // Venter til lista er hentet på nytt uten sesjon. Overgangen i appen
     // testes i «Logg ut» med tastatur.
     await expect(async () => {
       await page.reload();
-      await expect((await openMenu(page)).getByRole("menuitem")).toHaveText(["Logg inn"], {
+      await expect((await openMenu(page)).getByRole("link")).toHaveText(["Logg inn"], {
         timeout: 1_000,
       });
     }).toPass();
@@ -218,7 +271,7 @@ test("«Logg ut» logger bare ut denne nettleseren", async ({ page, browser, bas
     await otherPage.reload();
     const otherMenu = await openMenu(otherPage);
     await expect(otherMenu.getByText(BRUKER1, { exact: true })).toBeVisible();
-    await expect(otherMenu.getByRole("menuitem")).toHaveText(["Logg ut"]);
+    await expect(otherMenu.getByRole("button")).toHaveText(["Logg ut"]);
   } finally {
     await other.close();
   }
@@ -349,14 +402,12 @@ test("registreringssiden har to felt, hjelpeteksten og samme next i lenkene", as
   );
   // Menyen beholder next fra adressen på /auth/*.
   const menu = await openMenu(page);
-  await expect(menu.getByRole("menuitem", { name: "Logg inn" })).toHaveAttribute(
+  await expect(menu.getByRole("link", { name: "Logg inn" })).toHaveAttribute(
     "href",
     `/auth/login?next=${next}`,
   );
-  await page.keyboard.press("Escape");
-  // `menu` er bare den åpne menyen. Venter til menyen er helt borte, også
-  // etter uttoningen.
-  await expect(page.getByRole("menu")).toBeHidden();
+  await menuButton(page).press("Escape");
+  await expect(menuPanel(page)).toBeHidden();
   await expect(menuButton(page)).toBeFocused();
   await expectA11yAtAllWidths(page);
 

@@ -115,7 +115,7 @@ async function type(locator, text, delay = 45) {
 
 async function logIn(email) {
   await press(page.getByRole("banner").getByRole("button", { name: "Meny", exact: true }));
-  await press(page.getByRole("menuitem", { name: "Logg inn", exact: true }));
+  await press(page.getByRole("group", { name: "Konto", exact: true }).getByRole("link", { name: "Logg inn", exact: true }));
   await expect(page.getByRole("heading", { level: 1, name: "Logg inn" })).toBeVisible();
   await type(page.getByLabel("E-post", { exact: true }), email);
   await type(page.getByLabel("Passord", { exact: true }), PASSWORD, 30);
@@ -187,9 +187,9 @@ try {
   // 6. Moderatoren logger inn og sorterer på «Flest har sett».
   await caption(6, "Moderatoren logger inn og sorterer på «Flest har sett»");
   await press(page.getByRole("banner").getByRole("button", { name: "Meny", exact: true }));
-  await press(page.getByRole("menuitem", { name: "Logg ut", exact: true }));
+  await press(page.getByRole("group", { name: "Konto", exact: true }).getByRole("button", { name: "Logg ut", exact: true }));
   await expect(page.getByRole("heading", { level: 1, name: "Rapporter" })).toBeVisible();
-  await expect(page.getByRole("menu")).toBeHidden();
+  await expect(page.getByRole("group", { name: "Konto", exact: true })).toBeHidden();
   await pause(800);
   await logIn("moderator@localfix.test");
   await press(page.getByRole("combobox", { name: "Sortering", exact: true }));
