@@ -177,3 +177,4 @@
 - [ ] 2026-11-25 [code-review-v1-gruppe-a](936-2026-11-25-21-51-00-code-review-v1-gruppe-a.md) — kodereview av gruppe B–F gjenstår: `features/` i to halvdeler, `supabase/`, `e2e/`, og `evals/`, `scripts/`, `.github/` og konfig
 - [ ] 2026-11-25 [code-review-v1-gruppe-a](936-2026-11-25-21-51-00-code-review-v1-gruppe-a.md) — `updateSession` i `shared/supabase/proxy.ts` har ingen try/catch rundt `getClaims()`; avgjør med en test der `getClaims` kaster (`deferred-work.md`)
 - [ ] 2026-11-25 [code-review-v1-gruppe-a](936-2026-11-25-21-51-00-code-review-v1-gruppe-a.md) — testgap fra reviewen: manifestet, `proxy.ts`-matcheren, `app/error.tsx` som feilgrense og fargen per status i `StatusBadge` (`deferred-work.md`)
+- [ ] 2026-11-26 [code-review-v1-gruppe-a](936-2026-11-25-21-51-00-code-review-v1-gruppe-a.md) — PR #112 (gruppe E og F) venter på grønn CI etter regexrettelsen `ee3b701`, og skal deretter flettes
