@@ -5,7 +5,7 @@
 // oppfører seg mens den tones inn og ut, testes i innlogging.spec.ts.
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
-import { A11Y_TAGS, expectNoSeriousA11yViolations } from "../a11y";
+import { A11Y_TAGS, expectAccessibleLayout, expectNoSeriousA11yViolations } from "../a11y";
 import { expectNoHorizontalScroll } from "../layout";
 
 const html = (body: string) =>
@@ -65,6 +65,26 @@ test("breddehjelperen feiler og oppgir bredden når siden er for bred", async ({
 test("breddehjelperen godtar en side som får plass", async ({ page }) => {
   await page.setContent(html(`<p>Smal</p>`));
   await expectNoHorizontalScroll(page);
+});
+
+// Setter bredden til 360 px selv, så testen virker i begge prosjektene.
+test("expectAccessibleLayout feiler på en side som bare er for bred på 320 px, og setter bredden tilbake til 360 px", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 360, height: 800 });
+  await page.setContent(html(`<div style="min-width: 330px">Passer på 360 px</div>`));
+  await expectNoHorizontalScroll(page);
+  await expect(expectAccessibleLayout(page)).rejects.toThrow(
+    /scrollWidth \d+ px er større enn clientWidth \d+ px/,
+  );
+  expect(page.viewportSize()).toEqual({ width: 360, height: 800 });
+});
+
+test("expectAccessibleLayout godtar en smal side og lar bredden stå på 360 px", async ({ page }) => {
+  await page.setViewportSize({ width: 360, height: 800 });
+  await page.setContent(html(`<p>Smal</p>`));
+  await expectAccessibleLayout(page);
+  expect(page.viewportSize()).toEqual({ width: 360, height: 800 });
 });
 
 test("axe-hjelperen venter til en inntoning er ferdig, så halvgjennomsiktig tekst ikke gir falskt kontrastbrudd", async ({

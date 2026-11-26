@@ -19,11 +19,14 @@ import { configDefaults, defineConfig } from "vitest/config";
 //   `--mode`), så en glemt .env.local kan endre leverandøren som måles. Bare
 //   dette prosjektet får AI_*- og NEXT_PUBLIC_*-verdiene, og variabler i
 //   skallet vinner over filene.
-//   Prosjektet er bare med når `sm5` står i kommandoen, så et vanlig `vitest`
-//   aldri sender noe til en leverandør.
+//   Prosjektet er bare med når kommandoen har `--project sm5` eller
+//   `--project=sm5`, så et vanlig `vitest`, også `vitest run sm5` (et filter på
+//   filnavn), aldri sender noe til en leverandør.
 // Playwright-testene ligger i e2e/ og kjøres med `npm run test:e2e`.
 // `@/` løses fra `paths` i tsconfig.json.
-const wantsSm5 = process.argv.includes("sm5");
+const wantsSm5 = process.argv.some(
+  (arg, i) => arg === "--project=sm5" || (arg === "sm5" && process.argv[i - 1] === "--project"),
+);
 
 export default defineConfig(({ mode }) => {
   if (wantsSm5 && mode !== "test" && !existsSync(`.env.${mode}`)) {
