@@ -190,7 +190,7 @@ Nummereringen følger PRD-en, så hver story kan spores tilbake dit.
   - Laster: 4 Skeleton-kort.
   - Tom database: «Ingen rapporter ennå. Har du sett noe som bør fikses?» og knappen «Registrer problem».
   - Ingen treff: «Ingen rapporter matcher filteret.» og «Nullstill filter».
-  - Ingen egne rapporter: «Du har ikke registrert noen rapporter ennå.» og «Registrer problem».
+  - Ingen egne rapporter: «Du har ingen rapporter å vise.» og «Registrer problem».
   - Skjult, for moderator: grå merkelapp og grå bakgrunn.
   - 403: toasten «Du har ikke tilgang til dette.»
 - **UX-DR17 Språk og tone:** Du-form, kort og saklig, uten utropstegn og uten emoji, bortsett fra ✓. Teksten følger tabellen i EXPERIENCE.md under Voice and Tone.
@@ -884,7 +884,7 @@ slik at jeg finner dem igjen og ser om de er fulgt opp.
 
 **Gitt** en bruker uten egne rapporter
 **Når** «Mine rapporter» er eneste aktive filter
-**Så** står «Du har ikke registrert noen rapporter ennå.» og knappen «Registrer problem» (UX-DR16)
+**Så** står «Du har ingen rapporter å vise.» og knappen «Registrer problem» (UX-DR16)
 **Og** er en kategori eller status også aktiv, står «Ingen rapporter matcher filteret.» i stedet
 **Og** «Nullstill filter» fjerner nå også «Mine rapporter» og beholder sorteringen
 

@@ -45,7 +45,7 @@ const CATEGORY_NAMES = ["Søppel", "Belysning", "Vei og fortau", "Skadeverk", "A
 const STATUS_NAMES = ["Ny", "Under behandling", "Løst"];
 const MINE = "Mine rapporter";
 
-const NO_OWN = "Du har ikke registrert noen rapporter ennå.";
+const NO_OWN = "Du har ingen rapporter å vise.";
 const NO_MATCH = "Ingen rapporter matcher filteret.";
 
 /**

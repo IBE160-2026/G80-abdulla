@@ -92,7 +92,7 @@ Her står oppførselen. Utseendet er beskrevet i `DESIGN.md.Components`.
 | Laster | Lista | 4 Skeleton-kort i samme form som rapportkortene |
 | Tom database | Lista | «Ingen rapporter ennå. Har du sett noe som bør fikses?» og en primærknapp «Registrer problem» |
 | Ingen treff | Lista | «Ingen rapporter matcher filteret.» og en lenke «Nullstill filter» |
-| Ingen egne rapporter | Lista med «Mine rapporter» som eneste aktive filter | «Du har ikke registrert noen rapporter ennå.» og en primærknapp «Registrer problem». Er et kategori- eller statusfilter også aktivt, vises «Ingen treff» i stedet |
+| Ingen egne rapporter | Lista med «Mine rapporter» som eneste aktive filter | «Du har ingen rapporter å vise.» og en primærknapp «Registrer problem». Teksten er nøytral fordi den også gjelder når alle brukerens rapporter er skjult (FR-9, ingen melding i v1; ux-beslutningslogg 2026-11-26). Er et kategori- eller statusfilter også aktivt, vises «Ingen treff» i stedet |
 | KI tenker | Ny rapport | En liten spinner og «Finner kategori …» ved kategorivalget. Kategorivalget er fortsatt i bruk. Brukeren kan fortsette å fylle ut skjemaet imens, også velge kategori selv. «Send inn» venter bare hvis det ikke finnes en kategori ennå. |
 | KI svarer ikke etter 5 sekunder, feiler eller er av | Ny rapport | «Vi fikk ikke et forslag. Velg kategori selv.» Kategorivalget står tomt og er obligatorisk. |
 | Mock-modus | Ny rapport | Oppfører seg som et vanlig forslag. Det er ingen synlig forskjell for brukeren. |
@@ -126,7 +126,7 @@ Her står kravene til oppførsel. Kontrast er beskrevet i `DESIGN.md`.
 - Menyknappen har `aria-label="Meny"`. I skjemaene for innlogging og registrering får et felt med feil `aria-invalid`, og en melding over knappen har `role="alert"`. Feilmeldingene har vanlig tekstfarge og et feilikon i `destructive`, fordi `destructive` har for lav kontrast til liten tekst.
 - Når KI-forslaget kommer, leser skjermleseren opp «Kategori foreslått: Belysning» via `aria-live="polite"`.
 - Endringer i telleren på bekreftknappen leses opp via `aria-live`.
-- Filtrene på lista ligger i gruppen «Filtrer rapportene» med to navngitte undergrupper, «Kategori» og «Status» (`role="group"` med `aria-label`). Antallet rapporter leses opp via `aria-live="polite"`. Tomtilstandene («Ingen rapporter matcher filteret.», «Du har ikke registrert noen rapporter ennå.») har `role="status"`.
+- Filtrene på lista ligger i gruppen «Filtrer rapportene» med to navngitte undergrupper, «Kategori» og «Status» (`role="group"` med `aria-label`). Antallet rapporter leses opp via `aria-live="polite"`. Tomtilstandene («Ingen rapporter matcher filteret.», «Du har ingen rapporter å vise.») har `role="status"`.
 - Bekreftknappen bruker `aria-disabled`, ikke `disabled`, så den beholder fokus når den blir «Du har sett dette ✓». Telleren over den står i en `aria-live`-region.
 - Etter en statusendring flyttes fokus til første statusknapp i moderatorpanelet, og statusteksten har `role="status"`. Etter skjuling og visning går fokus til skjul/vis-knappen, og avbryter du dialogen, går fokus tilbake til «Skjul rapport».
 - Tab-rekkefølgen følger lesefølgen. Fokusringen arves fra shadcns `ring`.
