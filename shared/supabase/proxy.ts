@@ -40,7 +40,18 @@ export async function updateSession(request: NextRequest) {
 
   // IMPORTANT: If you remove getClaims() and you use server-side rendering
   // with the Supabase client, your users may be randomly logged out.
-  await supabase.auth.getClaims();
+  //
+  // `getClaims` gir `AuthError` som data, men kaster andre feil videre (for
+  // eksempel en feilet henting av nøklene). Proxyen fornyer bare sesjonen og
+  // avgjør aldri tilgang (AR-2), så en feil her gir ikke 500 på alle sider,
+  // også de offentlige: den logges, og forespørselen går videre uten fornyelse.
+  // Bare feilnavnet logges, aldri meldingen, som kan ha med verdier fra kapselen.
+  try {
+    await supabase.auth.getClaims();
+  } catch (error) {
+    const name = error instanceof Error ? error.name : "ukjent";
+    console.error(`Kunne ikke fornye sesjonen (${name}).`);
+  }
 
   // IMPORTANT: You *must* return the supabaseResponse object as it is.
   // If you're creating a new response object with NextResponse.next() make sure to:
