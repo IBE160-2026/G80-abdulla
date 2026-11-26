@@ -10,23 +10,27 @@ export const menuButton = (page: Page) =>
   page.getByRole("banner").getByRole("button", { name: "Meny", exact: true });
 
 /**
- * Åpner menyen i topplinja med musa og gir den åpne menyen
- * (`data-state="open"`). En meny som nettopp ble lukket, for eksempel med
- * «Logg ut», tones ut i 150 ms og er synlig så lenge, med `data-state="closed"`.
- * Den ventes bort først, ellers ville den bli tatt for den åpne menyen og
- * forsvinne rett etterpå. Det var rotårsaken til at «Logg ut» med tastatur i
- * innlogging.spec.ts var ustabil (epic-2-retro-item-6). Klikket prøves på nytt
- * til menyen er åpen.
+ * Panelet som ☰ åpner: en gruppe med navnet «Konto». Det er ikke i DOM-en
+ * når det er lukket.
+ */
+export const menuPanel = (page: Page) =>
+  page.getByRole("group", { name: "Konto", exact: true });
+
+/**
+ * Åpner menyen i topplinja med musa og gir panelet. Panelet toner ikke inn
+ * eller ut og er borte fra DOM-en med en gang det lukkes, så det finnes ikke
+ * noe «lukkes»-vindu som kan tas for et åpent panel (epic-2-retro-item-6).
+ * Klikket prøves på nytt til panelet er der, for en knapp som klikkes før
+ * siden er hydrert, gjør ingenting.
  */
 export async function openMenu(page: Page) {
-  const closing = page.getByRole("menu").and(page.locator('[data-state="closed"]'));
-  const menu = page.getByRole("menu").and(page.locator('[data-state="open"]'));
+  const panel = menuPanel(page);
   await expect(async () => {
-    await expect(closing).toHaveCount(0, { timeout: 1_000 });
-    if (!(await menu.isVisible())) await menuButton(page).click();
-    await expect(menu).toBeVisible({ timeout: 1_000 });
+    if (!(await panel.isVisible())) await menuButton(page).click();
+    await expect(panel).toBeVisible({ timeout: 1_000 });
   }).toPass();
-  return menu;
+  await expect(menuButton(page)).toHaveAttribute("aria-expanded", "true");
+  return panel;
 }
 
 /**

@@ -6,7 +6,7 @@
 import { randomUUID } from "node:crypto";
 import { expect, test, type Page } from "@playwright/test";
 import { expectNoSeriousA11yViolations } from "../a11y";
-import { PASSWORD } from "../auth";
+import { menuPanel, openMenu, PASSWORD } from "../auth";
 import { tabTo } from "../keyboard";
 import { expectNoHorizontalScroll } from "../layout";
 
@@ -41,9 +41,9 @@ test("en ny konto er innlogget med en gang, uten «Moderator», og er tilbake p�
   // menyknappen.
   await tabTo(page, "button", "Meny", { max: 10, reverse: true });
   await page.keyboard.press("Enter");
-  const menu = page.getByRole("menu");
+  const menu = menuPanel(page);
   await expect(menu.getByText(email, { exact: true })).toBeVisible();
-  await expect(menu.getByRole("menuitem")).toHaveText(["Logg ut"]);
+  await expect(menu.getByRole("button")).toHaveText(["Logg ut"]);
   await expect(menu.getByText("Moderator")).toHaveCount(0);
   await expectNoSeriousA11yViolations(page);
   await expectNoHorizontalScroll(page);
@@ -51,8 +51,7 @@ test("en ny konto er innlogget med en gang, uten «Moderator», og er tilbake p�
 
   // Sesjonen gjelder også på serveren etter en ny innlasting.
   await page.reload();
-  await page.getByRole("banner").getByRole("button", { name: "Meny" }).click();
-  await expect(page.getByRole("menu").getByText(email, { exact: true })).toBeVisible();
+  await (await openMenu(page)).getByText(email, { exact: true }).waitFor();
 });
 
 test("en e-postadresse som er i bruk, gir feil ved e-postfeltet", async ({ page }) => {
