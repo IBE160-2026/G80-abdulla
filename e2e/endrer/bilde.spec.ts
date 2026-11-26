@@ -28,7 +28,6 @@ import { expectAccessibleLayout } from "../a11y";
 import {
   category,
   description,
-  isCreateReport,
   location,
   NEW_REPORT,
   openForm,
@@ -59,11 +58,16 @@ const previewSize = (page: Page) =>
 /**
  * Sender inn skjemaet, venter på detaljsiden og gir antall byte i forespørselen
  * med rapporten, så testen ser om bildet ble sendt uendret eller skalert.
+ * Med en fil i kroppen gir Chromium ingen `postData()`, og `sizes()` oppgir 0
+ * byte. Derfor kjennes forespørselen igjen på `multipart/form-data` (forslagskallet
+ * er ren tekst), og størrelsen leses fra `content-length`.
  */
 async function submitReport(page: Page): Promise<number> {
-  const request = page.waitForRequest((r) => r.method() === "POST" && isCreateReport(r));
+  const request = page.waitForRequest(
+    (r) => r.method() === "POST" && (r.headers()["content-type"] ?? "").startsWith("multipart/form-data"),
+  );
   await submit(page).click();
-  const bytes = (await request).postDataBuffer()?.length ?? 0;
+  const bytes = Number((await (await request).allHeaders())["content-length"] ?? 0);
   await expect(page).toHaveURL(/\/rapporter\/[0-9a-f-]{36}$/, { timeout: 30_000 });
   return bytes;
 }
