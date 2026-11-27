@@ -1,6 +1,6 @@
 # Testdekning
 
-Tabellen viser hvilke tester som dekker hvert krav i [PRD-en](prd.md): FR-1–FR-9 (§4), NFR-1–NFR-8 (§7) og SM-1–SM-7 (§10). Kolonnen «Sjekket for hånd» sier hva som ikke er automatisert. «Hull» betyr at kravet, eller en del av det, ikke har en automatisk test. Er det sjekket for hånd i stedet, står det i samme celle. Alle testene unntatt `npm run eval:sm5` kjøres med `npm test` (se [README](../README.md#kjør-testene)).
+Tabellen viser hvilke tester som dekker hvert krav i [PRD-en](planning-artifacts/prds/prd-LocalFix-2026-09-18/prd.md): FR-1–FR-9 (§4), NFR-1–NFR-8 (§7) og SM-1–SM-7 (§10). Kolonnen «Sjekket for hånd» sier hva som ikke er automatisert. «Hull» betyr at kravet, eller en del av det, ikke har en automatisk test. Er det sjekket for hånd i stedet, står det i samme celle. Alle testene unntatt `npm run eval:sm5` kjøres med `npm test` (se [README](../README.md#kjør-testene)).
 
 Sist oppdatert 2026-11-22, i Story 4.3.
 

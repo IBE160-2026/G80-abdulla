@@ -4,7 +4,7 @@ inputDocuments:
   - docs/planning-artifacts/prds/prd-LocalFix-2026-09-18/prd.md
   - docs/planning-artifacts/prds/prd-LocalFix-2026-09-18/addendum.md
   - docs/planning-artifacts/architecture/architecture-LocalFix-2026-10-28/ARCHITECTURE-SPINE.md
-  - docs/planning-artifacts/ux-designs/ux-LocalFix-2026-10-11/DESIGN.md
+  - DESIGN.md
   - docs/planning-artifacts/ux-designs/ux-LocalFix-2026-10-11/EXPERIENCE.md
   - docs/planning-artifacts/research/domain-personvern-bilder-og-rapporter-2026-11-06/research.md
 ---

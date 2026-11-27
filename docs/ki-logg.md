@@ -376,3 +376,10 @@ Logg over hvordan KI (Claude Code med BMAD-skills) er brukt i prosjektet. Hver �
 **Ba om:** Lage opptaket av kjerneflyten på nytt, siden det viste den gamle menyen, og en chore-PR med loggene.
 
 **KI gjorde:** Kjørte README-oppskriften fra en ren klone av `main` i Temp (`supabase.exe` er blokkert i prosjektmappen): `npm ci`, `db reset`, bygg, `scripts/opptak.mjs` og `db reset` igjen. Nytt `docs/skjermbilder/kjerneflyt.webm` (90 sekunder). Sjekket stillbilder fra videoen i Chromium: det nye menypanelet vises. Detaljer: [opptak-og-flettet-120-121](../.logs/ali-yousef-abdulla/928-2026-11-27-14-38-02-opptak-og-flettet-120-121.md).
+
+### Én kilde for brief, PRD og UX
+**Ba om:** Velge én kilde for brief, PRD og UX, siden de lå både i `docs/planning-artifacts/` og som kopier i `docs/`.
+
+**KI gjorde:** Kartla at alle seks parene var helt like, at arkitektur, research og epics bare fantes i `planning-artifacts/`, og at `DESIGN.md` i roten brukes av koden og Impeccable. Anbefalte `planning-artifacts/` som kilde og `DESIGN.md` bare i roten. Fjernet kopiene og rettet lenkene (0 brutte lenker).
+
+**Jeg bestemte:** `docs/planning-artifacts/` er den ene kilden, og `DESIGN.md` ligger bare i roten. Avvist: `docs/` som kilde, og `DESIGN.md` også i planning-artifacts. Detaljer: [en-kilde-for-brief-prd-ux](../.logs/ali-yousef-abdulla/926-2026-11-27-14-54-56-en-kilde-for-brief-prd-ux.md).

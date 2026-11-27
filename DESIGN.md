@@ -5,8 +5,8 @@ status: final
 created: 2026-10-11
 updated: 2026-11-10
 sources:
-  - docs/product-brief.md
-  - docs/prd.md
+  - docs/planning-artifacts/briefs/brief-LocalFix-2026-09-18/brief.md
+  - docs/planning-artifacts/prds/prd-LocalFix-2026-09-18/prd.md
   - docs/planning-artifacts/architecture/architecture-LocalFix-2026-10-28/ARCHITECTURE-SPINE.md
 colors:
   # Overstyringer av shadcn-standardene. Alle tokens som ikke er nevnt her (card, popover,

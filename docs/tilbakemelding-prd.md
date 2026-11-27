@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | **Gruppe** | G80 – G80-abdulla |
-| **PRD vurdert** | `docs/prd.md` (status: final, sist endret 2026-11-04, commit edbba81) |
+| **PRD vurdert** | `docs/prd.md` (status: final, sist endret 2026-11-04, commit edbba81; flyttet 2026-11-27 til `docs/planning-artifacts/prds/prd-LocalFix-2026-09-18/prd.md`) |
 | **Dato** | 2026-11-12 |
 | **Type** | Formativ tilbakemelding, ikke karakter |
 

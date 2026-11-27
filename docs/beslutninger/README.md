@@ -4,9 +4,9 @@ Hver planleggingsfase i BMAD fører en logg over beslutninger, endringer og anta
 
 | Logg | Dokument | Merk |
 |---|---|---|
-| [brief-beslutningslogg.md](brief-beslutningslogg.md) | [product-brief.md](../product-brief.md) | Første versjon 2026-09-18, oppdatert 2026-10-11 etter faglærers tilbakemelding |
-| [prd-beslutningslogg.md](prd-beslutningslogg.md) | [prd.md](../prd.md) | `override`-linjene viser hvilke tidligere beslutninger som ble endret, og hvorfor |
-| [ux-beslutningslogg.md](ux-beslutningslogg.md) | [ux/](../ux/) | Valgene av stil, farger og oppførsel. Oppdatert 2026-11-06 etter PRD-vurderingen og 2026-11-09 med valgene fra Story 1.5 (detaljsiden) |
+| [brief-beslutningslogg.md](brief-beslutningslogg.md) | [brief.md](../planning-artifacts/briefs/brief-LocalFix-2026-09-18/brief.md) | Første versjon 2026-09-18, oppdatert 2026-10-11 etter faglærers tilbakemelding |
+| [prd-beslutningslogg.md](prd-beslutningslogg.md) | [prd.md](../planning-artifacts/prds/prd-LocalFix-2026-09-18/prd.md) | `override`-linjene viser hvilke tidligere beslutninger som ble endret, og hvorfor |
+| [ux-beslutningslogg.md](ux-beslutningslogg.md) | [ux-designs/](../planning-artifacts/ux-designs/ux-LocalFix-2026-10-11/) | Valgene av stil, farger og oppførsel. Oppdatert 2026-11-06 etter PRD-vurderingen og 2026-11-09 med valgene fra Story 1.5 (detaljsiden) |
 | [arkitektur-beslutningslogg.md](arkitektur-beslutningslogg.md) | [Arkitektur](../planning-artifacts/architecture/architecture-LocalFix-2026-10-28/ARCHITECTURE-SPINE.md) | Valgene bak AD-1 til AD-15, med hva som ble godkjent av meg og hva som ble utledet av KI og rettet etter vurderingene |
 | [epics-beslutningslogg.md](epics-beslutningslogg.md) | [epics.md](../planning-artifacts/epics.md) | Oppdelingen i 4 epics og 18 stories, P-1 og P-2 fra personvernresearchen, og endringene fra Advanced Elicitation. Føres bare her, siden BMAD ikke lager en egen logg for epics |
 
