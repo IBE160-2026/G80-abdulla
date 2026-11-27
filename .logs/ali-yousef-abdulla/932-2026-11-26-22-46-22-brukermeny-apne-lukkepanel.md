@@ -19,6 +19,7 @@ Brukermenyen i topplinja var en ikke-modal Radix-dropdown (`modal={false}`), et 
 - Verifisert lokalt: `tsc` og lint rene, `npm run test:unit` 1141 grønne, `innlogging.spec.ts` 32/32 og `registrering.spec.ts` 8/8 i begge prosjekter, `core-flow.spec.ts` grønn i første kjøring. Etter review-rettingene feilet `core-flow` ved «Jeg har også sett dette» fordi databasen ikke var nullstilt (`db reset` er blokkert i prosjektmappen). Full `npm test` gjenstår i CI.
 - Review: 20 funn vurdert i spec-ens Review Triage Log. Patchet: Escape med fokus på body, panelet åpent etter tilbake/fram, opptaksskriptet, fragilt utenfor-klikk, mellomrom i test. To utsatt, resten avvist eller falske.
 - Lukket det åpne punktet «brukermenyen er ikke modal» i `issues.md`.
+- PR #118 er opprettet og flettet 2026-11-26 kl. 23:06 med flettecommit `9af45aa`, etter at `test` og Vercel var grønne. `core-flow.spec.ts` etter review-rettingene er dermed verifisert i CI. Branchen `feat/brukermeny-apne-lukkepanel` er slettet lokalt og på GitHub.
 
 ### Åpne punkter
 - `core-flow.spec.ts` etter review-rettingene er bare kjørt i CI, ikke lokalt (databasen var ikke nullstilt).
