@@ -17,6 +17,7 @@ Velge én kilde for brief, PRD og UX. Dokumentene lå to steder: `docs/planning-
 - **Rettet lenker og stier i:** `README.md` (tabellen og avsnittet om kilden), `PRODUCT.md`, `DESIGN.md` og `EXPERIENCE.md` (kildelistene i frontmatter), `epics.md` og `ARCHITECTURE-SPINE.md` (peker nå på `DESIGN.md` i roten), `docs/beslutninger/README.md`, `docs/testdekning.md` og `docs/tilbakemelding-prd.md`. En lenkesjekk av README, `PRODUCT.md`, `DESIGN.md`, `docs/*.md` og `docs/beslutninger/*.md` gir 0 brutte relative lenker. Spine-linteren gir 0 funn.
 - **Ikke rettet (historikk):** de gamle spec-filene og retroene i `docs/implementation-artifacts/`, `.memlog.md`-filene og øktloggene i `.logs/` nevner fortsatt `docs/prd.md`, `docs/ux/` og «begge kopier». De er et spor av hva som ble gjort på den tiden.
 - Beslutningen er ført i `ux-beslutningslogg.md`, `prd-beslutningslogg.md` og `brief-beslutningslogg.md`, og punktet i `issues.md` er lukket.
+- PR #124 er opprettet og flettet 2026-11-27 kl. 15:10 med flettecommit `3a8bd46`, etter at `test` (full `npm test`), Vercel og Vercel Preview Comments var grønne. Branchen `chore/en-kilde-for-brief-prd-ux` er slettet lokalt og på GitHub.
 
 ### Åpne punkter
 - Fremtidige endringer i EXPERIENCE.md, PRD og brief gjøres bare i `docs/planning-artifacts/`. Prosessregelen i `coaching-plan.md` (linje i beslutningsloggen ved endring) gjelder uendret.
