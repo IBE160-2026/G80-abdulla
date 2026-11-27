@@ -17,6 +17,7 @@ Ta de to siste kodepunktene fra testhull-runden: `getViewer()` mangler try/catch
 - **Dokumenter:** begge punktene er lukket i `deferred-work.md` og `issues.md` med rettelsen av premisset, og arkitektur- og UX-loggen har en beslutning hver. Spec-en er skrevet om til det som er bestemt (frosset tekst endret etter loopback, ført i Spec Change Log).
 - Verifisert lokalt: `tsc`, lint og `npm run test:unit` (1204 tester) er grønne, og `innlogging.spec.ts` var 34/34 i begge prosjekter med e2e-testen. Full `npm test` gjenstår i CI.
 - Review: 13 funn vurdert i spec-ens Review Triage Log.
+- PR #121 er opprettet og flettet 2026-11-27 kl. 14:29 med flettecommit `ebcd509`, etter at `test` (full `npm test`, den nye e2e-testen inkludert) og Vercel var grønne. Branchen `fix/getviewer-feil-fra-auth` er slettet lokalt og på GitHub.
 
 ### Åpne punkter
 - Restrisiko ved «Logg ut»: når kallet til Auth feiler, blir refresh-tokenet ikke tilbakekalt hos serveren. Avgjør å akseptere det for v1 eller å gjøre noe med det.

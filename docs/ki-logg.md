@@ -371,3 +371,8 @@ Logg over hvordan KI (Claude Code med BMAD-skills) er brukt i prosjektet. Hver �
 - `getViewer`: fjern try/catch (død forsvarskode), og lås oppførselen med tester mot den ekte klienten
 
 **Detaljer:** [getviewer-feil-fra-auth](../.logs/ali-yousef-abdulla/929-2026-11-27-14-14-11-getviewer-feil-fra-auth.md).
+
+### Nytt skjermopptak
+**Ba om:** Lage opptaket av kjerneflyten på nytt, siden det viste den gamle menyen, og en chore-PR med loggene.
+
+**KI gjorde:** Kjørte README-oppskriften fra en ren klone av `main` i Temp (`supabase.exe` er blokkert i prosjektmappen): `npm ci`, `db reset`, bygg, `scripts/opptak.mjs` og `db reset` igjen. Nytt `docs/skjermbilder/kjerneflyt.webm` (90 sekunder). Sjekket stillbilder fra videoen i Chromium: det nye menypanelet vises. Detaljer: [opptak-og-flettet-120-121](../.logs/ali-yousef-abdulla/928-2026-11-27-14-38-02-opptak-og-flettet-120-121.md).
