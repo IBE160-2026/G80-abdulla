@@ -108,7 +108,7 @@ components:
 
 LocalFix skal føles som et pålitelig verktøy, ikke som en sosial app. Uttrykket er rolig og saklig, med mye luft, én merkefarge og nøytrale gråtoner. Fargen Fjordblå knytter appen til Molde uten å bli pyntete.
 
-Grunnlaget er shadcn/ui. Denne filen beskriver bare det som skiller seg fra standardoppsettet: merkefarge, bakgrunn, statusfarger og et lite sett egne komponenter. Komponentene Button, Card, Input, Textarea, Select, Badge, Dialog, Sheet, DropdownMenu, Toast (Sonner) og Skeleton brukes slik shadcn leverer dem.
+Grunnlaget er shadcn/ui. Denne filen beskriver bare det som skiller seg fra standardoppsettet: merkefarge, bakgrunn, statusfarger og et lite sett egne komponenter. Komponentene Button, Card, Input, Textarea, Label, Select, Badge, AlertDialog, Toast (Sonner) og Skeleton brukes slik shadcn leverer dem. Menyen i topplinja er ikke en shadcn-komponent, men et vanlig åpne-/lukkepanel (beslutningen 2026-11-26 i `ux-beslutningslogg.md`).
 
 ## Colors
 
