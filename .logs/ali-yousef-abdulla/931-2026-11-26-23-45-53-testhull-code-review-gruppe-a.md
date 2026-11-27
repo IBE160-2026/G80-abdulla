@@ -18,6 +18,7 @@ Fylle testhullene fra code review av v1 gruppe A (`deferred-work.md`): `updateSe
 - Verifisert lokalt: `tsc`, lint og `npm run test:unit` er grønne (92 filer, 1192 tester). Full `npm test` gjenstår i CI.
 - Review: 18 funn vurdert i spec-ens Review Triage Log. Patchet blant annet at en catch som bygde ny respons ville mistet den fornyede kapselen, matcher-testen mot Next, og PNG-mål i manifesttesten.
 - Lukket i `issues.md`: `getClaims`-punktet og testgap-linja fra reviewen.
+- PR #119 er opprettet og flettet 2026-11-27 kl. 10:47 med flettecommit `9e53c3a`, etter at `test` (full `npm test`) og Vercel var grønne. Branchen `test/testhull-gruppe-a` er slettet lokalt og på GitHub.
 
 ### Åpne punkter
 - Den ekte feilgrensen for `app/error.tsx` i e2e (en feil i lista via en SQL-fixture i reset-prosjektet) er fortsatt utsatt. Kan bare kjøres i CI siden `supabase.exe` er blokkert lokalt.
