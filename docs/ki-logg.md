@@ -345,3 +345,29 @@ Logg over hvordan KI (Claude Code med BMAD-skills) er brukt i prosjektet. Hver �
 **KI gjorde:** Testen for `updateSession` viste at et kast fra `getClaims()` ga 500 på alle sider, og `updateSession` feiler nå åpent (`bd94bec`). Nye tester for matcheren (med Nexts egen `getMiddlewareMatchers`), manifestet og `StatusBadge`, alle mutasjonssjekket (`43935b7`). PR #119 flettet (`9e53c3a`).
 
 **Detaljer:** [apne-punkter-og-beslutninger](../.logs/ali-yousef-abdulla/935-2026-11-26-15-09-13-apne-punkter-og-beslutninger.md), [mine-rapporter-noytral-tekst](../.logs/ali-yousef-abdulla/934-2026-11-26-15-15-23-mine-rapporter-noytral-tekst.md), [bilder-skaleres-ned](../.logs/ali-yousef-abdulla/933-2026-11-26-21-23-10-bilder-skaleres-ned.md), [brukermeny-apne-lukkepanel](../.logs/ali-yousef-abdulla/932-2026-11-26-22-46-22-brukermeny-apne-lukkepanel.md), [testhull-code-review-gruppe-a](../.logs/ali-yousef-abdulla/931-2026-11-26-23-45-53-testhull-code-review-gruppe-a.md).
+
+---
+
+## 2026-11-27: Opprydding og et feil premiss
+
+### Opprydding i arbeidsfiler, komponentlista og KI-loggen
+**Ba om:** Starte en opprydding-PR etter PR #118 og #119.
+
+**Jeg bestemte:**
+- `.working/` fjernes, men `.memlog.md` beholdes
+- KI-loggen skal fylles ut i samme format som før, for alle øktene fra 2026-10-28
+
+**KI gjorde:** Fjernet `.working/`, rettet komponentlista i `DESIGN.md`, skrevet inn øktene i denne loggen fra øktloggene i `.logs/`, og lagt inn loggene for PR #118 og #119. PR #120 (`742752f`). Detaljer: [opprydding-logger-og-arbeidsfiler](../.logs/ali-yousef-abdulla/930-2026-11-27-10-55-45-opprydding-logger-og-arbeidsfiler.md).
+
+### getViewer og «Logg ut»
+**Ba om:** `bmad-build` for to utsatte punkter: manglende try/catch i `getViewer()` og manglende feilhåndtering i «Logg ut».
+
+**KI foreslo og bygget:** try/catch i `getViewer` og en toast ved feil i «Logg ut», på antakelsen at et Auth-utfall gir feilsiden og at en mislykket utlogging lar sesjonen stå.
+
+**Rettet underveis:** KI prøvde antakelsene mot den ekte `auth-js`-klienten. Begge var feil: `signOut({ scope: "local" })` fjerner sesjonen før nettverkskallet, og `getUser()` gir nettverksfeil og 5xx som data, så en bruker får allerede en besøkende, ikke feilsiden. Tre reviewere pekte uavhengig på det samme for `getViewer`.
+
+**Jeg bestemte:**
+- «Logg ut»: behold koden, lås oppførselen med en e2e-test, ingen toast
+- `getViewer`: fjern try/catch (død forsvarskode), og lås oppførselen med tester mot den ekte klienten
+
+**Detaljer:** [getviewer-feil-fra-auth](../.logs/ali-yousef-abdulla/929-2026-11-27-14-14-11-getviewer-feil-fra-auth.md).
