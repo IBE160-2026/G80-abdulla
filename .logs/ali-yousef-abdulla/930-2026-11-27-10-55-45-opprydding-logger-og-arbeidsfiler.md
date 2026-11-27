@@ -16,6 +16,7 @@ Starte en opprydding-PR etter at brukermenyen (PR #118) og testhullene (PR #119)
 - `docs/ki-logg.md`: 2026-10-28 til 2026-11-26 er lagt til i samme format (Ba om / KI gjorde / Jeg bestemte / commits og PR-er), med lenker til hver øktlogg i `.logs/`. Verktøylinja er utvidet. Innholdet er hentet fra øktloggene, og alle lenker er sjekket.
 - Loggene «PR #118 flettet» og «PR #119 flettet» er lagt inn i øktloggene for brukermeny og testhull. De tre ventende loggbranchene `chore/logg-flettet-102`, `-103` og `-104` var overflødige: flettelinjene fantes allerede i `main` (cherry-pick ble tom).
 - `issues.md`: DESIGN.md-punktet er lukket, ki-logg-delen av sensorsjekkpunktet er løst, og `.working/`-delen av kriterium 7-punktet er notert.
+- PR #120 er opprettet og flettet 2026-11-27 kl. 13:52 med flettecommit `742752f`, etter at `test` og Vercel var grønne. Branchen `chore/opprydding-logger-og-arbeidsfiler` og de tre overflødige `chore/logg-flettet-102`, `-103` og `-104` er slettet lokalt og på GitHub.
 
 ### Åpne punkter
 - Opptaket `docs/skjermbilder/kjerneflyt.webm` viser trolig fortsatt den gamle menyen og må lages på nytt. Krever `supabase db reset`, som er blokkert i prosjektmappen.
