@@ -277,6 +277,33 @@ test("«Logg ut» logger bare ut denne nettleseren", async ({ page, browser, bas
   }
 });
 
+// `signOut({ scope: "local" })` fjerner sesjonen i nettleseren før kallet til
+// Auth, så en Auth som ikke svarer, gir ikke en innlogget bruker som står fast
+// (deferred-work.md, testhull-code-review-gruppe-a). Kallet gir bare `{ error }`,
+// og brukeren er likevel logget ut her. Bytter vi til scope «global», beholdes
+// sesjonen ved feil, og testen feiler.
+test("«Logg ut» når Auth ikke svarer, logger likevel ut denne nettleseren", async ({ page }) => {
+  let logoutRequests = 0;
+  await page.route("**/auth/v1/logout**", async (route) => {
+    logoutRequests += 1;
+    await route.abort("connectionrefused");
+  });
+  await logIn(page, BRUKER1);
+  const sessionCookies = async () =>
+    (await page.context().cookies()).filter((cookie) => cookie.name.startsWith("sb-"));
+  expect(await sessionCookies()).not.toHaveLength(0);
+
+  await (await openMenu(page)).getByRole("button", { name: "Logg ut" }).click();
+  await expect(page).toHaveURL("/");
+  await expect(page.getByRole("heading", { level: 1, name: "Rapporter" })).toBeVisible();
+  await expect.poll(sessionCookies).toHaveLength(0);
+  expect(logoutRequests).toBeGreaterThan(0);
+
+  // Også etter en ny innlasting er brukeren en besøkende.
+  await page.reload();
+  await expect((await openMenu(page)).getByRole("link")).toHaveText(["Logg inn"]);
+});
+
 test("en fremmed next sender brukeren til lista", async ({ page }) => {
   for (const next of [
     "//evil.example",
