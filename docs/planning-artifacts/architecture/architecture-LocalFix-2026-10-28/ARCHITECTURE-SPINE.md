@@ -13,7 +13,7 @@ sources:
   - docs/planning-artifacts/prds/prd-LocalFix-2026-09-18/prd.md
   - docs/planning-artifacts/prds/prd-LocalFix-2026-09-18/addendum.md
   - docs/planning-artifacts/ux-designs/ux-LocalFix-2026-10-11/EXPERIENCE.md
-  - docs/planning-artifacts/ux-designs/ux-LocalFix-2026-10-11/DESIGN.md
+  - DESIGN.md
   - docs/planning-artifacts/research/technical-ki-leverandor-gratisniva-norsk-klassifis-2026-10-28/research.md
 companions: []
 ---

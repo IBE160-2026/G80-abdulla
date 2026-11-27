@@ -2,7 +2,7 @@
 
 <!-- impeccable:product-schema 1 -->
 
-Kort produktsammendrag for designarbeid med Impeccable. Kildene er `docs/prd.md` (final), `docs/product-brief.md` og `docs/ux/EXPERIENCE.md`. Ved uenighet gjelder PRD-en.
+Kort produktsammendrag for designarbeid med Impeccable. Kildene er `docs/planning-artifacts/prds/prd-LocalFix-2026-09-18/prd.md` (final), `docs/planning-artifacts/briefs/brief-LocalFix-2026-09-18/brief.md` og `docs/planning-artifacts/ux-designs/ux-LocalFix-2026-10-11/EXPERIENCE.md`. Ved uenighet gjelder PRD-en.
 
 ## Platform
 
@@ -54,7 +54,7 @@ FixMyStreet, SeeClickFix, FiksGataMi og kommunale «Meld feil»-portaler går fr
 ## Evidence on Hand
 
 - Testdata i `supabase/seed.sql`: fem testkontoer (én moderator) og ni rapporter i alle kategorier og statuser, der én er skjult. Tre testbilder i `supabase/seed-images/`.
-- Skisser i `docs/ux/mockups/`.
+- Skisser i `docs/planning-artifacts/ux-designs/ux-LocalFix-2026-10-11/mockups/`.
 - Det finnes ingen ekte brukere, sitater, tall eller bilder fra drift. Brukerresearchen bygger nesten bare på utenlandske kilder. Ingenting av dette skal diktes opp.
 
 ## Product Principles
